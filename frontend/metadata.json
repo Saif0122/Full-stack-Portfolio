@@ -1,0 +1,8 @@
+{
+  "name": "Saiful Islam Ai-porfolio",
+  "description": "High-performance portfolio of Saiful Islam, a senior Full Stack Developer specializing in React, Node.js, and scalable SaaS application development.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

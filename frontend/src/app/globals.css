@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0A0F1C;
+    --foreground: #E2E8F0;
+    --primary: #00F5FF;
+    --primary-hover: rgba(0, 245, 255, 0.8);
+    --card: #111827; /* Fallback generic dark card */
+    --border: #1F2937;
+  }
+  
+  /* Theming support for future 'light' and 'cyber' themes can be added here */
+  .theme-light {
+    --background: #F8FAFC;
+    --foreground: #0F172A;
+    --primary: #0284C7;
+    --primary-hover: rgba(2, 132, 199, 0.8);
+    --card: #FFFFFF;
+    --border: #E2E8F0;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans m-0 overflow-x-hidden;
+  }
+}
+
+@layer utilities {
+  /* Scrollbar customization */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1E293B;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+  
+  canvas {
+    touch-action: none;
+  }
+}

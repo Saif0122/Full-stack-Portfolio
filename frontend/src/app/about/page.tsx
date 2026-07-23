@@ -6,10 +6,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 // Extracted Components
-import ImpactCard from '@/components/about/ImpactCard';
-import TimelineItem from '@/components/about/TimelineItem';
+import ImpactCard from '@/components/About/ImpactCard';
+import TimelineItem from '@/components/About/TimelineItem';
 import SkillEcosystem from '@/components/About/SkillEcosystem';
-import AmbientBackground from '@/components/about/AmbientBackground';
+import AmbientBackground from '@/components/About/AmbientBackground';
 
 const About: React.FC = () => {
   const impactMetrics = [

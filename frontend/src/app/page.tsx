@@ -114,6 +114,18 @@ const Home: React.FC = () => {
                 </MagneticButtonWrapper>
 
                 <MagneticButtonWrapper strength={0.2}>
+                  <Link href="/store" className="group relative inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-[#1E1B4B] to-[#312E81] text-white font-black uppercase tracking-widest rounded-xl overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(79,70,229,0.3)] border border-indigo-500/30">
+                    <span className="relative z-10 flex items-center gap-2">
+                      <svg className="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      Developer Store
+                    </span>
+                    <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors"></div>
+                  </Link>
+                </MagneticButtonWrapper>
+
+                <MagneticButtonWrapper strength={0.2}>
                   <Link href="/contact" className="group inline-flex items-center gap-3 px-10 py-5 bg-white/5 backdrop-blur-md border border-white/10 text-white font-black uppercase tracking-widest rounded-xl transition-all hover:bg-white/10 hover:border-white/20 active:scale-95">
                     <span>Custom Development</span>
                   </Link>

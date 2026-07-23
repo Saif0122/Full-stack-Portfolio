@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BLOG_POSTS } from '@/constants/content';
-import Link from 'next/link';
+import { BlogFilterSidebar } from '@/components/Blog/BlogFilterSidebar';
 
 const Blog: React.FC = () => {
   return (
@@ -25,59 +24,7 @@ const Blog: React.FC = () => {
           </motion.div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {BLOG_POSTS.map((post, i) => (
-            <motion.article
-              key={post.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="group relative bg-card/50 backdrop-blur-sm border border-white/5 rounded-[2.5rem] p-10 hover:border-primary/30 transition-all overflow-hidden flex flex-col"
-            >
-              {/* Subtle visual anchor */}
-              <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-                <svg className="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-              </div>
-
-              <div className="relative z-10 flex-1">
-                <div className="flex flex-wrap gap-4 items-center mb-8">
-                  <span className="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/20">
-                    {post.category}
-                  </span>
-                  <div className="flex gap-4 text-gray-500 text-[10px] font-mono uppercase tracking-widest">
-                    <span>{post.date}</span>
-                    <span className="text-white/10">•</span>
-                    <span>{post.readTime}</span>
-                  </div>
-                </div>
-
-                <h2 className="text-3xl font-bold text-white mb-6 group-hover:text-primary transition-colors leading-tight">
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                </h2>
-                
-                <p className="text-gray-400 font-light leading-relaxed mb-10 text-lg">
-                  {post.excerpt}
-                </p>
-
-                <div className="flex items-center justify-between pt-8 border-t border-white/5 mt-auto">
-                   <div className="flex flex-col">
-                      <span className="text-[10px] text-gray-600 uppercase font-black tracking-widest mb-1">Target Keyword</span>
-                      <span className="text-xs text-gray-400 font-mono">#{post.seo.focusKeyword.toLowerCase().replace(/\s+/g, '-')}</span>
-                   </div>
-                  <Link 
-                    href={`/blog/${post.slug}`}
-                    className="flex items-center gap-3 text-white text-xs font-black uppercase tracking-widest group/link py-3 px-6 bg-white/5 rounded-xl hover:bg-primary hover:text-black transition-all"
-                  >
-                    Read Full Logic 
-                    <svg className="w-4 h-4 transform group-hover/link:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            </motion.article>
-          ))}
-        </div>
+        <BlogFilterSidebar />
 
         {/* Knowledge Base CTA */}
         <motion.section 

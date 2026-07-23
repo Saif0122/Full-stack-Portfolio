@@ -56,55 +56,7 @@ export interface Skill {
   level: number;
 }
 
-export interface AuthorityCluster {
-  id: string;
-  name: string;
-  pillarSlug: string;
-  description: string;
-}
-
-export interface TechnicalSegments {
-  architecturalDecisions: string;
-  tradeOffs: string;
-  bottlenecks: string;
-  scalingStrategy: string;
-  securityConsiderations: string;
-  performanceOptimization: string;
-  monitoring: string;
-}
-
-export interface BlogSEO {
-  metaTitle: string;
-  metaDescription: string;
-  focusKeyword: string;
-  schemaMarkup: string; // Stringified JSON-LD
-  keywordDifficulty: string;
-  internalLinks: string[];
-  externalLinks: string[];
-}
-
-export interface BlogPost {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  clusterId?: string;
-  isPillar?: boolean;
-  date: string;
-  readTime: string;
-  content: string; // Markdown or complex HTML
-  mermaidDiagram?: string;
-  githubRepo?: {
-    owner: string;
-    repo: string;
-    stars?: number;
-    cta?: string;
-  };
-  technicalSegments: TechnicalSegments;
-  seo: BlogSEO;
-}
-
+export * from './blog';
 export interface Service {
   title: string;
   description: string;

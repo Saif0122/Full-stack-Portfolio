@@ -3,14 +3,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { PROJECTS } from '@/constants/content';
+import { PROJECTS } from '@/constants/projects';
+import { ProjectFilterBar } from '@/components/Projects/ProjectFilterBar';
+import Link from 'next/link';
 import { FloatingCode } from '@/components/Hero/FloatingCode';
 import { ArchitectureVisualizer } from '@/components/Projects/ArchitectureVisualizer';
 import { ProjectAssistant } from '@/components/Projects/ProjectAssistant';
 import { PerformanceMetrics } from '@/components/Projects/PerformanceMetrics';
 
 const Projects: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState(PROJECTS[0]);
+  const selectedProject = PROJECTS[0];
   const [activeTab, setActiveTab] = useState<'overview' | 'blueprint'>('overview');
 
   return (
@@ -172,38 +174,20 @@ const Projects: React.FC = () => {
       {/* 5. Project Archive Grid */}
       <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-16">
-            <h2 className="text-3xl font-black text-white uppercase tracking-tight">ENGINEERING LOG</h2>
-            <p className="text-gray-500 font-light mt-2">Industrial software products built for performance.</p>
+          <div className="mb-16 flex flex-col md:flex-row justify-between md:items-end gap-6">
+            <div>
+              <h2 className="text-3xl font-black text-white uppercase tracking-tight">ENGINEERING LOG</h2>
+              <p className="text-gray-500 font-light mt-2">Industrial software products built for performance.</p>
+            </div>
+            <Link href={`/projects/${selectedProject.slug}`} className="group relative px-6 py-3 border border-primary/30 rounded-xl overflow-hidden hover:border-primary/60 transition-colors w-fit">
+               <div className="absolute inset-0 bg-primary/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+               <span className="relative z-10 text-primary font-black uppercase text-xs tracking-widest flex items-center gap-2">
+                 View Featured Case Study
+                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+               </span>
+            </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {PROJECTS.map((project) => (
-              <motion.div
-                key={project.id}
-                whileHover={{ y: -5 }}
-                onClick={() => {
-                  setSelectedProject(project);
-                  window.scrollTo({ top: 400, behavior: 'smooth' });
-                }}
-                className={`p-6 rounded-3xl border transition-all cursor-pointer ${
-                  selectedProject.id === project.id 
-                    ? 'bg-primary/10 border-primary/50 shadow-[0_0_20px_rgba(0,245,255,0.1)]' 
-                    : 'bg-white/5 border-white/10 hover:border-white/20'
-                }`}
-              >
-                <div className="aspect-video rounded-2xl overflow-hidden mb-6 grayscale hover:grayscale-0 transition-all">
-                  <Image src={project.image} width={600} height={400} alt={project.title} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="text-lg font-bold text-white">{project.title}</h4>
-                  <span className="text-[9px] font-mono text-primary border border-primary/30 px-2 py-0.5 rounded-full uppercase tracking-widest">
-                    {project.category.split(' ')[0]}
-                  </span>
-                </div>
-                <p className="text-gray-500 text-xs line-clamp-2 font-light">{project.summary}</p>
-              </motion.div>
-            ))}
-          </div>
+          <ProjectFilterBar />
         </div>
       </section>
 

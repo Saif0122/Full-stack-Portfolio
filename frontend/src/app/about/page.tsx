@@ -5,6 +5,12 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// Extracted Components
+import ImpactCard from '@/components/about/ImpactCard';
+import TimelineItem from '@/components/about/TimelineItem';
+import SkillEcosystem from '@/components/About/SkillEcosystem';
+import AmbientBackground from '@/components/about/AmbientBackground';
+
 const About: React.FC = () => {
   const impactMetrics = [
     { value: '40%', label: 'API Latency Reduction', desc: 'Optimized through multi-layer Redis caching and query tuning.' },
@@ -61,6 +67,7 @@ const About: React.FC = () => {
       ]
     }
   ];
+  
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     whileInView: { opacity: 1, y: 0 },
@@ -69,10 +76,11 @@ const About: React.FC = () => {
   };
 
   return (
-    <div className="pt-32 pb-24 min-h-screen bg-background text-white overflow-x-hidden">
+    <div className="pt-32 pb-24 min-h-screen bg-transparent text-white overflow-x-hidden relative">
+      <AmbientBackground />
       
       {/* 1. HERO POSITIONING SECTION */}
-      <section className="max-w-7xl mx-auto px-6 mb-32">
+      <section className="max-w-7xl mx-auto px-6 mb-32 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
@@ -80,8 +88,12 @@ const About: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="lg:col-span-7"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 mb-8 hover:bg-primary/20 transition-colors cursor-default">
+              <motion.span 
+                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#00F5FF]"
+              ></motion.span>
               <span className="text-primary font-mono text-[10px] uppercase tracking-widest font-bold">
                 Senior System Architect
               </span>
@@ -89,7 +101,15 @@ const About: React.FC = () => {
             
             <h1 className="text-5xl md:text-7xl font-black mb-8 leading-[0.9] tracking-tighter uppercase">
               Engineering With <br />
-              <span className="text-primary">Purpose</span>
+              <span className="text-primary relative inline-block">
+                Purpose
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                  className="absolute -bottom-2 left-0 h-[4px] bg-primary rounded-full shadow-[0_0_15px_#00F5FF]"
+                />
+              </span>
             </h1>
             
             <p className="text-primary text-xl font-bold mb-6 tracking-tight">
@@ -99,15 +119,12 @@ const About: React.FC = () => {
             <div className="text-gray-400 text-lg font-light leading-relaxed max-w-xl space-y-6">
               <p>
                 I’m Saiful Islam, a frontend-focused MERN stack developer passionate about building modern, high-performance web experiences.
-
                 I specialize in crafting scalable React and Next.js applications with clean architecture, smooth interactions, and performance-first thinking.
               </p>
-              <p>**My goal isn’t just to build websites — it’s to create digital products that feel fast, intuitive, and built for growth.**
-              </p>
-              <p>**I enjoy solving complex UI challenges and transforming designs into seamless digital experiences.**</p>
+              <p className="text-white font-medium">My goal isn’t just to build websites — it’s to create digital products that feel fast, intuitive, and built for growth.</p>
+              <p>I enjoy solving complex UI challenges and transforming designs into seamless digital experiences.</p>
               <p>
                 With a strong foundation in frontend engineering and full-stack capability using the MERN stack, I help startups and businesses turn ideas into reliable, scalable web applications.
-
                 I believe great products are built with attention to detail, performance optimization, and long-term maintainability from the very first line of code.
               </p>
             </div>
@@ -130,17 +147,17 @@ const About: React.FC = () => {
                 width={800}
                 height={800}
                 priority={true}
-                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0F1C]/40 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0F1C]/60 via-transparent to-transparent"></div>
             </motion.div>
-            <div className="absolute -inset-10 bg-primary/5 blur-[100px] rounded-full pointer-events-none -z-10"></div>
+            <div className="absolute -inset-10 bg-primary/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
           </motion.div>
         </div>
       </section>
 
       {/* 2. IMPACT METRICS SECTION */}
-      <section className="py-24 bg-[#070B14] border-y border-white/5 mb-32">
+      <section className="py-24 bg-white/[0.02] backdrop-blur-sm border-y border-white/5 mb-32 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-16">
             <span className="text-primary font-mono text-xs uppercase tracking-[0.4em] block mb-4">Benchmarks</span>
@@ -148,49 +165,19 @@ const About: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {impactMetrics.map((m, i) => (
-              <motion.div
-                key={i}
-                {...fadeInUp}
-                transition={{ delay: i * 0.1 }}
-                className="p-8 bg-white/5 border border-white/10 rounded-3xl group hover:border-primary/30 transition-all"
-              >
-                <div className="text-4xl font-black text-primary mb-2">{m.value}</div>
-                <div className="text-white font-bold text-sm uppercase tracking-widest mb-3">{m.label}</div>
-                <p className="text-gray-500 text-xs font-light leading-relaxed">{m.desc}</p>
-              </motion.div>
+              <ImpactCard key={i} value={m.value} label={m.label} desc={m.desc} index={i} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3. SKILLS & MASTERY SECTION */}
-      <section className="max-w-7xl mx-auto px-6 mb-32">
-        <div className="mb-16">
-          <span className="text-primary font-mono text-xs uppercase tracking-[0.4em] block mb-4">Competency</span>
-          <h2 className="text-3xl font-black uppercase tracking-tight text-white">Skills & Mastery</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <SkillCategory 
-            title="Frontend" 
-            skills={['Next.js (App Router)', 'React Architecture', 'Performance Optimization', 'SSR / ISR', 'State Management']} 
-          />
-          <SkillCategory 
-            title="Backend" 
-            skills={['Node.js & Express', 'REST & GraphQL Design', 'WebSocket Systems', 'JWT & OIDC Auth', 'Middleware Architecture']} 
-          />
-          <SkillCategory 
-            title="Database" 
-            skills={['MongoDB Indexing', 'Aggregation Pipelines', 'NoSQL Schema Design', 'Query Performance Tuning']} 
-          />
-          <SkillCategory 
-            title="DevOps" 
-            skills={['Vercel / AWS Deployment', 'CI/CD Pipelines', 'System Monitoring', 'Log Aggregation']} 
-          />
-        </div>
+      {/* 3. SKILLS & TECHNOLOGY ECOSYSTEM */}
+      <section className="max-w-7xl mx-auto px-6 mb-32 relative z-10">
+        <SkillEcosystem />
       </section>
 
       {/* 4. HOW I APPROACH ARCHITECTURE */}
-      <section className="py-32 bg-[#070B14] border-y border-white/5 mb-32">
+      <section className="py-32 bg-white/[0.02] backdrop-blur-sm border-y border-white/5 mb-32 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-4">
@@ -205,9 +192,10 @@ const About: React.FC = () => {
                 <motion.div
                   key={i}
                   {...fadeInUp}
-                  className="p-8 bg-white/5 border border-white/10 rounded-2xl"
+                  transition={{ delay: i * 0.1 }}
+                  className="p-8 bg-white/5 border border-white/10 rounded-2xl group hover:bg-white/10 transition-colors"
                 >
-                  <h3 className="text-primary text-sm font-black uppercase tracking-widest mb-3">{approach.title}</h3>
+                  <h3 className="text-primary text-sm font-black uppercase tracking-widest mb-3 group-hover:text-white transition-colors">{approach.title}</h3>
                   <p className="text-gray-400 text-xs font-light leading-relaxed">{approach.desc}</p>
                 </motion.div>
               ))}
@@ -217,7 +205,7 @@ const About: React.FC = () => {
       </section>
 
       {/* 5. ENGINEERING PRINCIPLES */}
-      <section className="max-w-7xl mx-auto px-6 mb-32">
+      <section className="max-w-7xl mx-auto px-6 mb-32 relative z-10">
         <div className="text-center mb-20">
           <span className="text-primary font-mono text-xs uppercase tracking-[0.4em] block mb-4">Mindset</span>
           <h2 className="text-4xl font-black tracking-tighter uppercase text-white">Engineering Principles</h2>
@@ -228,17 +216,20 @@ const About: React.FC = () => {
               key={i}
               {...fadeInUp}
               transition={{ delay: i * 0.1 }}
-              className="p-8 bg-white/5 border border-white/10 rounded-3xl text-center group hover:border-primary/50 transition-all"
+              className="p-8 bg-white/5 border border-white/10 rounded-3xl text-center group hover:border-primary/50 transition-all hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(0,245,255,0.1)] relative overflow-hidden"
             >
-              <h3 className="text-white font-bold text-sm mb-4 group-hover:text-primary transition-colors">{p.title}</h3>
-              <p className="text-gray-500 text-[10px] leading-relaxed uppercase tracking-widest font-mono">{p.desc}</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10">
+                <h3 className="text-white font-bold text-sm mb-4 group-hover:text-primary transition-colors">{p.title}</h3>
+                <p className="text-gray-500 text-[10px] leading-relaxed uppercase tracking-widest font-mono">{p.desc}</p>
+              </div>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* 6. EXPERIENCE SECTION */}
-      <section className="max-w-7xl mx-auto px-6 mb-32">
+      <section className="max-w-7xl mx-auto px-6 mb-32 relative z-10">
         <div className="flex flex-col lg:flex-row gap-20">
           <div className="lg:w-1/3">
             <h2 className="text-4xl font-black tracking-tighter uppercase text-white sticky top-32">
@@ -247,40 +238,34 @@ const About: React.FC = () => {
             </h2>
           </div>
           <div className="lg:w-2/3 space-y-20 relative">
-            <div className="absolute left-0 top-2 bottom-2 w-[1px] bg-gradient-to-b from-primary via-white/10 to-transparent"></div>
+            {/* Animated Progress Line */}
+            <motion.div 
+              initial={{ height: 0 }}
+              whileInView={{ height: '100%' }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="absolute left-0 top-2 w-[2px] bg-gradient-to-b from-primary via-primary/20 to-transparent"
+            />
             {experience.map((exp, i) => (
-              <motion.div
+              <TimelineItem 
                 key={i}
-                {...fadeInUp}
-                className="pl-12 relative"
-              >
-                <div className="absolute left-[-5px] top-2 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_15px_#00F5FF]"></div>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
-                  <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">{exp.year}</span>
-                  <span className="text-primary font-black uppercase text-[10px] tracking-widest px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-                    {exp.company}
-                  </span>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-6 tracking-tight">{exp.role}</h3>
-                <ul className="space-y-4">
-                  {exp.points.map((p, j) => (
-                    <li key={j} className="text-gray-400 font-light text-sm flex gap-4">
-                      <span className="text-primary/50 mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full bg-primary"></span>
-                      {p}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
+                year={exp.year}
+                role={exp.role}
+                company={exp.company}
+                points={exp.points}
+                index={i}
+              />
             ))}
             
-            <motion.div {...fadeInUp} className="pl-12 pt-8">
+            <motion.div {...fadeInUp} className="pl-12 pt-8 relative">
+              <div className="absolute left-[-5px] top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white/20"></div>
               <a 
                 href="https://github.com/saifulislam" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-4 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all group"
+                className="inline-flex items-center gap-4 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase tracking-widest text-xs hover:bg-primary/10 hover:border-primary/50 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,245,255,0.15)]"
               >
-                <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <svg className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                 Active Github Repository
               </a>
             </motion.div>
@@ -289,63 +274,103 @@ const About: React.FC = () => {
       </section>
 
       {/* 7. EDUCATION SECTION */}
-      <section className="max-w-7xl mx-auto px-6 mb-40">
+      <section className="max-w-7xl mx-auto px-6 mb-40 relative z-10">
         <h2 className="text-3xl font-black uppercase tracking-tight mb-12 flex items-center gap-4">
-          <span className="w-8 h-1 bg-primary"></span> Academic Foundation
+          <span className="w-8 h-1 bg-primary rounded-full"></span> Academic Foundation
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <motion.div {...fadeInUp} className="p-10 bg-white/5 border border-white/10 rounded-[2rem]">
-            <span className="text-xs font-mono text-gray-500 uppercase tracking-widest block mb-2">2021</span>
-            <h3 className="text-xl font-bold text-white mb-2 uppercase">Metriculation (Computer Science)</h3>
-            <p className="text-primary font-black uppercase text-[10px] tracking-widest mb-6">Al-khair Public High School</p>
-            <p className="text-gray-500 text-sm font-light">
-              Studied core computer science fundamentals,
-              Built foundation in programming and IT concepts,
-              Developed strong analytical and problem-solving skills</p>
+          <motion.div 
+            {...fadeInUp} 
+            transition={{ delay: 0.1 }}
+            className="p-10 bg-white/5 border border-white/10 rounded-[2rem] group hover:border-primary/40 transition-all duration-500 relative overflow-hidden hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(0,245,255,0.1)]"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            <div className="relative z-10">
+              <span className="text-xs font-mono text-gray-500 uppercase tracking-widest block mb-2">2021</span>
+              <h3 className="text-xl font-bold text-white mb-2 uppercase group-hover:text-primary transition-colors">Metriculation (Computer Science)</h3>
+              <p className="inline-block px-3 py-1 bg-primary/10 rounded-full border border-primary/20 text-primary font-black uppercase text-[10px] tracking-widest mb-6 group-hover:bg-primary/20 transition-colors">Al-khair Public High School</p>
+              <p className="text-gray-400 text-sm font-light leading-relaxed">
+                Studied core computer science fundamentals.
+                Built foundation in programming and IT concepts.
+                Developed strong analytical and problem-solving skills.
+              </p>
+            </div>
           </motion.div>
-          <motion.div {...fadeInUp} className="p-10 bg-white/5 border border-white/10 rounded-[2rem]">
-            <span className="text-xs font-mono text-gray-500 uppercase tracking-widest block mb-2">2022 – 2024</span>
-            <h3 className="text-xl font-bold text-white mb-2 uppercase">Intermedite Computer Science</h3>
-            <p className="text-primary font-black uppercase text-[10px] tracking-widest mb-6">Global Degree Collage</p>
-            <p className="text-gray-500 text-sm font-light">
-              Advanced studies in programming and database concepts,
-              Worked on academic software development projects,
-              Strengthened understanding of web technologies</p>
+          
+          <motion.div 
+            {...fadeInUp} 
+            transition={{ delay: 0.2 }}
+            className="p-10 bg-white/5 border border-white/10 rounded-[2rem] group hover:border-primary/40 transition-all duration-500 relative overflow-hidden hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(0,245,255,0.1)]"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            <div className="relative z-10">
+              <span className="text-xs font-mono text-gray-500 uppercase tracking-widest block mb-2">2022 – 2024</span>
+              <h3 className="text-xl font-bold text-white mb-2 uppercase group-hover:text-primary transition-colors">Intermediate Computer Science</h3>
+              <p className="inline-block px-3 py-1 bg-primary/10 rounded-full border border-primary/20 text-primary font-black uppercase text-[10px] tracking-widest mb-6 group-hover:bg-primary/20 transition-colors">Global Degree College</p>
+              <p className="text-gray-400 text-sm font-light leading-relaxed">
+                Advanced studies in programming and database concepts.
+                Worked on academic software development projects.
+                Strengthened understanding of web technologies.
+              </p>
+            </div>
           </motion.div>
-          <motion.div {...fadeInUp} className="p-10 bg-white/5 border border-white/10 rounded-[2rem]">
-            <span className="text-xs font-mono text-gray-500 uppercase tracking-widest block mb-2">2024 – 2025</span>
-            <h3 className="text-xl font-bold text-white mb-2 uppercase">DIT (Diploma in Information technology)</h3>
-            <p className="text-primary font-black uppercase text-[10px] tracking-widest mb-6">Bitel Technical University</p>
-            <p className="text-gray-500 text-sm font-light">Hands-on training in web development and office automation,
-              Learned practical software and technical skills,
-              Focused on real-world application development.</p>
+          
+          <motion.div 
+            {...fadeInUp} 
+            transition={{ delay: 0.3 }}
+            className="p-10 bg-white/5 border border-white/10 rounded-[2rem] group hover:border-primary/40 transition-all duration-500 relative overflow-hidden hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(0,245,255,0.1)]"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            <div className="relative z-10">
+              <span className="text-xs font-mono text-gray-500 uppercase tracking-widest block mb-2">2024 – 2025</span>
+              <h3 className="text-xl font-bold text-white mb-2 uppercase group-hover:text-primary transition-colors">DIT (Diploma in Information Technology)</h3>
+              <p className="inline-block px-3 py-1 bg-primary/10 rounded-full border border-primary/20 text-primary font-black uppercase text-[10px] tracking-widest mb-6 group-hover:bg-primary/20 transition-colors">Bitel Technical University</p>
+              <p className="text-gray-400 text-sm font-light leading-relaxed">
+                Hands-on training in web development and office automation.
+                Learned practical software and technical skills.
+                Focused on real-world application development.
+              </p>
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* 8. STRONG CTA SECTION */}
-      <section className="max-w-7xl mx-auto px-6 relative overflow-hidden">
+      <section className="max-w-7xl mx-auto px-6 relative overflow-hidden z-10">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/10 blur-[150px] rounded-full pointer-events-none -z-10"></div>
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="text-center bg-card border border-white/10 p-20 rounded-[4rem] shadow-2xl relative z-10"
+          className="text-center bg-[#0a0f1c] border border-white/10 p-20 rounded-[4rem] shadow-2xl relative z-10 overflow-hidden group hover:border-primary/30 transition-colors duration-500"
         >
-          <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-8">
+          {/* Subtle moving glow inside CTA */}
+          <motion.div 
+            animate={{ 
+              x: ['-100%', '100%'],
+              opacity: [0, 0.5, 0]
+            }}
+            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+            className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent skew-x-[-45deg]"
+          />
+
+          <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-8 relative z-10">
             If you&apos;re building something and want to grow <br />
-            your business, <span className="text-primary">let&apos;s build it properly.</span>
+            your business, <span className="text-primary relative inline-block">
+              let&apos;s build it properly.
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-primary/50 blur-[2px]"></span>
+            </span>
           </h2>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-12 relative z-10">
             <Link 
               href="/projects" 
-              className="px-12 py-5 bg-primary text-black font-black uppercase tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,245,255,0.3)] hover:scale-105 active:scale-95 transition-all"
+              className="px-12 py-5 bg-primary text-black font-black uppercase tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,245,255,0.3)] hover:scale-105 active:scale-95 hover:shadow-[0_0_40px_rgba(0,245,255,0.5)] transition-all"
             >
               View Systems Archive
             </Link>
             <Link 
               href="/contact" 
-              className="px-12 py-5 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-white/10 transition-all"
+              className="px-12 py-5 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-white/10 hover:border-white/30 active:scale-95 transition-all"
             >
               Hire Me
             </Link>
@@ -355,26 +380,5 @@ const About: React.FC = () => {
     </div>
   );
 };
-
-const SkillCategory: React.FC<{ title: string, skills: string[] }> = ({ title, skills }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    className="p-8 bg-white/5 border border-white/10 rounded-3xl"
-  >
-    <h3 className="text-primary text-xs font-black uppercase tracking-[0.2em] mb-8 border-b border-white/5 pb-4">
-      {title}
-    </h3>
-    <ul className="space-y-4">
-      {skills.map((skill, i) => (
-        <li key={i} className="flex items-center gap-3">
-          <span className="w-1 h-1 bg-primary rounded-full"></span>
-          <span className="text-gray-300 text-sm font-medium">{skill}</span>
-        </li>
-      ))}
-    </ul>
-  </motion.div>
-);
 
 export default About;

@@ -1,30 +1,82 @@
-import React, { createContext, useContext } from 'react';
+'use client';
 
-/**
- * AuthProvider — scaffold only. Full implementation in Phase 5.
- * Currently grants no special access. All protected routes
- * will redirect to /login once auth is wired.
- */
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { User, AuthState } from '../types/auth';
+import { authService } from '../services/auth.service';
 
-interface AuthContextType {
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  user: null;
+interface AuthContextType extends AuthState {
+  login: (data: any) => Promise<void>;
+  register: (data: any) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: false,
-  isAdmin: false,
-  user: null,
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // TODO Phase 5: Wire up JWT verification, session refresh, user role detection
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    isAuthenticated: false,
+    isLoading: true,
+    error: null,
+  });
+
+  useEffect(() => {
+    // Attempt silent refresh on initial load
+    const initializeAuth = async () => {
+      try {
+        await authService.refresh();
+        const { user } = await authService.getMe();
+        setState({ user, isAuthenticated: true, isLoading: false, error: null });
+      } catch (error) {
+        setState({ user: null, isAuthenticated: false, isLoading: false, error: null });
+      }
+    };
+
+    initializeAuth();
+  }, []);
+
+  const login = async (data: any) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      const { user } = await authService.login(data);
+      setState({ user, isAuthenticated: true, isLoading: false, error: null });
+    } catch (error: any) {
+      setState(prev => ({ ...prev, isLoading: false, error: error.message }));
+      throw error;
+    }
+  };
+
+  const register = async (data: any) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      const { user } = await authService.register(data);
+      setState({ user, isAuthenticated: true, isLoading: false, error: null });
+    } catch (error: any) {
+      setState(prev => ({ ...prev, isLoading: false, error: error.message }));
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await authService.logout();
+      setState({ user: null, isAuthenticated: false, isLoading: false, error: null });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated: false, isAdmin: false, user: null }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

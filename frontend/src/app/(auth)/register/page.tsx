@@ -1,60 +1,95 @@
-"use client";
+'use client';
 
-import React from 'react';
+import { useState } from 'react';
+import { useAuth } from '@/providers/AuthProvider';
+import { GuestGuard } from '@/guards/GuestGuard';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 
 export default function RegisterPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-6 pt-24 pb-12">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl"
-      >
-        <span className="text-primary font-mono text-xs uppercase tracking-widest block mb-2">Nexus Core Access</span>
-        <h1 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">Terminal Registration</h1>
-        
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-          <div>
-            <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Developer Name</label>
-            <input 
-              type="text" 
-              placeholder="Saiful Islam"
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-primary transition-colors text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Terminal Email</label>
-            <input 
-              type="email" 
-              placeholder="developer@nexus.core"
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-primary transition-colors text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-mono uppercase tracking-widest text-gray-400 mb-2">Security Key</label>
-            <input 
-              type="password" 
-              placeholder="••••••••••••"
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-primary transition-colors text-sm"
-            />
-          </div>
-          <button 
-            type="submit"
-            className="w-full py-4 bg-primary text-black font-black uppercase tracking-widest text-xs rounded-xl hover:bg-primary/80 transition-all shadow-[0_0_20px_rgba(0,245,255,0.3)]"
-          >
-            Initialize Account
-          </button>
-        </form>
+  const { register, error } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-        <div className="mt-6 text-center text-xs text-gray-500 font-mono">
-          Already authorized?{' '}
-          <Link href="/login" className="text-primary hover:underline">
-            Login here
-          </Link>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await register({ name, email, password });
+    } catch (err) {
+      // Handled in context
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <GuestGuard>
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
+        
+        <div className="w-full max-w-md bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-2xl shadow-2xl relative z-10">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-black mb-2 text-foreground">Join the Platform</h1>
+            <p className="text-muted-foreground text-sm">Create an account to access premium tools</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl mb-6 text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1 text-muted-foreground">Full Name</label>
+              <input 
+                type="text" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-secondary/50 transition-colors"
+                placeholder="John Doe"
+                required 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-muted-foreground">Email</label>
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-secondary/50 transition-colors"
+                placeholder="you@example.com"
+                required 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-muted-foreground">Password</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-secondary/50 transition-colors"
+                placeholder="••••••••"
+                minLength={6}
+                required 
+              />
+            </div>
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-secondary text-secondary-foreground py-3 rounded-xl font-bold shadow-[0_0_20px_rgba(var(--secondary),0.3)] hover:bg-secondary/90 transition-colors disabled:opacity-50 mt-6"
+            >
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </button>
+          </form>
+
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            Already have an account? <Link href="/login" className="text-secondary hover:underline font-semibold">Sign in</Link>
+          </p>
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </GuestGuard>
   );
 }

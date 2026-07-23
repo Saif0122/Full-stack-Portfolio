@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   {
@@ -19,9 +20,15 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
     },
     role: {
-      type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Role',
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    lastLogin: {
+      type: Date,
     }
   },
   {
@@ -29,11 +36,19 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Mongoose hooks for password hashing would go here
-// userSchema.pre('save', async function (next) { ... })
+// Mongoose hooks for password hashing
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
 
 // Method for comparing passwords
-// userSchema.methods.matchPassword = async function (enteredPassword) { ... }
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 const User = mongoose.model('User', userSchema);
 

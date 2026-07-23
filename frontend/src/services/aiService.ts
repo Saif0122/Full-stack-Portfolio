@@ -76,11 +76,10 @@ export async function getBlogAssistantResponse(
   messages: ChatMessage[],
   post: BlogPost
 ): Promise<string> {
-
   const context = JSON.stringify({
-    architecture: post.technicalSegments.architecturalDecisions,
-    tradeoffs: post.technicalSegments.tradeOffs,
-    scaling: post.technicalSegments.scalingStrategy
+    architecture: post.technicalSegments?.architecturalDecisions,
+    tradeoffs: post.technicalSegments?.tradeOffs,
+    scaling: post.technicalSegments?.scalingStrategy
   });
 
   const systemPrompt = SYSTEM_PROMPTS.blog(post.title, context);

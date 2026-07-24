@@ -33,3 +33,4 @@ frontend.zip
 *.njsproj
 *.sln
 *.sw?
+"FETCH_HEAD" 

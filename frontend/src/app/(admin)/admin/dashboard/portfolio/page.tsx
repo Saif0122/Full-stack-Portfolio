@@ -1,11 +1,33 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout, FormBuilder, FormField, ConfirmDialog } from '@/components/admin/ui';
+import { adminService } from '@/services/admin.service';
 
 export default function PortfolioManagementPage() {
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [notification, setNotification] = useState<string | null>(null);
+  const [sectionData, setSectionData] = useState<Record<string, any> | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    adminService.fetch('/settings/portfolio_' + activeSection)
+      .then((data) => {
+        if (data && data.value) {
+          setSectionData(data.value);
+        } else {
+          setSectionData(null);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setSectionData(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [activeSection]);
 
   const sections = [
     { id: 'hero', label: 'Hero & Headlines', desc: 'Main interactive 3D landing title, professional headline, and CTAs.' },
@@ -23,41 +45,49 @@ export default function PortfolioManagementPage() {
     switch (activeSection) {
       case 'hero':
         return [
-          { name: 'headline', label: 'Primary Hero Headline', type: 'text', defaultValue: 'Principal Software Architect & Full-Stack MERN Engineer', required: true },
-          { name: 'subtext', label: 'Hero Subtitle Text', type: 'textarea', defaultValue: 'Architecting next-generation AI platforms, immersive 3D digital storefronts, and ultra-scalable production systems.', required: true },
-          { name: 'ctaText', label: 'Primary Call To Action Button', type: 'text', defaultValue: 'Explore Store Studio & SaaS Ecosystem' },
-          { name: 'enable3d', label: 'Interactive 3D Background Visualizer', type: 'boolean', defaultValue: true }
+          { name: 'headline', label: 'Primary Hero Headline', type: 'text', defaultValue: sectionData?.headline ?? 'Principal Software Architect & Full-Stack MERN Engineer', required: true },
+          { name: 'subtext', label: 'Hero Subtitle Text', type: 'textarea', defaultValue: sectionData?.subtext ?? 'Architecting next-generation AI platforms, immersive 3D digital storefronts, and ultra-scalable production systems.', required: true },
+          { name: 'ctaText', label: 'Primary Call To Action Button', type: 'text', defaultValue: sectionData?.ctaText ?? 'Explore Store Studio & SaaS Ecosystem' },
+          { name: 'enable3d', label: 'Interactive 3D Background Visualizer', type: 'boolean', defaultValue: sectionData?.enable3d ?? true }
         ];
       case 'skills':
         return [
-          { name: 'coreTech', label: 'Core Architecture Technologies', type: 'tags', defaultValue: ['Next.js 16', 'React Three Fiber', 'MERN Stack', 'TypeScript', 'MongoDB', 'Gemini AI', 'TailwindCSS', 'GSAP'] },
-          { name: 'aiTools', label: 'AI & Machine Learning Ecosystem', type: 'tags', defaultValue: ['Google GenAI SDK', 'LangChain', 'OpenAI', 'Autonomous Agents', 'Vector Embeddings'] },
-          { name: 'cloudDevops', label: 'DevOps & Enterprise Infrastructure', type: 'tags', defaultValue: ['Docker', 'Kubernetes', 'AWS EC2', 'Vercel Edge', 'Strict CSP Security', 'Redis'] }
+          { name: 'coreTech', label: 'Core Architecture Technologies', type: 'tags', defaultValue: sectionData?.coreTech ?? ['Next.js 16', 'React Three Fiber', 'MERN Stack', 'TypeScript', 'MongoDB', 'Gemini AI', 'TailwindCSS', 'GSAP'] },
+          { name: 'aiTools', label: 'AI & Machine Learning Ecosystem', type: 'tags', defaultValue: sectionData?.aiTools ?? ['Google GenAI SDK', 'LangChain', 'OpenAI', 'Autonomous Agents', 'Vector Embeddings'] },
+          { name: 'cloudDevops', label: 'DevOps & Enterprise Infrastructure', type: 'tags', defaultValue: sectionData?.cloudDevops ?? ['Docker', 'Kubernetes', 'AWS EC2', 'Vercel Edge', 'Strict CSP Security', 'Redis'] }
         ];
       case 'statistics':
         return [
-          { name: 'commits', label: 'Total GitHub Commits Tracked', type: 'number', defaultValue: 14820 },
-          { name: 'projectsDeployed', label: 'Enterprise Projects Completed', type: 'number', defaultValue: 48 },
-          { name: 'awards', label: 'Design & Architecture Recognition Awards', type: 'number', defaultValue: 14 },
-          { name: 'uptime', label: 'Average Platform Service Uptime (%)', type: 'number', defaultValue: 99.99 }
+          { name: 'commits', label: 'Total GitHub Commits Tracked', type: 'number', defaultValue: sectionData?.commits ?? 14820 },
+          { name: 'projectsDeployed', label: 'Enterprise Projects Completed', type: 'number', defaultValue: sectionData?.projectsDeployed ?? 48 },
+          { name: 'awards', label: 'Design & Architecture Recognition Awards', type: 'number', defaultValue: sectionData?.awards ?? 14 },
+          { name: 'uptime', label: 'Average Platform Service Uptime (%)', type: 'number', defaultValue: sectionData?.uptime ?? 99.99 }
         ];
       default:
         return [
-          { name: 'title', label: `${sections.find(s => s.id === activeSection)?.label} Section Title`, type: 'text', defaultValue: `Explore My ${sections.find(s => s.id === activeSection)?.label}` },
-          { name: 'content', label: 'Section Content & Markdown Payload', type: 'textarea', defaultValue: 'Production-ready architecture engineered with high performance and clean modular code design.' },
-          { name: 'isPublic', label: 'Publish Section to Public Portfolio', type: 'boolean', defaultValue: true }
+          { name: 'title', label: `${sections.find(s => s.id === activeSection)?.label} Section Title`, type: 'text', defaultValue: sectionData?.title ?? `Explore My ${sections.find(s => s.id === activeSection)?.label}` },
+          { name: 'content', label: 'Section Content & Markdown Payload', type: 'textarea', defaultValue: sectionData?.content ?? 'Production-ready architecture engineered with high performance and clean modular code design.' },
+          { name: 'isPublic', label: 'Publish Section to Public Portfolio', type: 'boolean', defaultValue: sectionData?.isPublic ?? true }
         ];
     }
   };
 
   const handleSave = async (formData: Record<string, any>) => {
-    // Send configuration update to clean architecture setting service
-    await fetch('/api/settings/portfolio_' + activeSection, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key: 'portfolio_' + activeSection, value: formData, group: 'portfolio' })
-    });
-    setNotification(`Successfully synchronized [${activeSection.toUpperCase()}] portfolio configurations across edge cluster!`);
+    try {
+      await adminService.update('/settings', 'portfolio_' + activeSection, {
+        key: 'portfolio_' + activeSection,
+        value: formData,
+        group: 'portfolio'
+      });
+      setNotification(`Successfully synchronized [${activeSection.toUpperCase()}] portfolio configurations across edge cluster!`);
+    } catch (err) {
+      await adminService.create('/settings', {
+        key: 'portfolio_' + activeSection,
+        value: formData,
+        group: 'portfolio'
+      });
+      setNotification(`Successfully initialized and synchronized [${activeSection.toUpperCase()}] portfolio configurations!`);
+    }
     setTimeout(() => setNotification(null), 5000);
   };
 
@@ -94,13 +124,20 @@ export default function PortfolioManagementPage() {
 
       {/* Editor Surface */}
       <div className="mt-4">
-        <FormBuilder
-          title={`Edit ${sections.find(s => s.id === activeSection)?.label}`}
-          description={sections.find(s => s.id === activeSection)?.desc}
-          fields={getFormFields()}
-          onSubmit={handleSave}
-          submitLabel="Deploy Section Changes to Edge"
-        />
+        {isLoading ? (
+          <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-2xl flex items-center justify-center min-h-[400px]">
+            <span className="text-gray-400 font-mono text-sm animate-pulse">Synchronizing Data Payload...</span>
+          </div>
+        ) : (
+          <FormBuilder
+            key={activeSection + (sectionData ? '_loaded' : '_new')}
+            title={`Edit ${sections.find(s => s.id === activeSection)?.label}`}
+            description={sections.find(s => s.id === activeSection)?.desc}
+            fields={getFormFields()}
+            onSubmit={handleSave}
+            submitLabel="Deploy Section Changes to Edge"
+          />
+        )}
       </div>
     </AdminLayout>
   );

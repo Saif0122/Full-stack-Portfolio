@@ -2,21 +2,26 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PROJECTS, PROJECT_CATEGORIES } from '@/constants/projects';
+import { PROJECT_CATEGORIES } from '@/constants/projects';
 import { ProjectCard } from './ProjectCard';
 
-export const ProjectFilterBar: React.FC = () => {
+interface ProjectFilterBarProps {
+  projects: any[];
+}
+
+export const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({ projects = [] }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredProjects = useMemo(() => {
-    return PROJECTS.filter((project) => {
+    return projects.filter((project) => {
       const matchesCategory = activeCategory === 'All' || project.category === activeCategory;
+      const tags = project.technologies || project.tags || [];
       const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            project.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+                            tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [projects, activeCategory, searchQuery]);
 
   return (
     <div className="w-full">

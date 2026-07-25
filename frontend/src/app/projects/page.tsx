@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { PROJECTS } from '@/constants/projects';
 import { ProjectFilterBar } from '@/components/Projects/ProjectFilterBar';
 import Link from 'next/link';
 import { FloatingCode } from '@/components/Hero/FloatingCode';
@@ -12,8 +11,47 @@ import { ProjectAssistant } from '@/components/Projects/ProjectAssistant';
 import { PerformanceMetrics } from '@/components/Projects/PerformanceMetrics';
 
 const Projects: React.FC = () => {
-  const selectedProject = PROJECTS[0];
+  const [projects, setProjects] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'blueprint'>('overview');
+
+  useEffect(() => {
+    fetch('/api/v1/projects')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success) {
+          setProjects(data.data);
+        }
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch projects", err);
+        setIsLoading(false);
+      });
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary font-mono animate-pulse">Loading architectural case studies...</div>
+      </div>
+    );
+  }
+
+  if (projects.length === 0) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-gray-500 font-mono">No projects found. Please add them via Admin Dashboard.</div>
+      </div>
+    );
+  }
+
+  const selectedProject = projects[0];
+  const tags = selectedProject.technologies || selectedProject.tags || [];
+  const metrics = selectedProject.metrics || [];
+  const stack = selectedProject.stack || [];
+  const challenges = selectedProject.challenges || { problem: '', solution: '', architecture: '' };
+  const technicalSpecs = selectedProject.technicalSpecs || { backendStructure: '', databaseSchema: '', authStrategy: '', apiPrinciples: '', cachingStrategy: '', securityMeasures: '', scalingStrategy: '', deploymentStrategy: '', lessonsLearned: '' };
 
   return (
     <div className="min-h-screen bg-background pt-32 pb-24 selection:bg-primary/30 selection:text-primary">
@@ -79,7 +117,7 @@ const Projects: React.FC = () => {
                       <span className="text-primary font-mono text-[10px] uppercase tracking-widest mb-2 block">{selectedProject.category}</span>
                       <h2 className="text-4xl md:text-5xl font-black text-white mb-4 uppercase">{selectedProject.title}</h2>
                       <div className="flex gap-3">
-                        {selectedProject.tags.map(tag => (
+                        {tags.map((tag: string) => (
                           <span key={tag} className="px-3 py-1 bg-black/50 backdrop-blur-md border border-white/20 rounded-full text-[10px] text-white font-mono">{tag}</span>
                         ))}
                       </div>
@@ -89,11 +127,11 @@ const Projects: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
                     <div>
                       <h3 className="text-primary text-xs font-black uppercase tracking-widest mb-4">Architectural Challenge</h3>
-                      <p className="text-gray-400 font-light leading-relaxed">{selectedProject.challenges.problem}</p>
+                      <p className="text-gray-400 font-light leading-relaxed">{challenges.problem}</p>
                     </div>
                     <div>
                       <h3 className="text-purple-400 text-xs font-black uppercase tracking-widest mb-4">Engineered Solution</h3>
-                      <p className="text-gray-400 font-light leading-relaxed">{selectedProject.challenges.solution}</p>
+                      <p className="text-gray-400 font-light leading-relaxed">{challenges.solution}</p>
                     </div>
                   </div>
 
@@ -103,7 +141,7 @@ const Projects: React.FC = () => {
                     </div>
                     <h3 className="text-white text-xs font-black uppercase tracking-widest mb-8">System Deep Dive</h3>
                     <p className="text-gray-300 font-light leading-relaxed italic border-l-2 border-primary pl-6 text-lg">
-                      {selectedProject.challenges.architecture}
+                      {challenges.architecture}
                     </p>
                   </div>
                 </motion.div>
@@ -116,18 +154,18 @@ const Projects: React.FC = () => {
                   className="space-y-8"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <BlueprintCard title="Backend Design" content={selectedProject.technicalSpecs.backendStructure} />
-                    <BlueprintCard title="Database Schema" content={selectedProject.technicalSpecs.databaseSchema} />
-                    <BlueprintCard title="Auth & Authorization" content={selectedProject.technicalSpecs.authStrategy} />
-                    <BlueprintCard title="API Design Principles" content={selectedProject.technicalSpecs.apiPrinciples} />
-                    <BlueprintCard title="Caching Strategy" content={selectedProject.technicalSpecs.cachingStrategy} />
-                    <BlueprintCard title="Security Measures" content={selectedProject.technicalSpecs.securityMeasures} />
-                    <BlueprintCard title="Scaling Strategy" content={selectedProject.technicalSpecs.scalingStrategy} />
-                    <BlueprintCard title="Deployment & DevOps" content={selectedProject.technicalSpecs.deploymentStrategy} />
+                    <BlueprintCard title="Backend Design" content={technicalSpecs.backendStructure} />
+                    <BlueprintCard title="Database Schema" content={technicalSpecs.databaseSchema} />
+                    <BlueprintCard title="Auth & Authorization" content={technicalSpecs.authStrategy} />
+                    <BlueprintCard title="API Design Principles" content={technicalSpecs.apiPrinciples} />
+                    <BlueprintCard title="Caching Strategy" content={technicalSpecs.cachingStrategy} />
+                    <BlueprintCard title="Security Measures" content={technicalSpecs.securityMeasures} />
+                    <BlueprintCard title="Scaling Strategy" content={technicalSpecs.scalingStrategy} />
+                    <BlueprintCard title="Deployment & DevOps" content={technicalSpecs.deploymentStrategy} />
                   </div>
                   <div className="p-10 bg-primary/5 border border-primary/20 rounded-[2.5rem]">
                     <h3 className="text-primary text-xs font-black uppercase tracking-widest mb-4">Post-Mortem / Lessons Learned</h3>
-                    <p className="text-gray-300 font-light leading-relaxed">{selectedProject.technicalSpecs.lessonsLearned}</p>
+                    <p className="text-gray-300 font-light leading-relaxed">{technicalSpecs.lessonsLearned}</p>
                   </div>
                 </motion.div>
               )}
@@ -138,7 +176,7 @@ const Projects: React.FC = () => {
              <div className="p-8 bg-white/5 border border-white/10 rounded-3xl sticky top-32">
                 <h3 className="text-white font-black text-xs uppercase tracking-widest mb-8">Engineering Metrics</h3>
                 <div className="space-y-6">
-                  {selectedProject.metrics.map((m, i) => (
+                  {metrics.map((m: any, i: number) => (
                     <div key={i} className="flex justify-between items-end border-b border-white/5 pb-4">
                       <div>
                         <p className="text-[10px] text-gray-500 uppercase font-bold">{m.label}</p>
@@ -152,7 +190,7 @@ const Projects: React.FC = () => {
                 <div className="mt-12">
                    <h3 className="text-primary font-black text-xs uppercase tracking-widest mb-8">The Stack</h3>
                    <div className="space-y-4">
-                      {selectedProject.stack.map((item, i) => (
+                      {stack.map((item: any, i: number) => (
                         <div key={i} className="group">
                            <p className="text-white font-bold text-sm flex items-center gap-2">
                              <span className="w-1 h-1 bg-primary rounded-full"></span>
@@ -187,7 +225,7 @@ const Projects: React.FC = () => {
                </span>
             </Link>
           </div>
-          <ProjectFilterBar />
+          <ProjectFilterBar projects={projects} />
         </div>
       </section>
 

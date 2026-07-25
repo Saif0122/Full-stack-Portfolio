@@ -7,14 +7,14 @@ import { adminService } from '@/services/admin.service';
 
 export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<any>({
-    visitors: { total: '48,291', trend: '+14.2% this week', positive: true },
-    customers: { total: '1,842', trend: '+28 new today', positive: true },
-    orders: { total: '3,410', trend: '99.2% fulfillment', positive: true },
-    revenue: { total: '$104,820', trend: 'Projected (Future Target)', positive: true },
-    downloads: { total: '9,420', trend: 'Top: AI Studio Bundle', positive: true },
+    visitors: { total: '0', trend: 'Loading...', positive: true },
+    customers: { total: '0', trend: 'Loading...', positive: true },
+    orders: { total: '0', trend: 'Loading...', positive: true },
+    revenue: { total: '$0', trend: 'Loading...', positive: true },
+    downloads: { total: '0', trend: 'Loading...', positive: true },
     products: { total: '0', trend: 'Loading...', positive: true },
     blogs: { total: '0', trend: 'Loading...', positive: true },
-    projects: { total: '18', trend: '100% Repos Synced', positive: true },
+    projects: { total: '0', trend: 'Loading...', positive: true },
     seoScore: 98,
     systemHealth: '18ms Latency • MongoDB Clustered',
     recentActivity: []
@@ -27,9 +27,13 @@ export default function AdminDashboardPage() {
           setMetrics((prev: any) => ({
             ...prev,
             visitors: { total: data.visitors.total.toLocaleString(), trend: `+${data.visitors.growth}% growth`, positive: true },
+            customers: { total: data.customers.total.toLocaleString(), trend: `+${data.customers.growth}% growth`, positive: true },
+            orders: { total: data.orders.total.toLocaleString(), trend: data.orders.trend, positive: true },
+            revenue: { total: `$${data.revenue.total.toLocaleString()}`, trend: data.revenue.trend, positive: true },
             downloads: { total: data.downloads.total.toLocaleString(), trend: `Top: ${data.downloads.topProduct}`, positive: true },
             products: { total: data.products.total, trend: data.products.trend, positive: true },
             blogs: { total: data.blogs.total, trend: data.blogs.trend, positive: true },
+            projects: { total: data.projects.total, trend: data.projects.trend, positive: true },
             recentActivity: data.recentActivity
           }));
         }

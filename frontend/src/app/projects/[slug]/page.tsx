@@ -2,17 +2,30 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { PROJECTS } from '@/constants/projects';
 import { ProjectMetricsGrid } from '@/components/Projects/ProjectMetricsGrid';
 import { TechBadge } from '@/components/Projects/TechBadge';
 
-// Future: This would be dynamic via MongoDB: async ({ params }: { params: { slug: string } }) => ...
-export default function ProjectCaseStudy({ params }: { params: { slug: string } }) {
-  const project = PROJECTS.find(p => p.slug === params.slug);
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+export default async function ProjectCaseStudy({ params }: { params: { slug: string } }) {
+  const res = await fetch(`${API_URL}/v1/projects`, { cache: 'no-store' });
+  let project = null;
+  if (res.ok) {
+    const data = await res.json();
+    if (data.success && data.data) {
+      project = data.data.find((p: any) => p.slug === params.slug);
+    }
+  }
 
   if (!project) {
     notFound();
   }
+
+  const challenges = project.challenges || { problem: '', solution: '', architecture: '' };
+  const technicalSpecs = project.technicalSpecs || { backendStructure: '', databaseSchema: '', authStrategy: '', apiPrinciples: '', cachingStrategy: '', securityMeasures: '', scalingStrategy: '', deploymentStrategy: '', lessonsLearned: '' };
+  const metrics = project.metrics || [];
+  const stack = project.stack || [];
+  const mediaGallery = project.mediaGallery || [];
 
   return (
     <div className="min-h-screen bg-background pt-32 pb-24 selection:bg-primary/30 selection:text-primary">
@@ -59,9 +72,9 @@ export default function ProjectCaseStudy({ params }: { params: { slug: string } 
       </section>
 
       {/* 2. Key Metrics */}
-      {project.metrics && project.metrics.length > 0 && (
+      {metrics && metrics.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 mb-24">
-          <ProjectMetricsGrid metrics={project.metrics} />
+          <ProjectMetricsGrid metrics={metrics} />
         </section>
       )}
 
@@ -76,11 +89,11 @@ export default function ProjectCaseStudy({ params }: { params: { slug: string } 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div>
                 <h3 className="text-primary text-xs font-black uppercase tracking-widest mb-4">The Challenge</h3>
-                <p className="text-gray-400 font-light leading-relaxed">{project.challenges.problem}</p>
+                <p className="text-gray-400 font-light leading-relaxed">{challenges.problem}</p>
               </div>
               <div>
                 <h3 className="text-purple-400 text-xs font-black uppercase tracking-widest mb-4">The Solution</h3>
-                <p className="text-gray-400 font-light leading-relaxed">{project.challenges.solution}</p>
+                <p className="text-gray-400 font-light leading-relaxed">{challenges.solution}</p>
               </div>
             </div>
 
@@ -93,11 +106,11 @@ export default function ProjectCaseStudy({ params }: { params: { slug: string } 
             )}
 
             {/* Media Gallery */}
-            {project.mediaGallery && project.mediaGallery.length > 0 && (
+            {mediaGallery && mediaGallery.length > 0 && (
               <div>
                 <h3 className="text-white text-xs font-black uppercase tracking-widest mb-6">Gallery & Architecture</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {project.mediaGallery.map((media, idx) => (
+                  {mediaGallery.map((media: any, idx: number) => (
                     <div key={idx} className="aspect-video rounded-2xl overflow-hidden border border-white/10 group relative">
                        {media.type === 'image' && (
                          <Image src={media.url} width={600} height={400} alt={media.caption || 'Project media'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -122,7 +135,7 @@ export default function ProjectCaseStudy({ params }: { params: { slug: string } 
             <div className="p-8 bg-white/5 border border-white/10 rounded-3xl sticky top-32">
               <h3 className="text-primary text-xs font-black uppercase tracking-widest mb-6">Technology Stack</h3>
               <div className="flex flex-col gap-4">
-                {project.stack.map((tech, idx) => (
+                {stack.map((tech: any, idx: number) => (
                   <TechBadge key={idx} tech={tech} />
                 ))}
               </div>
@@ -132,10 +145,10 @@ export default function ProjectCaseStudy({ params }: { params: { slug: string } 
             <div className="p-8 bg-white/5 border border-white/10 rounded-3xl">
               <h3 className="text-white text-xs font-black uppercase tracking-widest mb-6">System Blueprint</h3>
               <ul className="space-y-4">
-                <SpecItem label="Backend" value={project.technicalSpecs.backendStructure} />
-                <SpecItem label="Database" value={project.technicalSpecs.databaseSchema} />
-                <SpecItem label="Scaling" value={project.technicalSpecs.scalingStrategy} />
-                <SpecItem label="Security" value={project.technicalSpecs.securityMeasures} />
+                <SpecItem label="Backend" value={technicalSpecs.backendStructure} />
+                <SpecItem label="Database" value={technicalSpecs.databaseSchema} />
+                <SpecItem label="Scaling" value={technicalSpecs.scalingStrategy} />
+                <SpecItem label="Security" value={technicalSpecs.securityMeasures} />
               </ul>
             </div>
 

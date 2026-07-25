@@ -1,6 +1,7 @@
 import { User } from '../types/auth';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+// Use Next.js rewrite proxy on the client to avoid CORS
+const API_URL = typeof window !== 'undefined' ? '/api/v1' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
 
 export const authService = {
   async register(data: any): Promise<{ user: User }> {

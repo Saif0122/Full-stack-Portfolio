@@ -2,6 +2,8 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { BlogPost } from '@/types/blog';
 
 const MermaidDiagram = dynamic(() => import('./MermaidDiagram').then((mod) => mod.MermaidDiagram), {
@@ -15,9 +17,10 @@ interface ArticleBodyProps {
 export const ArticleBody: React.FC<ArticleBodyProps> = ({ post }) => {
   return (
     <article className="prose prose-invert prose-p:text-gray-400 prose-headings:text-white prose-a:text-primary prose-code:text-primary max-w-none">
-      {/* If we have Markdown content, we'd render it via next-mdx-remote here. For now, we inject the HTML/Markdown strings */}
       {post.markdownContent ? (
-        <div dangerouslySetInnerHTML={{ __html: post.markdownContent.replace(/\n/g, '<br />') }} />
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {post.markdownContent}
+        </ReactMarkdown>
       ) : (
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
       )}

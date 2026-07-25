@@ -18,9 +18,15 @@ const connectDB = async () => {
     
     // If we're using localhost but MongoDB isn't running, spin up an in-memory server
     if (uri.includes('localhost') || uri.includes('127.0.0.1')) {
-      console.log('Spinning up in-memory MongoDB for local development...');
-      const mongoServer = await MongoMemoryServer.create();
-      uri = mongoServer.getUri();
+      try {
+        console.log('Attempting to spin up in-memory MongoDB for local development...');
+        const mongoServer = await MongoMemoryServer.create();
+        uri = mongoServer.getUri();
+      } catch (err) {
+        console.warn('\n⚠️ MongoMemoryServer failed to start (Missing Visual C++ Redistributable).');
+        console.warn('⚠️ Falling back to native local MongoDB instance at 27017.\n');
+        // uri remains the default localhost one
+      }
     }
 
     await mongoose.connect(uri);

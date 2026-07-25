@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Role',
     },
+    jobTitle: {
+      type: String,
+    },
+    avatarUrl: {
+      type: String,
+    },
     isVerified: {
       type: Boolean,
       default: false,

@@ -14,8 +14,10 @@ export function RoleGuard({ children, roles }: RoleGuardProps) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated && user) {
-      if (!roles.includes(user.role)) {
+    if (!isLoading) {
+      if (!isAuthenticated || !user) {
+        router.push('/login');
+      } else if (!roles.includes(user.role)) {
         // Redirect to a default dashboard if they don't have access
         router.push('/dashboard');
       }

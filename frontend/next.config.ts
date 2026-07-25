@@ -17,7 +17,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
       "font-src 'self' fonts.gstatic.com",
       "img-src 'self' data: blob: https://picsum.photos https://images.unsplash.com",
-      "connect-src 'self' generativelanguage.googleapis.com",
+      "connect-src 'self' generativelanguage.googleapis.com http://localhost:5000",
     ].join('; ')
   }
 ];
@@ -43,6 +43,14 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: securityHeaders,
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: 'http://localhost:5000/api/:path*',
       },
     ];
   },

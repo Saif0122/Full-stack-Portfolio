@@ -2,63 +2,67 @@
 
 import React, { useState, useEffect } from 'react';
 import { AdminLayout, DataTable, Column, FormBuilder, ConfirmDialog } from '@/components/admin/ui';
+import { adminService } from '@/services/admin.service';
 
 interface BlogArticle {
   _id: string;
+  id?: string;
   title: string;
   author: string;
   category: string;
   status: 'Published' | 'Draft' | 'Scheduled';
-  publishedAt: string;
-  views: number;
+  publishedAt?: string;
+  views?: number;
   tags: string[];
 }
 
 export default function BlogCmsStudioPage() {
-  const [articles, setArticles] = useState<BlogArticle[]>([
-    { _id: '101', title: 'Architecting Autonomous AI Agents with Next.js & Gemini 3.1 Pro', author: 'Saiful Islam', category: 'AI Engineering', status: 'Published', publishedAt: '2026-07-24', views: 18420, tags: ['Gemini', 'Next.js', 'LangChain'] },
-    { _id: '102', title: 'Building MERN Enterprise Systems with Zero Latency & Clean Architecture', author: 'Saiful Islam', category: 'System Architecture', status: 'Published', publishedAt: '2026-07-20', views: 12410, tags: ['MERN', 'Clean Architecture', 'MongoDB'] },
-    { _id: '103', title: 'The Future of 3D Web UX: Spline & Three.js Glassmorphism Integration', author: 'Saiful Islam', category: 'Design Systems', status: 'Published', publishedAt: '2026-07-15', views: 9812, tags: ['Three.js', 'WebGL', 'UI/UX'] },
-    { _id: '104', title: 'Deep-Dive: Optimizing Vercel Edge Cache with Custom Service Workers', author: 'Tech Lab Core', category: 'DevOps & Performance', status: 'Draft', publishedAt: 'Unpublished', views: 0, tags: ['Vercel', 'CDN', 'PWA'] }
-  ]);
-
+  const [articles, setArticles] = useState<BlogArticle[]>([]);
   const [activeTab, setActiveTab] = useState<'articles' | 'authors' | 'seo'>('articles');
   const [isWriting, setIsWriting] = useState<boolean>(false);
   const [selectedArticle, setSelectedArticle] = useState<BlogArticle | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/posts', { credentials: 'include' })
-      .then(res => res.ok ? res.json() : null)
-      .then(data => { if (data && data.success && data.data?.length > 0) setArticles(data.data); })
-      .catch(() => {});
+    adminService.fetch('/posts')
+      .then(data => {
+        if (data) setArticles(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   const columns: Column<BlogArticle>[] = [
-    { header: 'Article Title & Author', accessorKey: 'title', cell: (a) => (
+    { header: 'Article Title', accessorKey: 'title', cell: (a) => (
       <div>
         <div className="font-bold text-white text-sm line-clamp-1">{a.title}</div>
-        <span className="text-[10px] font-mono text-gray-400">By <strong>{a.author}</strong> in <span className="text-pink-400">{a.category}</span></span>
+        <span className="text-[10px] font-mono text-gray-400">In <span className="text-pink-400">{a.category || 'Engineering'}</span></span>
       </div>
     )},
     { header: 'Status', accessorKey: 'status', cell: (a) => (
       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono uppercase font-bold ${
-        a.status === 'Published' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+        a.status !== 'Draft' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
       }`}>
-        <span className={`w-1.5 h-1.5 rounded-full ${a.status === 'Published' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
-        {a.status}
+        <span className={`w-1.5 h-1.5 rounded-full ${a.status !== 'Draft' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
+        {a.status || 'Published'}
       </span>
     )},
-    { header: 'Engagement Views', accessorKey: 'views', cell: (a) => (
-      <span className="font-mono text-xs font-bold text-white">{a.views.toLocaleString()} <span className="text-gray-500 text-[10px]">reads</span></span>
-    )},
-    { header: 'Date', accessorKey: 'publishedAt', cell: (a) => <span className="font-mono text-xs text-gray-400">{a.publishedAt}</span> }
+    { header: 'Date', accessorKey: 'publishedAt', cell: (a) => <span className="font-mono text-xs text-gray-400">{a.publishedAt || new Date().toLocaleDateString()}</span> }
   ];
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (confirmDelete) {
-      setArticles(prev => prev.filter(a => a._id !== confirmDelete));
-      setConfirmDelete(null);
+      try {
+        await adminService.delete('/posts', confirmDelete);
+        setArticles(prev => prev.filter(a => (a._id || a.id) !== confirmDelete));
+        setConfirmDelete(null);
+      } catch (e) {
+        alert('Failed to delete post');
+      }
     }
   };
 
@@ -80,7 +84,7 @@ export default function BlogCmsStudioPage() {
       </div>
 
       {!isWriting && (
-        <div className="flex gap-2 pb-4">
+        <div className="flex gap-2 pb-4 pt-4">
           {(['articles', 'authors', 'seo'] as const).map((tab) => (
             <button
               key={tab}
@@ -89,7 +93,7 @@ export default function BlogCmsStudioPage() {
                 activeTab === tab ? 'bg-pink-500/20 text-pink-300 border border-pink-500/40' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/5'
               }`}
             >
-              {tab === 'articles' ? 'All Articles & Drafts (4)' : tab === 'authors' ? 'Author Directory' : 'Blog SEO Defaults'}
+              {tab === 'articles' ? `All Articles & Drafts (${articles.length})` : tab === 'authors' ? 'Author Directory' : 'Blog SEO Defaults'}
             </button>
           ))}
         </div>
@@ -101,53 +105,54 @@ export default function BlogCmsStudioPage() {
           description="Support rich Markdown syntax, high-resolution media attachments, and custom OpenGraph metadata."
           fields={[
             { name: 'title', label: 'Article Headline', type: 'text', defaultValue: selectedArticle?.title || '', required: true },
-            { name: 'category', label: 'Tech Lab Category', type: 'select', defaultValue: selectedArticle?.category || 'AI Engineering', options: [{ label: 'AI Engineering', value: 'AI Engineering' }, { label: 'System Architecture', value: 'System Architecture' }, { label: 'Design Systems', value: 'Design Systems' }, { label: 'DevOps & Performance', value: 'DevOps & Performance' }] },
-            { name: 'author', label: 'Primary Author', type: 'text', defaultValue: selectedArticle?.author || 'Saiful Islam (Principal Architect)' },
-            { name: 'status', label: 'Publishing Workflow Status', type: 'select', defaultValue: selectedArticle?.status || 'Published', options: [{ label: 'Published (Live Immediately)', value: 'Published' }, { label: 'Draft (Save for Review)', value: 'Draft' }] },
-            { name: 'tags', label: 'Search Indexing Tags', type: 'tags', defaultValue: selectedArticle?.tags || ['Next.js', 'AI Platform', 'Clean Architecture'] },
-            { name: 'content', label: 'Markdown / Rich Text Content Body', type: 'textarea', defaultValue: '# Enterprise Engineering Principles\n\nIn modern distributed SaaS systems, Clean Architecture enables zero regression deployments across scalable cloud boundaries...', required: true }
+            { name: 'slug', label: 'URL Slug', type: 'text', defaultValue: (selectedArticle as any)?.slug || '', required: true },
+            { name: 'content', label: 'HTML Content Body', type: 'textarea', defaultValue: (selectedArticle as any)?.content || '', required: true },
+            { name: 'markdownContent', label: 'Markdown Content (Overrides HTML)', type: 'textarea', defaultValue: (selectedArticle as any)?.markdownContent || '' },
           ]}
           onCancel={() => setIsWriting(false)}
-          onSubmit={(data) => {
-            if (selectedArticle) {
-              setArticles(prev => prev.map(a => a._id === selectedArticle._id ? { ...a, ...data } as BlogArticle : a));
-            } else {
-              setArticles(prev => [{ _id: Date.now().toString(), views: 0, publishedAt: 'Just now', ...data } as BlogArticle, ...prev]);
+          onSubmit={async (data) => {
+            try {
+              if (selectedArticle) {
+                const updated = await adminService.update('/posts', selectedArticle._id || selectedArticle.id!, data);
+                setArticles(prev => prev.map(a => (a._id || a.id) === (selectedArticle._id || selectedArticle.id) ? { ...a, ...updated } : a));
+              } else {
+                const created = await adminService.create('/posts', data);
+                setArticles(prev => [created, ...prev]);
+              }
+              setIsWriting(false);
+            } catch (err) {
+              alert('Failed to save article.');
             }
-            setIsWriting(false);
           }}
           submitLabel="Publish to Tech Lab Stream"
         />
       ) : activeTab === 'articles' ? (
-        <DataTable
-          data={articles}
-          columns={columns}
-          searchPlaceholder="Search Tech Lab publications by title or topic..."
-          searchKey="title"
-          actions={(item) => (
-            <>
-              <button onClick={() => { setSelectedArticle(item); setIsWriting(true); }} className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-mono text-xs border border-white/5">Edit</button>
-              <button onClick={() => setConfirmDelete(item._id)} className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-mono text-xs border border-rose-500/20">Delete</button>
-            </>
-          )}
-        />
+        loading ? (
+          <div className="py-20 text-center text-gray-400 font-mono text-xs animate-pulse">Loading CMS Data from MongoDB...</div>
+        ) : (
+          <DataTable
+            data={articles}
+            columns={columns}
+            searchPlaceholder="Search Tech Lab publications by title..."
+            searchKey="title"
+            actions={(item) => (
+              <>
+                <button onClick={() => { setSelectedArticle(item); setIsWriting(true); }} className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-mono text-xs border border-white/5">Edit</button>
+                <button onClick={() => setConfirmDelete(item._id || item.id || null)} className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-mono text-xs border border-rose-500/20">Delete</button>
+              </>
+            )}
+          />
+        )
       ) : activeTab === 'authors' ? (
         <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl">
           <h2 className="text-lg font-bold text-white mb-4">Author Directory & Bio Profiles</h2>
-          <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 flex items-center justify-center font-black text-white text-lg">S</div>
-            <div>
-              <h3 className="font-bold text-white text-sm">Saiful Islam</h3>
-              <p className="text-xs font-mono text-indigo-400">Principal Software Architect & MERN Engineer</p>
-            </div>
-          </div>
+          <div className="text-gray-400 text-sm">Author management module is connected to User Role RBAC.</div>
         </div>
       ) : (
         <FormBuilder
           title="Blog CMS Global SEO Defaults"
           fields={[
-            { name: 'metaTitle', label: 'Blog Section Title', type: 'text', defaultValue: 'Engineering & AI Architecture Insights | Tech Lab' },
-            { name: 'metaDesc', label: 'Meta Description', type: 'textarea', defaultValue: 'Deep-dive technical tutorials, enterprise systems scaling discussions, autonomous AI agent blueprints, and cloud devops breakdowns.' }
+            { name: 'metaTitle', label: 'Blog Section Title', type: 'text', defaultValue: 'Engineering & AI Architecture Insights | Tech Lab' }
           ]}
           onSubmit={() => alert('Blog SEO defaults updated successfully.')}
           submitLabel="Save Blog SEO Configuration"

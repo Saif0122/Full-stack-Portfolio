@@ -2,21 +2,21 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BLOG_POSTS } from '@/constants/blog';
+import { BlogPost } from '@/types/blog';
 import { BlogCard } from './BlogCard';
 
-export const BlogFilterSidebar: React.FC = () => {
+export const BlogFilterSidebar: React.FC<{ initialPosts: BlogPost[] }> = ({ initialPosts }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Extract unique categories
   const categories = useMemo(() => {
-    const cats = new Set(BLOG_POSTS.map(post => post.category));
+    const cats = new Set(initialPosts.map(post => post.category));
     return ['All', ...Array.from(cats)];
-  }, []);
+  }, [initialPosts]);
 
   const filteredPosts = useMemo(() => {
-    return BLOG_POSTS.filter((post) => {
+    return initialPosts.filter((post) => {
       const matchesCategory = activeCategory === 'All' || post.category === activeCategory;
       const matchesSearch = 
         post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -24,7 +24,7 @@ export const BlogFilterSidebar: React.FC = () => {
         (post.tags && post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, initialPosts]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">

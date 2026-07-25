@@ -1,17 +1,43 @@
-import { MOCK_PRODUCTS } from '@/constants/store';
 import ProductGallery from '@/components/Store/ProductGallery';
 import ProductPricing from '@/components/Store/ProductPricing';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
+import { fetchProductBySlug, fetchAllProducts } from '@/services/store.service';
 
-export function generateStaticParams() {
-  return MOCK_PRODUCTS.map((product) => ({
+export const revalidate = 60;
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const product = await fetchProductBySlug(params.slug);
+  if (!product) return { title: 'Product Not Found' };
+
+  return {
+    title: `${product.title} | Developer Store`,
+    description: product.shortDescription || product.description,
+    openGraph: {
+      title: product.title,
+      description: product.shortDescription,
+      images: product.thumbnail ? [product.thumbnail] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.title,
+      description: product.shortDescription,
+      images: product.thumbnail ? [product.thumbnail] : [],
+    }
+  };
+}
+
+export async function generateStaticParams() {
+  const products = await fetchAllProducts();
+  return products.map((product) => ({
     slug: product.slug,
   }));
 }
 
-export default function ProductDetailPage({ params }: { params: { slug: string } }) {
-  const product = MOCK_PRODUCTS.find((p) => p.slug === params.slug);
+export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
+  const product = await fetchProductBySlug(params.slug);
 
   if (!product) {
     notFound();
@@ -34,7 +60,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           <div className="lg:col-span-2 space-y-12">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">{product.title}</h1>
-              <p className="text-xl text-muted-foreground">{product.description}</p>
+              <p className="text-xl text-muted-foreground leading-relaxed">{product.description}</p>
             </div>
 
             <ProductGallery images={product.images} thumbnail={product.thumbnail} />

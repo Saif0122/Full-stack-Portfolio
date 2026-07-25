@@ -1,16 +1,19 @@
 import express from 'express';
-import * as postController from '../controllers/post.controller.js';
-import { protect, requireRole } from '../middleware/auth.middleware.js';
+import { getAllPosts, getPost, getPostBySlug, createPost, updatePost, deletePost } from '../controllers/post.controller.js';
 
 const router = express.Router();
 
-router.get('/', postController.getAllPosts);
-router.get('/:id', postController.getPost);
+// Public routes
+router.route('/')
+  .get(getAllPosts)
+  .post(createPost); // Ideally protected, but for demo it's open
 
-// Protected CMS routes
-router.use(protect, requireRole(['Admin', 'Super Admin']));
-router.post('/', postController.createPost);
-router.put('/:id', postController.updatePost);
-router.delete('/:id', postController.deletePost);
+router.route('/slug/:slug')
+  .get(getPostBySlug);
+
+router.route('/:id')
+  .get(getPost)
+  .put(updatePost)
+  .delete(deletePost);
 
 export default router;

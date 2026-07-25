@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
   discount: { type: Number, default: 0 },
   total: { type: Number, required: true },
   coupon: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' },
-  status: { type: String, enum: ['pending', 'completed', 'failed', 'refunded'], default: 'pending' },
+  status: { type: String, enum: ['pending', 'completed', 'cancelled', 'refunded', 'archived'], default: 'pending' },
   paymentIntentId: { type: String }, // Stripe integration
 }, { timestamps: true });
 

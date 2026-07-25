@@ -25,25 +25,46 @@ export default function CustomerDashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Orders Card */}
-            <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md">
+            <a href="/dashboard/orders" className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md block hover:scale-[1.02] transition-transform cursor-pointer">
               <h3 className="text-xl font-bold mb-2">Orders</h3>
-              <p className="text-muted-foreground text-sm mb-4">View your recent purchases and invoices.</p>
+              <p className="text-muted-foreground text-sm mb-4">View your recent purchases.</p>
               <div className="text-3xl font-black text-primary">0</div>
-            </div>
+            </a>
 
             {/* Downloads Card */}
-            <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md">
+            <a href="/dashboard/downloads" className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md block hover:scale-[1.02] transition-transform cursor-pointer">
               <h3 className="text-xl font-bold mb-2">Downloads</h3>
               <p className="text-muted-foreground text-sm mb-4">Access your purchased digital products.</p>
               <div className="text-3xl font-black text-secondary">0</div>
-            </div>
+            </a>
 
             {/* Licenses Card */}
-            <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md">
+            <a href="/dashboard/licenses" className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md block hover:scale-[1.02] transition-transform cursor-pointer">
               <h3 className="text-xl font-bold mb-2">Licenses</h3>
               <p className="text-muted-foreground text-sm mb-4">Manage your product license keys.</p>
               <div className="text-3xl font-black text-foreground">0</div>
-            </div>
+            </a>
+            
+            {/* Invoices Card */}
+            <a href="/dashboard/invoices" className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md block hover:scale-[1.02] transition-transform cursor-pointer">
+              <h3 className="text-xl font-bold mb-2">Invoices</h3>
+              <p className="text-muted-foreground text-sm mb-4">Download your tax invoices.</p>
+              <div className="text-3xl font-black text-gray-400">0</div>
+            </a>
+
+            {/* Payments Card */}
+            <a href="/dashboard/payments" className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md block hover:scale-[1.02] transition-transform cursor-pointer">
+              <h3 className="text-xl font-bold mb-2">Payments</h3>
+              <p className="text-muted-foreground text-sm mb-4">View your payment history.</p>
+              <div className="text-3xl font-black text-purple-400">0</div>
+            </a>
+
+            {/* Profile Card */}
+            <a href="/dashboard/profile" className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md block hover:scale-[1.02] transition-transform cursor-pointer">
+              <h3 className="text-xl font-bold mb-2">Profile</h3>
+              <p className="text-muted-foreground text-sm mb-4">Update your account details.</p>
+              <div className="text-3xl font-black text-emerald-400">&rarr;</div>
+            </a>
           </div>
         </div>
       </div>

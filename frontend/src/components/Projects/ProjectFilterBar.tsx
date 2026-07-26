@@ -77,7 +77,7 @@ export const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({ projects = [
         <AnimatePresence mode="popLayout">
           {filteredProjects.map((project) => (
             <motion.div
-              key={project.id}
+              key={project._id || project.id}
               layout
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}

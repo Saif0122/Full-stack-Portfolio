@@ -16,7 +16,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
       "font-src 'self' fonts.gstatic.com",
-      "img-src 'self' data: blob: https://picsum.photos https://images.unsplash.com",
+      "img-src 'self' data: blob: https://picsum.photos https://images.unsplash.com https://unsplash.com",
       "connect-src 'self' generativelanguage.googleapis.com http://localhost:5000",
     ].join('; ')
   }
@@ -34,6 +34,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'unsplash.com',
         pathname: '/**',
       },
     ],

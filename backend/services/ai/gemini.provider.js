@@ -1,37 +1,66 @@
 import AIProvider from './ai.provider.js';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default class GeminiProvider extends AIProvider {
   constructor(apiKey) {
     super(apiKey);
     this.name = 'Gemini';
+    this.genAI = new GoogleGenerativeAI(apiKey);
   }
 
   async generateText(prompt, options = {}) {
-    console.log(`[Gemini Mock] Generating text for prompt: ${prompt.substring(0, 20)}...`);
+    const model = this.genAI.getGenerativeModel({ model: options.model || 'gemini-1.5-pro' });
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        maxOutputTokens: options.maxTokens,
+        temperature: options.temperature,
+      }
+    });
+    
+    const response = await result.response;
     return {
-      text: `Mock Gemini Response to: "${prompt.substring(0, 50)}..."`,
+      text: response.text(),
       usage: {
-        promptTokens: 15,
-        completionTokens: 30,
-        totalTokens: 45
+        totalTokens: response.usageMetadata?.totalTokenCount || 0,
+        promptTokens: response.usageMetadata?.promptTokenCount || 0,
+        completionTokens: response.usageMetadata?.candidatesTokenCount || 0
       },
       model: options.model || 'gemini-1.5-pro'
     };
   }
 
   async generateStructuredData(prompt, options = {}) {
-    console.log(`[Gemini Mock] Generating JSON...`);
+    const model = this.genAI.getGenerativeModel({ model: options.model || 'gemini-1.5-pro' });
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        maxOutputTokens: options.maxTokens,
+        temperature: options.temperature,
+      }
+    });
+
+    const response = await result.response;
     return {
-      data: { status: 'mock_success', provider: 'Gemini' },
-      usage: { totalTokens: 50 }
+      data: JSON.parse(response.text()),
+      usage: { totalTokens: response.usageMetadata?.totalTokenCount || 0 }
     };
   }
 
   async streamResponse(prompt, options = {}, onChunk) {
-    const chunks = ['Mock', 'Gemini', 'Streaming', 'Response'];
-    for (const chunk of chunks) {
-      onChunk(chunk + ' ');
-      await new Promise(r => setTimeout(r, 100));
+    const model = this.genAI.getGenerativeModel({ model: options.model || 'gemini-1.5-pro' });
+    const result = await model.generateContentStream({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        maxOutputTokens: options.maxTokens,
+        temperature: options.temperature,
+      }
+    });
+
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      onChunk(chunkText);
     }
   }
 }

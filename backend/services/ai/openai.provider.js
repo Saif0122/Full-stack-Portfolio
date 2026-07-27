@@ -1,38 +1,61 @@
 import AIProvider from './ai.provider.js';
+import OpenAI from 'openai';
 
 export default class OpenAIProvider extends AIProvider {
   constructor(apiKey) {
     super(apiKey);
     this.name = 'OpenAI';
+    this.openai = new OpenAI({ apiKey: apiKey });
   }
 
   async generateText(prompt, options = {}) {
-    // Mock implementation for Phase 14 architecture validation
-    console.log(`[OpenAI Mock] Generating text for prompt: ${prompt.substring(0, 20)}...`);
+    const response = await this.openai.chat.completions.create({
+      model: options.model || 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: options.maxTokens,
+      temperature: options.temperature,
+    });
+
     return {
-      text: `Mock OpenAI Response to: "${prompt.substring(0, 50)}..."`,
+      text: response.choices[0].message.content,
       usage: {
-        promptTokens: 10,
-        completionTokens: 25,
-        totalTokens: 35
+        promptTokens: response.usage.prompt_tokens,
+        completionTokens: response.usage.completion_tokens,
+        totalTokens: response.usage.total_tokens
       },
-      model: options.model || 'gpt-4o'
+      model: response.model
     };
   }
 
   async generateStructuredData(prompt, options = {}) {
-    console.log(`[OpenAI Mock] Generating JSON...`);
+    const response = await this.openai.chat.completions.create({
+      model: options.model || 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      response_format: { type: 'json_object' },
+      max_tokens: options.maxTokens,
+      temperature: options.temperature,
+    });
+
     return {
-      data: { status: 'mock_success', message: 'This is a mock structured response' },
-      usage: { totalTokens: 40 }
+      data: JSON.parse(response.choices[0].message.content),
+      usage: { totalTokens: response.usage.total_tokens }
     };
   }
 
   async streamResponse(prompt, options = {}, onChunk) {
-    const chunks = ['Mock', 'OpenAI', 'Streaming', 'Response'];
-    for (const chunk of chunks) {
-      onChunk(chunk + ' ');
-      await new Promise(r => setTimeout(r, 100)); // Simulate network delay
+    const stream = await this.openai.chat.completions.create({
+      model: options.model || 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      stream: true,
+      max_tokens: options.maxTokens,
+      temperature: options.temperature,
+    });
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content || '';
+      if (content) {
+        onChunk(content);
+      }
     }
   }
 }

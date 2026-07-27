@@ -1,37 +1,65 @@
 import AIProvider from './ai.provider.js';
+import Anthropic from '@anthropic-ai/sdk';
 
 export default class AnthropicProvider extends AIProvider {
   constructor(apiKey) {
     super(apiKey);
     this.name = 'Anthropic';
+    this.anthropic = new Anthropic({ apiKey: apiKey });
   }
 
   async generateText(prompt, options = {}) {
-    console.log(`[Anthropic Mock] Generating text for prompt: ${prompt.substring(0, 20)}...`);
+    const response = await this.anthropic.messages.create({
+      model: options.model || 'claude-3-5-sonnet-20240620',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: options.maxTokens || 1024,
+      temperature: options.temperature,
+    });
+
     return {
-      text: `Mock Anthropic Response to: "${prompt.substring(0, 50)}..."`,
+      text: response.content[0].text,
       usage: {
-        promptTokens: 12,
-        completionTokens: 28,
-        totalTokens: 40
+        promptTokens: response.usage.input_tokens,
+        completionTokens: response.usage.output_tokens,
+        totalTokens: response.usage.input_tokens + response.usage.output_tokens
       },
-      model: options.model || 'claude-3-5-sonnet'
+      model: response.model
     };
   }
 
   async generateStructuredData(prompt, options = {}) {
-    console.log(`[Anthropic Mock] Generating JSON...`);
+    const response = await this.anthropic.messages.create({
+      model: options.model || 'claude-3-5-sonnet-20240620',
+      messages: [{ role: 'user', content: prompt + '\n\nPlease output valid JSON only without markdown formatting.' }],
+      max_tokens: options.maxTokens || 1024,
+      temperature: options.temperature,
+    });
+
+    // Strip markdown JSON wrapping if present
+    let text = response.content[0].text.trim();
+    if (text.startsWith('```json')) text = text.replace(/^```json/, '');
+    if (text.startsWith('```')) text = text.replace(/^```/, '');
+    if (text.endsWith('```')) text = text.replace(/```$/, '');
+    
     return {
-      data: { status: 'mock_success', provider: 'Anthropic' },
-      usage: { totalTokens: 45 }
+      data: JSON.parse(text.trim()),
+      usage: { totalTokens: response.usage.input_tokens + response.usage.output_tokens }
     };
   }
 
   async streamResponse(prompt, options = {}, onChunk) {
-    const chunks = ['Mock', 'Anthropic', 'Streaming', 'Response'];
-    for (const chunk of chunks) {
-      onChunk(chunk + ' ');
-      await new Promise(r => setTimeout(r, 100));
+    const stream = await this.anthropic.messages.create({
+      model: options.model || 'claude-3-5-sonnet-20240620',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: options.maxTokens || 1024,
+      temperature: options.temperature,
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      if (chunk.type === 'content_block_delta' && chunk.delta.text) {
+        onChunk(chunk.delta.text);
+      }
     }
   }
 }

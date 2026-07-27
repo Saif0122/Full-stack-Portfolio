@@ -121,6 +121,32 @@ export class PostService {
             monitoring: 'OpenTelemetry integration at the domain boundary.'
           },
           seo: { metaTitle: 'Designing Scalable MERN Architecture | Part 1: Foundation' }
+        },
+        {
+          slug: 'agentic-workflows-llm-backend-architecture',
+          title: 'Building Agentic Workflows: How LLMs are Rewriting Backend Architecture',
+          excerpt: 'A deep dive into integrating autonomous AI agents within Node.js microservices. Moving beyond simple RAG to fully agentic systems.',
+          content: `<h2>The Shift to Agentic Systems</h2>`,
+          markdownContent: `## The Shift to Agentic Systems\nIn 2026, we have moved past simple prompt wrappers. Enterprise applications now require **Agentic Workflows** where LLMs have autonomous access to tools, databases, and APIs.\n\n### Tool Calling vs Autonomous Action\nThe architectural gap between a chatbot and an autonomous agent is the **Tool Abstraction Layer**. By wrapping legacy REST APIs into strictly typed schemas (like JSON Schema or Zod), we enable models like GPT-4o and Claude 3.5 Sonnet to execute multi-step backend operations autonomously.\n\n### The Orchestrator Pattern\nInstead of a monolithic AI service, the modern approach uses an Orchestrator. The orchestrator decomposes user intent into a Directed Acyclic Graph (DAG) of tasks, delegating them to specialized sub-agents.`,
+          coverImage: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=1600',
+          author: author._id,
+          category: catArch._id,
+          tags: [tagSys._id, tagNode._id, tagArch._id],
+          status: 'published',
+          clusterId: 'mern-arch',
+          readTime: '20 min read',
+          mermaidDiagram: `graph TD\n  A[User Intent] --> B[Orchestrator Agent]\n  B --> C[DB Query Agent]\n  B --> D[API Executor Agent]\n  C --> E[Data Synthesis]\n  D --> E\n  E --> F[Final Response]`,
+          githubRepo: { owner: 'saifulislam', repo: 'agentic-node-framework', stars: 1240, cta: 'View Agent Framework' },
+          technicalSegments: {
+            architecturalDecisions: 'Implemented a DAG-based orchestration engine for multi-agent workflows in Node.js.',
+            tradeOffs: 'Higher latency due to multi-step reasoning vs extreme flexibility and autonomous error recovery.',
+            bottlenecks: 'Context window saturation and rate limiting from third-party LLM APIs.',
+            scalingStrategy: 'Stateless agent workers on Kubernetes with Redis for shared memory and graph state.',
+            securityConsiderations: 'Strict schema validation and human-in-the-loop (HITL) overrides for destructive tool calls.',
+            performanceOptimization: 'Semantic caching of identical agentic trajectories to bypass LLM calls.',
+            monitoring: 'Tracing agent reasoning steps using LangSmith and Datadog.'
+          },
+          seo: { metaTitle: 'Building Agentic Workflows in Node.js | LLM Architecture', metaDescription: 'Learn how to architect autonomous AI agents and integrate LLMs into production backend systems.', focusKeyword: 'Agentic Workflows', keywordDifficulty: 'Medium', internalLinks: ['/blog/mern-architecture-saas-scaling-2026'], externalLinks: [] }
         }
       ]);
       console.log('Blog seeding complete!');

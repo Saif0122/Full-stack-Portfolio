@@ -7,8 +7,13 @@ import { BlogPostView } from './BlogPostView';
 
 export const revalidate = 60; // Revalidate at most every 60 seconds
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await fetchPostBySlug(params.slug);
+type PageProps = {
+  params: Promise<{ slug: string }>;
+};
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const post = await fetchPostBySlug(resolvedParams.slug);
   if (!post) return { title: 'Post Not Found' };
 
   return {
@@ -38,8 +43,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await fetchPostBySlug(params.slug);
+export default async function BlogPostPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const post = await fetchPostBySlug(resolvedParams.slug);
   
   if (!post) {
     notFound();

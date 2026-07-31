@@ -19,6 +19,7 @@ export interface Product {
   reviewCount: number;
   isPopular?: boolean;
   isNew?: boolean;
+  _isMock?: boolean;
 }
 
 export interface Order {

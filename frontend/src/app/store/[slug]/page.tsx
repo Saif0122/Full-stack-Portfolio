@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { fetchProductBySlug, fetchAllProducts } from '@/services/store.service';
+import LiveDataRefresher from '@/components/LiveDataRefresher';
 
 export const revalidate = 60;
 
@@ -40,12 +41,16 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
   const product = await fetchProductBySlug(params.slug);
 
   if (!product) {
-    notFound();
+    return notFound();
   }
 
+  const isMockData = !!product._isMock;
+
   return (
-    <div className="min-h-screen pt-32 pb-24">
-      <div className="container mx-auto px-4">
+    <>
+      <LiveDataRefresher isMockData={isMockData} />
+      <div className="min-h-screen pt-32 pb-24">
+        <div className="container mx-auto px-4">
         {/* Breadcrumb */}
         <div className="mb-8 flex items-center gap-2 text-sm text-muted-foreground">
           <Link href="/store" className="hover:text-primary transition-colors">Store</Link>
@@ -98,5 +103,6 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
         </div>
       </div>
     </div>
+    </>
   );
 }

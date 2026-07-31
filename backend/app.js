@@ -20,13 +20,30 @@ import analyticsRoutes from './routes/analytics.routes.js';
 import seoRoutes from './routes/seo.routes.js';
 import widgetRoutes from './routes/dashboard-widget.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
-dotenv.config();
+import { config } from './config/env.config.js';
 
 const app = express();
 
 // Global Middleware
+const allowedOrigins = config.allowedOrigins.split(',').map(url => url.trim());
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or server-to-server)
+    if (!origin) return callback(null, true);
+    
+    // Check if the origin is explicitly whitelisted
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // In development, be slightly more forgiving for localhost ports
+    if (config.env !== 'production' && origin.startsWith('http://localhost:')) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('CORS policy violation: Origin not allowed'), false);
+  },
   credentials: true
 }));
 app.use(express.json());
@@ -69,10 +86,17 @@ app.use((req, res, next) => {
 // Global Error Handler Middleware
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  
+  // In production, sanitize 500 Internal Server Error messages to prevent leakage
+  let message = err.message;
+  if (config.env === 'production' && statusCode >= 500) {
+    message = 'Internal Server Error';
+  }
+
   res.status(statusCode).json({
     status: 'error',
-    message: err.message,
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    message: message,
+    ...(config.env !== 'production' && { stack: err.stack }), // Only include stack property in dev
   });
 });
 

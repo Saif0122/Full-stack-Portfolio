@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 import Role from '../models/role.model.js';
-
+import { config } from '../config/env.config.js';
 export const protect = async (req, res, next) => {
   let token;
 
@@ -11,7 +11,7 @@ export const protect = async (req, res, next) => {
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret123');
+      const decoded = jwt.verify(token, config.jwt.secret);
       req.user = await User.findById(decoded.id).select('-password').populate('role');
       if (!req.user) {
         return res.status(401).json({ message: 'User not found' });

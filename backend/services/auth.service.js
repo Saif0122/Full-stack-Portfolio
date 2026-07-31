@@ -2,7 +2,7 @@ import User from '../models/user.model.js';
 import Role from '../models/role.model.js';
 import Token from '../models/token.model.js';
 import jwt from 'jsonwebtoken';
-
+import { config } from '../config/env.config.js';
 /**
  * Register a user
  */
@@ -81,7 +81,7 @@ export const loginUser = async (email, password) => {
  */
 export const refreshToken = async (tokenString) => {
   try {
-    const decoded = jwt.verify(tokenString, process.env.JWT_REFRESH_SECRET || 'refreshsecret123');
+    const decoded = jwt.verify(tokenString, config.jwt.refreshSecret);
     
     // Check if token exists in DB
     const tokenDoc = await Token.findOne({ token: tokenString, type: 'refresh' });
@@ -95,7 +95,7 @@ export const refreshToken = async (tokenString) => {
     }
 
     // Generate new access token
-    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret123', {
+    const accessToken = jwt.sign({ id: user._id }, config.jwt.secret, {
       expiresIn: '15m'
     });
 
@@ -115,11 +115,11 @@ export const logoutUser = async (tokenString) => {
 };
 
 const generateTokens = (id) => {
-  const accessToken = jwt.sign({ id }, process.env.JWT_SECRET || 'secret123', {
+  const accessToken = jwt.sign({ id }, config.jwt.secret, {
     expiresIn: '15m' // Short-lived access token
   });
   
-  const refreshToken = jwt.sign({ id }, process.env.JWT_REFRESH_SECRET || 'refreshsecret123', {
+  const refreshToken = jwt.sign({ id }, config.jwt.refreshSecret, {
     expiresIn: '7d' // Long-lived refresh token
   });
 

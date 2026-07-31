@@ -57,6 +57,7 @@ export interface BlogPost {
   };
   
   seo: BlogSeo;
+  _isMock?: boolean;
 }
 
 export interface AuthorityCluster {

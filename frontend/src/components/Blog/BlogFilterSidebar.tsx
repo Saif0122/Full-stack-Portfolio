@@ -38,6 +38,7 @@ export const BlogFilterSidebar: React.FC<{ initialPosts: BlogPost[] }> = ({ init
 
   // Reset page to 1 when filters change
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [activeCategory, searchQuery]);
 

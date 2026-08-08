@@ -4,7 +4,12 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
-import { ChatWidget } from '../AIChat/ChatWidget';
+import dynamic from 'next/dynamic';
+
+const FloatingAssistant = dynamic(
+  () => import('../AIChat/FloatingAssistant').then((mod) => mod.FloatingAssistant),
+  { ssr: false } // Prevent SSR to avoid hydration issues with AI state
+);
 
 export const ClientLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -26,7 +31,7 @@ export const ClientLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ c
         {children}
       </main>
       <Footer />
-      <ChatWidget />
+      <FloatingAssistant />
     </div>
   );
 };

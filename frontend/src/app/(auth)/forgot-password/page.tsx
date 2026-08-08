@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
         {isSent ? (
           <div className="text-center">
             <div className="bg-green-500/10 text-green-400 p-4 rounded-lg mb-6 border border-green-500/20">
-              We've sent a password reset link to your email address. Please check your inbox.
+              We&apos;ve sent a password reset link to your email address. Please check your inbox.
             </div>
             <Link href="/login" className="text-blue-400 hover:text-blue-300 font-medium">
               Return to Sign In

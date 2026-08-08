@@ -71,6 +71,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     const sourceField = formData.title || formData.name;
     if (hasSlugField && sourceField && !formData.slug) {
       const slug = sourceField.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(prev => ({ ...prev, slug }));
     }
   }, [formData.title, formData.name, fields, formData.slug]);

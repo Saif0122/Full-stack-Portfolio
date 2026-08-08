@@ -5,6 +5,7 @@ import { AppProviders } from '@/providers/AppProviders';
 import { PageLoader } from '@/components/ui/PageLoader';
 import { CustomCursor } from '@/components/ui/CustomCursor';
 import { ClientLayoutWrapper } from '@/components/Navigation';
+import { AIContextProvider } from '@/components/providers/AIContextProvider';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -58,9 +59,11 @@ export default function RootLayout({
         <AppProviders>
           <PageLoader />
           <CustomCursor />
-          <ClientLayoutWrapper>
-            {children}
-          </ClientLayoutWrapper>
+          <AIContextProvider>
+            <ClientLayoutWrapper>
+              {children}
+            </ClientLayoutWrapper>
+          </AIContextProvider>
         </AppProviders>
       </body>
     </html>

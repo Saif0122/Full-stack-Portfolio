@@ -32,7 +32,7 @@ export default function ReviewsManagementPage() {
     { header: 'Customer & Comment', accessorKey: 'comment', cell: (r) => (
       <div className="max-w-md">
         <span className="text-xs font-bold text-indigo-400 block mb-1">{r.customer} wrote:</span>
-        <p className="text-xs text-gray-300 italic line-clamp-2">"{r.comment}"</p>
+        <p className="text-xs text-gray-300 italic line-clamp-2">&quot;{r.comment}&quot;</p>
       </div>
     )},
     { header: 'Moderation State', accessorKey: 'status', cell: (r) => (

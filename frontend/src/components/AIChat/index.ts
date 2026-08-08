@@ -1,1 +1,1 @@
-export * from './ChatWidget';
+export { FloatingAssistant } from './FloatingAssistant';

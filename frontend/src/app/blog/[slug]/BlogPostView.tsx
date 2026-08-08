@@ -9,6 +9,7 @@ import { ReadingProgressBar } from '@/components/Blog/ReadingProgressBar';
 import { ArticleHero } from '@/components/Blog/ArticleHero';
 import { ArticleBody } from '@/components/Blog/ArticleBody';
 import { ArticleSidebar } from '@/components/Blog/ArticleSidebar';
+import { CommentsSection } from '@/components/Blog/CommentsSection';
 
 interface BlogPostViewProps {
   post: BlogPost;
@@ -119,6 +120,9 @@ export const BlogPostView: React.FC<BlogPostViewProps> = ({ post, cluster, clust
                 </div>
               </div>
             )}
+
+            {/* Comments Section */}
+            <CommentsSection postId={post.id} />
           </motion.div>
         </main>
 

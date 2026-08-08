@@ -6,4 +6,7 @@ const router = express.Router();
 
 router.post('/', protect, checkoutController.checkout);
 
+// Note: Webhook endpoint needs raw body for Stripe signature validation
+router.post('/webhook', express.raw({ type: 'application/json' }), checkoutController.webhook);
+
 export default router;

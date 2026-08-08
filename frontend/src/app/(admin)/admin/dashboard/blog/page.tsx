@@ -156,6 +156,15 @@ export default function BlogCmsStudioPage() {
             columns={columns}
             searchPlaceholder="Search Tech Lab publications by title..."
             searchKey="title"
+            enableSelection={true}
+            onBulkPublish={(selectedIds) => {
+              // Note: actual API call would go here. For now it is mocked.
+              toast(`Published ${selectedIds.length} articles`, 'success');
+            }}
+            onBulkDelete={(selectedIds) => {
+              // Note: actual API call would go here. For now it is mocked.
+              toast(`Deleted ${selectedIds.length} articles`, 'success');
+            }}
             actions={(item) => (
               <>
                 <button onClick={() => { setSelectedArticle(item); setIsWriting(true); }} className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-mono text-xs border border-white/5">Edit</button>

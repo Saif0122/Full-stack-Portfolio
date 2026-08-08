@@ -49,7 +49,11 @@ const userSchema = new mongoose.Schema(
     },
     lastLogin: {
       type: Date,
-    }
+    },
+    wishlist: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product'
+    }]
   },
   {
     timestamps: true, // Automatically manage createdAt and updatedAt

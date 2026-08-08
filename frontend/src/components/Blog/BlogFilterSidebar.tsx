@@ -9,6 +9,9 @@ export const BlogFilterSidebar: React.FC<{ initialPosts: BlogPost[] }> = ({ init
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 6;
+
   // Extract unique categories
   const categories = useMemo(() => {
     const cats = new Set(initialPosts.map(post => post.category));
@@ -25,6 +28,18 @@ export const BlogFilterSidebar: React.FC<{ initialPosts: BlogPost[] }> = ({ init
       return matchesCategory && matchesSearch;
     });
   }, [activeCategory, searchQuery, initialPosts]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+  const paginatedPosts = useMemo(() => {
+    const start = (currentPage - 1) * postsPerPage;
+    return filteredPosts.slice(start, start + postsPerPage);
+  }, [filteredPosts, currentPage, postsPerPage]);
+
+  // Reset page to 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
@@ -78,7 +93,7 @@ export const BlogFilterSidebar: React.FC<{ initialPosts: BlogPost[] }> = ({ init
       <div className="lg:col-span-9">
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[500px]">
           <AnimatePresence mode="popLayout">
-            {filteredPosts.map((post) => (
+            {paginatedPosts.map((post) => (
               <motion.div
                 key={post.id}
                 layout
@@ -90,7 +105,7 @@ export const BlogFilterSidebar: React.FC<{ initialPosts: BlogPost[] }> = ({ init
                 <BlogCard post={post} />
               </motion.div>
             ))}
-            {filteredPosts.length === 0 && (
+            {paginatedPosts.length === 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -108,6 +123,29 @@ export const BlogFilterSidebar: React.FC<{ initialPosts: BlogPost[] }> = ({ init
             )}
           </AnimatePresence>
         </motion.div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-4">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-gray-300 disabled:opacity-30 hover:bg-white/10 transition-colors"
+            >
+              PREV
+            </button>
+            <div className="text-xs font-mono text-gray-400">
+              Page <span className="text-white font-bold">{currentPage}</span> of {totalPages}
+            </div>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-gray-300 disabled:opacity-30 hover:bg-white/10 transition-colors"
+            >
+              NEXT
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

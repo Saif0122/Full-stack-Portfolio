@@ -24,6 +24,7 @@ import notificationRoutes from './routes/notification.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import newsletterRoutes from './routes/newsletter.routes.js';
 import usersRoutes from './routes/users.routes.js';
+import commentRoutes from './routes/comment.routes.js';
 import { config } from './config/env.config.js';
 const app = express();
 
@@ -81,6 +82,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/newsletters', newsletterRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/comments', commentRoutes);
 
 // 404 Route Not Found Middleware
 app.use((req, res, next) => {

@@ -39,7 +39,26 @@ const postSchema = new mongoose.Schema({
     keywordDifficulty: String,
     internalLinks: [String],
     externalLinks: [String],
-  }
+  },
+  // Engagement
+  views: { type: Number, default: 0 },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  
+  // Advanced CMS
+  isPinned: { type: Boolean, default: false },
+  scheduledFor: { type: Date },
+  
+  // Categorization
+  series: { type: mongoose.Schema.Types.ObjectId, ref: 'Series' },
+  
+  // Revision History
+  revisions: [{
+    content: String,
+    markdownContent: String,
+    updatedAt: Date,
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  }]
 }, { timestamps: true });
 
 const Post = mongoose.models.Post || mongoose.model('Post', postSchema);

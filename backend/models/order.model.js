@@ -15,6 +15,9 @@ const orderSchema = new mongoose.Schema({
   coupon: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' },
   status: { type: String, enum: ['pending', 'completed', 'cancelled', 'refunded', 'archived'], default: 'pending' },
   paymentIntentId: { type: String }, // Stripe integration
+  checkoutSessionId: { type: String },
+  receiptUrl: { type: String },
+  invoiceId: { type: String }
 }, { timestamps: true });
 
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);

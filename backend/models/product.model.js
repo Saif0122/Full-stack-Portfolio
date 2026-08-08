@@ -24,6 +24,16 @@ const productSchema = new mongoose.Schema({
   isNewBadge: { type: Boolean, default: false }, // Added for UI badge
   isFeatured: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
+  
+  // Digital Marketplace fields
+  productType: { 
+    type: String, 
+    enum: ['template', 'uikit', 'source_code', 'course', 'pdf', 'ebook', 'premium_article', 'admin_dashboard', 'mern_project'],
+    default: 'source_code'
+  },
+  localFileUrl: { type: String }, // Path for local file downloads
+  downloadLimit: { type: Number, default: 0 }, // 0 means unlimited
+  isSubscriptionBased: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);

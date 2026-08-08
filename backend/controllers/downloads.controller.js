@@ -13,9 +13,22 @@ export const getProductDownloads = async (req, res, next) => {
 
 export const downloadFile = async (req, res, next) => {
   try {
-    const fileUrl = await downloadService.downloadProduct(req.user._id, req.params.id);
-    // In a real app, this would redirect to a signed URL or stream the file
-    res.status(200).json({ success: true, data: { fileUrl } });
+    const { stream, fileName, size } = await downloadService.downloadProduct(req.user._id, req.params.id);
+    
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Length', size);
+    
+    stream.pipe(res);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const generateDownloadLink = async (req, res, next) => {
+  try {
+    const downloadUrl = await downloadService.generateSecureLink(req.user._id, req.params.productId);
+    res.status(200).json({ success: true, url: downloadUrl });
   } catch (error) {
     next(error);
   }

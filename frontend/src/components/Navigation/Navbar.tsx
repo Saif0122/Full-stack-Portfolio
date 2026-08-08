@@ -48,12 +48,20 @@ export const Navbar: React.FC = () => {
           })}
         </div>
 
-        <Link 
-          href="/contact" 
-          className="px-6 py-2 bg-primary/10 border border-primary/50 text-primary text-xs font-bold uppercase tracking-widest rounded-full hover:bg-primary hover:text-black transition-all"
-        >
-          Hire Me
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link 
+            href="/login" 
+            className="hidden sm:inline-block px-4 py-2 text-gray-300 text-xs font-bold uppercase tracking-widest hover:text-white transition-all"
+          >
+            Sign In
+          </Link>
+          <Link 
+            href="/contact" 
+            className="px-6 py-2 bg-primary/10 border border-primary/50 text-primary text-xs font-bold uppercase tracking-widest rounded-full hover:bg-primary hover:text-black transition-all"
+          >
+            Hire Me
+          </Link>
+        </div>
       </nav>
     </header>
   );

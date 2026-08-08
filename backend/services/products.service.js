@@ -80,9 +80,53 @@ export class ProductService {
     }
   }
 
-  async getStoreProducts(filter = {}) {
-    const products = await Product.find({ ...filter, isActive: true }).populate('category');
-    return products.map(this._mapProductToFrontend);
+  async getStoreProducts(query = {}) {
+    const { search, category, sort, page = 1, limit = 12 } = query;
+    const filter = { isActive: true };
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    if (category && category !== 'all') {
+      const cat = await Category.findOne({ slug: category });
+      if (cat) filter.category = cat._id;
+    }
+
+    let sortOption = { createdAt: -1 };
+    if (sort === 'price_asc') sortOption = { price: 1 };
+    if (sort === 'price_desc') sortOption = { price: -1 };
+    if (sort === 'popular') sortOption = { downloads: -1, reviewCount: -1 };
+    if (sort === 'rating') sortOption = { rating: -1 };
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const products = await Product.find(filter)
+      .populate('category')
+      .sort(sortOption)
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    const total = await Product.countDocuments(filter);
+
+    return {
+      products: products.map(p => this._mapProductToFrontend(p)),
+      pagination: {
+        total,
+        page: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    };
+  }
+
+  async getFeaturedProducts() {
+    const products = await Product.find({ isActive: true, isFeatured: true })
+      .populate('category')
+      .limit(6);
+    return products.map(p => this._mapProductToFrontend(p));
   }
 
   async getProductDetails(slug) {
@@ -103,6 +147,7 @@ export class ProductService {
       title: p.title,
       description: p.description,
       shortDescription: p.shortDescription,
+      productType: p.productType,
       price: p.price,
       salePrice: p.salePrice,
       category: p.category ? p.category.slug : 'plugins',

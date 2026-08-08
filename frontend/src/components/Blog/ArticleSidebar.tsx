@@ -40,27 +40,38 @@ export const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ post }) => {
 
   return (
     <aside className="space-y-12 sticky top-32">
-      {/* Table of Contents Placeholder */}
+      {/* Table of Contents */}
       <div className="p-6 bg-white/5 border border-white/10 rounded-3xl">
         <h4 className="text-white text-xs font-black uppercase tracking-widest mb-6">Table of Contents</h4>
         <ul className="space-y-3 text-sm text-gray-400">
-          <li className="hover:text-primary transition-colors cursor-pointer">1. Introduction</li>
-          <li className="hover:text-primary transition-colors cursor-pointer">2. Architecture Overview</li>
-          <li className="hover:text-primary transition-colors cursor-pointer">3. Technical Decisions</li>
-          <li className="hover:text-primary transition-colors cursor-pointer">4. Conclusion</li>
+          {post.markdownContent?.split('\n').filter(line => line.startsWith('## ')).map((heading, i) => {
+            const title = heading.replace('## ', '');
+            const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            return (
+              <li key={i} className="hover:text-primary transition-colors cursor-pointer">
+                <a href={`#${id}`}>{title}</a>
+              </li>
+            );
+          }) || (
+            <li className="text-gray-500 font-mono text-xs">No headings found.</li>
+          )}
         </ul>
       </div>
 
       {/* Share Actions */}
-      <div className="flex gap-4">
+      <div className="flex gap-4 mb-4">
         <button onClick={copyLink} className="flex-1 py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-black hover:border-primary transition-all flex items-center justify-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
           Copy Link
         </button>
-        <button onClick={() => window.print()} className="flex-1 py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-          Print
-        </button>
+      </div>
+      <div className="flex gap-4">
+        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=YOUR_SITE_URL/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-[#1DA1F2]/10 border border-[#1DA1F2]/20 rounded-xl text-xs font-black text-[#1DA1F2] uppercase tracking-widest hover:bg-[#1DA1F2] hover:text-white transition-all flex items-center justify-center gap-2">
+          X / Twitter
+        </a>
+        <a href={`https://www.linkedin.com/shareArticle?mini=true&url=YOUR_SITE_URL/blog/${post.slug}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 bg-[#0A66C2]/10 border border-[#0A66C2]/20 rounded-xl text-xs font-black text-[#0A66C2] uppercase tracking-widest hover:bg-[#0A66C2] hover:text-white transition-all flex items-center justify-center gap-2">
+          LinkedIn
+        </a>
       </div>
 
       {/* Embedded AI Assistant */}

@@ -5,6 +5,7 @@ import { protect, requireRole } from '../middleware/auth.middleware.js';
 const router = express.Router();
 
 router.get('/product/:productId', protect, downloadsController.getProductDownloads);
+router.get('/generate-link/:productId', protect, downloadsController.generateDownloadLink);
 router.get('/:id', protect, downloadsController.downloadFile);
 
 // Admin only

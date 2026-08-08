@@ -4,7 +4,16 @@ const productService = new ProductService();
 
 export const getProducts = async (req, res, next) => {
   try {
-    const data = await productService.getStoreProducts();
+    const data = await productService.getStoreProducts(req.query);
+    res.status(200).json({ success: true, ...data }); // data contains products & pagination
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFeaturedProducts = async (req, res, next) => {
+  try {
+    const data = await productService.getFeaturedProducts();
     res.status(200).json({ success: true, data });
   } catch (error) {
     next(error);

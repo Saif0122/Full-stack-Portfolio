@@ -54,3 +54,29 @@ export const deleteUser = async (req, res, next) => {
     res.json({ success: true, data: {} });
   } catch (error) { next(error); }
 };
+
+export const getWishlist = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).populate('wishlist');
+    res.json({ success: true, data: user.wishlist || [] });
+  } catch (error) { next(error); }
+};
+
+export const toggleWishlist = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const productId = req.params.productId;
+    
+    const index = user.wishlist.indexOf(productId);
+    if (index > -1) {
+      user.wishlist.splice(index, 1); // Remove
+    } else {
+      user.wishlist.push(productId); // Add
+    }
+    await user.save();
+    
+    // Repopulate for response
+    await user.populate('wishlist');
+    res.json({ success: true, data: user.wishlist });
+  } catch (error) { next(error); }
+};

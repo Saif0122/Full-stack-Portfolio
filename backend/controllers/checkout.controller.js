@@ -12,3 +12,14 @@ export const checkout = async (req, res, next) => {
     next(error);
   }
 };
+
+export const webhook = async (req, res, next) => {
+  try {
+    const providerName = 'stripe'; // Or determine from headers
+    const result = await paymentService.handleWebhook(providerName, req);
+    res.status(200).send('Webhook handled');
+  } catch (error) {
+    console.error('Webhook error:', error.message);
+    res.status(400).send(`Webhook Error: ${error.message}`);
+  }
+};

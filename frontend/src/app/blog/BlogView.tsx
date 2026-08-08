@@ -43,13 +43,26 @@ export const BlogView: React.FC<BlogViewProps> = ({ posts }) => {
           <p className="text-gray-400 mb-12 max-w-xl mx-auto text-xl font-light leading-relaxed relative z-10">
             Subscribe to the Nexus Transmission for monthly technical whitepapers and 2026 system design blueprints.
           </p>
-          <form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto relative z-10" onSubmit={(e) => e.preventDefault()}>
+          <form 
+            className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto relative z-10" 
+            onSubmit={(e) => {
+              e.preventDefault();
+              const input = (e.target as any).elements.email;
+              if (input.value) {
+                // Here we would dispatch to our backend or a service like Mailchimp
+                alert('Subscribed successfully! Welcome to the Nexus Transmission.');
+                input.value = '';
+              }
+            }}
+          >
             <input 
               type="email" 
+              name="email"
+              required
               placeholder="engineer@domain.com"
               className="flex-1 bg-black/50 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-primary/50 transition-all font-light"
             />
-            <button className="px-10 py-4 bg-primary text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:shadow-[0_0_30px_rgba(0,245,255,0.4)] transition-all">
+            <button type="submit" className="px-10 py-4 bg-primary text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:shadow-[0_0_30px_rgba(0,245,255,0.4)] transition-all cursor-pointer">
               Initialize Subscription
             </button>
           </form>

@@ -1,10 +1,8 @@
-import { fetchWithTimeout } from '@/utils/fetch';
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export async function getPortfolioData() {
   try {
-    const res = await fetchWithTimeout(`${API_URL}/portfolio`, {
+    const res = await fetch(`${API_URL}/portfolio`, {
       next: { revalidate: 60, tags: ['portfolio'] } // Revalidate every minute, or on-demand
     });
     if (!res.ok) {

@@ -5,10 +5,8 @@
  * By aborting at 8s, we can catch the error gracefully and serve static fallback data to the user!
  */
 export async function fetchWithTimeout(resource: RequestInfo | URL, options: RequestInit & { timeout?: number } = {}) {
-  // Use a very short timeout during Vercel build time so the build doesn't hang if the backend is asleep
-  const isBuildTime = process.env.CI || process.env.VERCEL || process.env.npm_lifecycle_event === 'build';
-  const defaultTimeout = isBuildTime ? 2000 : 8000;
-  const { timeout = defaultTimeout } = options;
+  // Default to 8 seconds (Vercel hobby tier times out at 10s)
+  const { timeout = 8000 } = options;
   
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);

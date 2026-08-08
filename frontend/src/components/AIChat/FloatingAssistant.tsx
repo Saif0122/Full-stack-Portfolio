@@ -9,7 +9,7 @@ import { TypingIndicator } from './TypingIndicator';
 export const FloatingAssistant: React.FC = () => {
   const { isAIWidgetOpen, toggleAIWidget, pageContext } = useAIContext();
   // @ts-ignore - The types in this version of @ai-sdk/react are incorrectly missing input/handleInputChange despite existing at runtime
-  const { messages = [], input = '', handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages = [], append, isLoading } = useChat({
     // @ts-ignore - Bypass strict type checking for api
     api: '/api/chat',
     body: { context: pageContext },
@@ -17,6 +17,15 @@ export const FloatingAssistant: React.FC = () => {
       { id: '1', role: 'assistant', content: "Hello! I am Nexus, Saif's AI assistant. How can I help you today?" }
     ]
   });
+
+  const [inputValue, setInputValue] = useState('');
+
+  const onCustomSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isLoading) return;
+    append({ role: 'user', content: inputValue });
+    setInputValue('');
+  };
 
   const [isVisible, setIsVisible] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -69,12 +78,8 @@ export const FloatingAssistant: React.FC = () => {
       const currentScrollY = window.scrollY;
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       
-      // Auto-hide at top
-      if (currentScrollY < 100 && !isAIWidgetOpen) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
+      // Auto-hide at top (Removed per user request - always visible)
+      setIsVisible(true);
 
       // Progress Ring
       if (scrollHeight > 0) {
@@ -140,18 +145,18 @@ export const FloatingAssistant: React.FC = () => {
 
             {/* Input */}
             <div className="p-4 bg-card border-t border-primary/10">
-              <form onSubmit={handleSubmit} className="flex gap-2">
+              <form onSubmit={onCustomSubmit} className="flex gap-2">
                 <input
                   type="text"
-                  value={input}
-                  onChange={handleInputChange}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ask me anything..."
                   className="flex-1 bg-black/50 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/50 text-white"
                   aria-label="Chat input"
                 />
                 <button
                   type="submit"
-                  disabled={isLoading || !input.trim()}
+                  disabled={isLoading || !inputValue.trim()}
                   className="p-2 bg-primary text-black rounded-lg hover:bg-[#00D8E1] transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-background"
                   aria-label="Send message"
                 >

@@ -124,7 +124,7 @@ export const FloatingAssistant: React.FC = () => {
 
             {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-              {messages.map((msg) => (
+              {messages.map((msg: any) => (
                 <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] p-3 rounded-xl text-sm leading-relaxed ${
                     msg.role === 'user' 

@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout, DataTable, Column, FormBuilder, ConfirmDialog } from '@/components/admin/ui';
 import { adminService } from '@/services/admin.service';
+import { useToast } from '@/providers/ToastProvider';
 
 interface ProductRecord {
   _id: string;
@@ -17,23 +19,46 @@ interface ProductRecord {
 }
 
 export default function StoreManagementPage() {
-  const [products, setProducts] = useState<ProductRecord[]>([]);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductRecord | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    adminService.fetch('/products')
-      .then(data => {
-        if (data) setProducts(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: () => adminService.fetch('/products')
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (newProduct: any) => adminService.create('/products', newProduct),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast('Product created successfully', 'success');
+      setIsEditing(false);
+    },
+    onError: () => toast('Failed to create product', 'error')
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string, data: any }) => adminService.update('/products', id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast('Product updated successfully', 'success');
+      setIsEditing(false);
+    },
+    onError: () => toast('Failed to update product', 'error')
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => adminService.delete('/products', id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast('Product deleted successfully', 'success');
+      setConfirmDelete(null);
+    },
+    onError: () => toast('Failed to delete product', 'error')
+  });
 
   const columns: Column<ProductRecord>[] = [
     { header: 'Product & Versioning', accessorKey: 'title', cell: (p) => (
@@ -57,15 +82,9 @@ export default function StoreManagementPage() {
     )}
   ];
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (confirmDelete) {
-      try {
-        await adminService.delete('/products', confirmDelete);
-        setProducts(prev => prev.filter(p => (p._id || p.id) !== confirmDelete));
-        setConfirmDelete(null);
-      } catch (e) {
-        alert('Failed to delete product');
-      }
+      deleteMutation.mutate(confirmDelete);
     }
   };
 
@@ -93,30 +112,30 @@ export default function StoreManagementPage() {
           fields={[
             { name: 'title', label: 'Product Title', type: 'text', defaultValue: selectedProduct?.title || '', required: true },
             { name: 'slug', label: 'URL Slug', type: 'text', defaultValue: (selectedProduct as any)?.slug || '', required: true },
+            { name: 'thumbnail', label: 'Thumbnail Image', type: 'image', defaultValue: (selectedProduct as any)?.thumbnail || '' },
             { name: 'price', label: 'Standard Retail Price ($)', type: 'number', defaultValue: selectedProduct?.price || 99, required: true },
             { name: 'salePrice', label: 'Promoted Discount Price ($)', type: 'number', defaultValue: selectedProduct?.salePrice || 0 },
-            { name: 'description', label: 'Detailed Description', type: 'textarea', defaultValue: (selectedProduct as any)?.description || '', required: true },
-            { name: 'shortDescription', label: 'Short SEO Description', type: 'text', defaultValue: (selectedProduct as any)?.shortDescription || '', required: true }
+            { name: 'version', label: 'Version', type: 'text', defaultValue: selectedProduct?.version || '1.0.0' },
+            { name: 'shortDescription', label: 'Short SEO Description', type: 'text', defaultValue: (selectedProduct as any)?.shortDescription || '', required: true },
+            { name: 'description', label: 'Detailed Description', type: 'markdown', defaultValue: (selectedProduct as any)?.description || '', required: true },
+            { name: 'features', label: 'Features', type: 'tags', defaultValue: (selectedProduct as any)?.features || [] },
+            { name: 'technologies', label: 'Technologies', type: 'tags', defaultValue: (selectedProduct as any)?.technologies || [] },
+            { name: 'isPopular', label: 'Mark as Popular', type: 'boolean', defaultValue: (selectedProduct as any)?.isPopular || false },
+            { name: 'isActive', label: 'Is Active', type: 'boolean', defaultValue: (selectedProduct as any)?.isActive ?? true }
           ]}
           onCancel={() => setIsEditing(false)}
-          onSubmit={async (data) => {
-            try {
-              if (selectedProduct) {
-                const updated = await adminService.update('/products', selectedProduct._id || selectedProduct.id!, data);
-                setProducts(prev => prev.map(p => (p._id || p.id) === (selectedProduct._id || selectedProduct.id) ? { ...p, ...updated } : p));
-              } else {
-                const created = await adminService.create('/products', data);
-                setProducts(prev => [created, ...prev]);
-              }
-              setIsEditing(false);
-            } catch (err) {
-              alert('Failed to save product');
+          onSubmit={(data) => {
+            if (selectedProduct) {
+              updateMutation.mutate({ id: selectedProduct._id || selectedProduct.id!, data });
+            } else {
+              createMutation.mutate(data);
             }
           }}
+          isSubmitting={createMutation.isPending || updateMutation.isPending}
           submitLabel="Synchronize Store Product to Edge"
         />
-      ) : loading ? (
-        <div className="py-20 text-center text-gray-400 font-mono text-xs animate-pulse">Loading Store Database...</div>
+      ) : isLoading ? (
+        <div className="py-20 flex justify-center"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>
       ) : (
         <DataTable
           data={products}

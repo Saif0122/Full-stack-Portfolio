@@ -6,6 +6,7 @@ import { AuthProvider } from './AuthProvider';
 import { ToastProvider } from './ToastProvider';
 import { ModalProvider } from './ModalProvider';
 import { GlobalErrorBoundary } from '../components/ErrorBoundary/GlobalErrorBoundary';
+import { ReactQueryProvider } from './ReactQueryProvider';
 
 /**
  * AppProviders — Single wrapper that nests all global providers
@@ -23,11 +24,13 @@ export const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children
     <GlobalErrorBoundary>
       <ThemeProvider>
         <AuthProvider>
-          <ModalProvider>
-            <ToastProvider>
-              {children}
-            </ToastProvider>
-          </ModalProvider>
+          <ReactQueryProvider>
+            <ModalProvider>
+              <ToastProvider>
+                {children}
+              </ToastProvider>
+            </ModalProvider>
+          </ReactQueryProvider>
         </AuthProvider>
       </ThemeProvider>
     </GlobalErrorBoundary>

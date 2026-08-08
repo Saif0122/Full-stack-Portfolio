@@ -1,33 +1,45 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { AdminLayout, FormBuilder, FormField, ConfirmDialog } from '@/components/admin/ui';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { AdminLayout, FormBuilder, FormField } from '@/components/admin/ui';
 import { adminService } from '@/services/admin.service';
+import { useToast } from '@/providers/ToastProvider';
 
 export default function PortfolioManagementPage() {
   const [activeSection, setActiveSection] = useState<string>('hero');
-  const [notification, setNotification] = useState<string | null>(null);
-  const [sectionData, setSectionData] = useState<Record<string, any> | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    setIsLoading(true);
-    adminService.fetch('/settings/portfolio_' + activeSection)
-      .then((data) => {
-        if (data && data.value) {
-          setSectionData(data.value);
-        } else {
-          setSectionData(null);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setSectionData(null);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [activeSection]);
+  const { data: sectionData, isLoading } = useQuery({
+    queryKey: ['portfolio', activeSection],
+    queryFn: () => adminService.fetch('/settings/portfolio_' + activeSection)
+      .then(res => res?.value || null)
+      .catch(() => null)
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async (formData: Record<string, any>) => {
+      try {
+        await adminService.update('/settings', 'portfolio_' + activeSection, {
+          key: 'portfolio_' + activeSection,
+          value: formData,
+          group: 'portfolio'
+        });
+      } catch (err) {
+        await adminService.create('/settings', {
+          key: 'portfolio_' + activeSection,
+          value: formData,
+          group: 'portfolio'
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portfolio', activeSection] });
+      toast(`Successfully synchronized [${activeSection.toUpperCase()}] portfolio configurations!`, 'success');
+    },
+    onError: () => toast(`Failed to save [${activeSection.toUpperCase()}] configurations`, 'error')
+  });
 
   const sections = [
     { id: 'hero', label: 'Hero & Headlines', desc: 'Main interactive 3D landing title, professional headline, and CTAs.' },
@@ -72,23 +84,8 @@ export default function PortfolioManagementPage() {
     }
   };
 
-  const handleSave = async (formData: Record<string, any>) => {
-    try {
-      await adminService.update('/settings', 'portfolio_' + activeSection, {
-        key: 'portfolio_' + activeSection,
-        value: formData,
-        group: 'portfolio'
-      });
-      setNotification(`Successfully synchronized [${activeSection.toUpperCase()}] portfolio configurations across edge cluster!`);
-    } catch (err) {
-      await adminService.create('/settings', {
-        key: 'portfolio_' + activeSection,
-        value: formData,
-        group: 'portfolio'
-      });
-      setNotification(`Successfully initialized and synchronized [${activeSection.toUpperCase()}] portfolio configurations!`);
-    }
-    setTimeout(() => setNotification(null), 5000);
+  const handleSave = (formData: Record<string, any>) => {
+    saveMutation.mutate(formData);
   };
 
   return (
@@ -98,11 +95,6 @@ export default function PortfolioManagementPage() {
           <span className="text-xs font-mono uppercase tracking-[0.3em] text-blue-400 block mb-1">Content Engine CMS</span>
           <h1 className="text-3xl font-black text-white tracking-tight">Portfolio Management</h1>
         </div>
-        {notification && (
-          <div className="px-4 py-2 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-mono text-xs animate-in fade-in">
-            ✓ {notification}
-          </div>
-        )}
       </div>
 
       {/* Navigation Tabs Stream */}
@@ -135,6 +127,7 @@ export default function PortfolioManagementPage() {
             description={sections.find(s => s.id === activeSection)?.desc}
             fields={getFormFields()}
             onSubmit={handleSave}
+            isSubmitting={saveMutation.isPending}
             submitLabel="Deploy Section Changes to Edge"
           />
         )}

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import passport from './config/passport.config.js';
 import authRoutes from './routes/auth.routes.js';
 import portfolioRoutes from './routes/portfolio.routes.js';
 import postRoutes from './routes/post.routes.js';
@@ -20,8 +21,10 @@ import analyticsRoutes from './routes/analytics.routes.js';
 import seoRoutes from './routes/seo.routes.js';
 import widgetRoutes from './routes/dashboard-widget.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
+import messageRoutes from './routes/message.routes.js';
+import newsletterRoutes from './routes/newsletter.routes.js';
+import usersRoutes from './routes/users.routes.js';
 import { config } from './config/env.config.js';
-
 const app = express();
 
 // Global Middleware
@@ -49,6 +52,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(passport.initialize());
 
 // Basic Health Check Route
 app.get('/api/health', (req, res) => {
@@ -74,6 +78,9 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/seo', seoRoutes);
 app.use('/api/dashboard-widgets', widgetRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/newsletters', newsletterRoutes);
+app.use('/api/users', usersRoutes);
 
 // 404 Route Not Found Middleware
 app.use((req, res, next) => {

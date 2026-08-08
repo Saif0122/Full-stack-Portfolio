@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout, FormBuilder, DataTable, Column, ChartWidget } from '@/components/admin/ui';
+import { adminService } from '@/services/admin.service';
+import { useToast } from '@/providers/ToastProvider';
 
 interface SchemaRecord {
   id: string;
@@ -15,6 +18,34 @@ export default function SeoCommandCenterPage() {
   const [activeView, setActiveView] = useState<'meta' | 'schemas' | 'vitals'>('schemas');
   const [isCheckingLinks, setIsCheckingLinks] = useState<boolean>(false);
   const [brokenLinksCount, setBrokenLinksCount] = useState<number>(0);
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: seoMetaSettings, isLoading: loadingMeta } = useQuery({
+    queryKey: ['settings', 'seo_meta'],
+    queryFn: () => adminService.fetch('/settings/seo_meta').then(res => res?.value || null).catch(() => null)
+  });
+
+  const { data: seoVitalsSettings, isLoading: loadingVitals } = useQuery({
+    queryKey: ['settings', 'seo_vitals'],
+    queryFn: () => adminService.fetch('/settings/seo_vitals').then(res => res?.value || null).catch(() => null)
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async ({ key, data }: { key: string, data: any }) => {
+      try {
+        await adminService.update('/settings', key, { key, value: data, group: 'seo' });
+      } catch (err) {
+        await adminService.create('/settings', { key, value: data, group: 'seo' });
+      }
+    },
+    onSuccess: (_, { key }) => {
+      queryClient.invalidateQueries({ queryKey: ['settings', key] });
+      toast('SEO configuration saved successfully!', 'success');
+    },
+    onError: () => toast('Failed to save SEO configuration', 'error')
+  });
 
   const [schemas] = useState<SchemaRecord[]>([
     { id: '1', type: 'WebSite', targetPath: '/', isSynced: true, lastVerified: '2 mins ago' },
@@ -116,29 +147,41 @@ export default function SeoCommandCenterPage() {
           <DataTable data={schemas} columns={schemaColumns} />
         </div>
       ) : activeView === 'meta' ? (
-        <FormBuilder
-          title="Global OpenGraph & Canonical Meta Configurations"
-          fields={[
-            { name: 'defaultTitle', label: 'Primary Site Title', type: 'text', defaultValue: 'Saiful Islam — Principal Software Architect & Full Stack MERN Engineer' },
-            { name: 'defaultDesc', label: 'Global Meta Description', type: 'textarea', defaultValue: 'Architecting next-generation AI platforms, immersive 3D store storefronts, and highly scalable distributed web applications.' },
-            { name: 'canonicalUrl', label: 'Canonical Edge Domain', type: 'text', defaultValue: 'https://saiful-ai-portfolio.dev' },
-            { name: 'ogImage', label: 'Default OpenGraph Sharing Image Banner', type: 'text', defaultValue: 'https://cdn.saiful-ai-portfolio.dev/images/og-hero-luxury.webp' },
-            { name: 'twitterCard', label: 'Twitter / X Card Strategy', type: 'select', defaultValue: 'summary_large_image', options: [{ label: 'Summary Large Image Card', value: 'summary_large_image' }, { label: 'Standard Compact Summary', value: 'summary' }] }
-          ]}
-          onSubmit={() => alert('Global SEO canonical metadata synchronized across Vercel edge routes.')}
-          submitLabel="Deploy Meta Configurations"
-        />
+        loadingMeta ? (
+          <div className="py-20 flex justify-center"><div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" /></div>
+        ) : (
+          <FormBuilder
+            key={`meta-${seoMetaSettings ? 'loaded' : 'new'}`}
+            title="Global OpenGraph & Canonical Meta Configurations"
+            fields={[
+              { name: 'defaultTitle', label: 'Primary Site Title', type: 'text', defaultValue: seoMetaSettings?.defaultTitle || 'Saiful Islam — Principal Software Architect & Full Stack MERN Engineer' },
+              { name: 'defaultDesc', label: 'Global Meta Description', type: 'textarea', defaultValue: seoMetaSettings?.defaultDesc || 'Architecting next-generation AI platforms, immersive 3D store storefronts, and highly scalable distributed web applications.' },
+              { name: 'canonicalUrl', label: 'Canonical Edge Domain', type: 'text', defaultValue: seoMetaSettings?.canonicalUrl || 'https://saiful-ai-portfolio.dev' },
+              { name: 'ogImage', label: 'Default OpenGraph Sharing Image Banner', type: 'text', defaultValue: seoMetaSettings?.ogImage || 'https://cdn.saiful-ai-portfolio.dev/images/og-hero-luxury.webp' },
+              { name: 'twitterCard', label: 'Twitter / X Card Strategy', type: 'select', defaultValue: seoMetaSettings?.twitterCard || 'summary_large_image', options: [{ label: 'Summary Large Image Card', value: 'summary_large_image' }, { label: 'Standard Compact Summary', value: 'summary' }] }
+            ]}
+            onSubmit={(data) => saveMutation.mutate({ key: 'seo_meta', data })}
+            isSubmitting={saveMutation.isPending}
+            submitLabel="Deploy Meta Configurations"
+          />
+        )
       ) : (
-        <FormBuilder
-          title="Robots.txt & XML Sitemap Automation"
-          fields={[
-            { name: 'sitemapEnabled', label: 'Autonomous Dynamic XML Sitemap Builder (/sitemap.xml)', type: 'boolean', defaultValue: true },
-            { name: 'robotsRules', label: 'Robots.txt Crawler Directives', type: 'textarea', defaultValue: 'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/admin/\nSitemap: https://saiful-ai-portfolio.dev/sitemap.xml' },
-            { name: 'crawlDelay', label: 'Spider Rate-Limit Crawl Delay (seconds)', type: 'number', defaultValue: 1 }
-          ]}
-          onSubmit={() => alert('Robots rules and dynamic sitemap directives updated successfully.')}
-          submitLabel="Save Crawler Directives"
-        />
+        loadingVitals ? (
+          <div className="py-20 flex justify-center"><div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" /></div>
+        ) : (
+          <FormBuilder
+            key={`vitals-${seoVitalsSettings ? 'loaded' : 'new'}`}
+            title="Robots.txt & XML Sitemap Automation"
+            fields={[
+              { name: 'sitemapEnabled', label: 'Autonomous Dynamic XML Sitemap Builder (/sitemap.xml)', type: 'boolean', defaultValue: seoVitalsSettings?.sitemapEnabled ?? true },
+              { name: 'robotsRules', label: 'Robots.txt Crawler Directives', type: 'textarea', defaultValue: seoVitalsSettings?.robotsRules || 'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/admin/\nSitemap: https://saiful-ai-portfolio.dev/sitemap.xml' },
+              { name: 'crawlDelay', label: 'Spider Rate-Limit Crawl Delay (seconds)', type: 'number', defaultValue: seoVitalsSettings?.crawlDelay || 1 }
+            ]}
+            onSubmit={(data) => saveMutation.mutate({ key: 'seo_vitals', data })}
+            isSubmitting={saveMutation.isPending}
+            submitLabel="Save Crawler Directives"
+          />
+        )
       )}
     </AdminLayout>
   );

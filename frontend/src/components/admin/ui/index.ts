@@ -7,3 +7,5 @@ export * from './DataTable';
 export * from './FormBuilder';
 export * from './ChartWidget';
 export * from './ConfirmDialog';
+export * from './ImageUploader';
+export * from './MarkdownEditor';

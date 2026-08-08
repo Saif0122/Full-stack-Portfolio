@@ -1,0 +1,26 @@
+# Authentication & Authorization Implementation Walkthrough
+
+I have fully implemented the production-grade authentication and authorization system based on your requirements and the provided OAuth keys.
+
+## What was Accomplished
+
+### 1. Database Schema Extensions
+- Updated the **User Model** (`backend/models/user.model.js`) to seamlessly support both local credentials and OAuth logins without conflicting required fields (the password is now conditionally required based on the provider).
+- Integrated `googleId`, `githubId`, and an `authProvider` flag to track registration origins.
+
+### 2. Backend Security Upgrades
+- Installed **Passport.js** alongside strategies for Google (`passport-google-oauth20`) and GitHub (`passport-github2`).
+- Configured a new `passport.config.js` to automatically link returning OAuth users by email, or provision a new account with the default `Customer` role if they are brand new.
+- Introduced `express-rate-limit` on the `/api/auth/login` route to prevent brute-force credential stuffing.
+- Migrated token parsing in the `protect` middleware to support checking the `Authorization: Bearer <token>` header first, before falling back to cookies. This improves security and interoperability.
+
+### 3. Next.js Frontend Architecture
+- **API Interceptor**: Created `src/services/api.client.ts`. This acts as a centralized Axios client that automatically catches `401 Unauthorized` responses. When a short-lived access token expires, it silently hits the `/api/auth/refresh` endpoint in the background (using the secure HTTP-only refresh cookie) and replays the failed request without interrupting the user's flow.
+- **Edge Middleware**: Created `src/middleware.ts` to explicitly block unauthorized access to the `/admin` dashboard routes. Unauthenticated users are redirected to `/login?callbackUrl=/admin`, ensuring a seamless bounce back to the intended page post-login.
+- **React Context**: Built `src/providers/AuthProvider.tsx` to wrap the app and manage the current user session.
+- **Sleek UI Pages**: Built out beautifully designed, glassmorphism-inspired pages for `/login`, `/register`, `/forgot-password`, and `/reset-password`, incorporating `react-hook-form` and `zod` for strictly typed client-side validation.
+
+## Next Steps
+- **Restart Development Servers**: Because we added new environment variables to the backend (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and installed new npm packages on both sides, **you will need to restart both the frontend and backend `npm run dev` servers.**
+- **GitHub OAuth**: The `.env` file currently has placeholder values for GitHub OAuth. Once you create a GitHub OAuth application (callback URL: `http://localhost:5000/api/auth/github/callback`), paste the Client ID and Secret into your backend `.env` file!
+- **Email Delivery**: The password reset routing is scaffolded and hits the backend endpoints, but to actually deliver real emails you'll need to hook up a real SMTP provider inside the backend `auth.controller.js` (which can be done in a later step).

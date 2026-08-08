@@ -1,27 +1,61 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout, DataTable, Column, FormBuilder, ConfirmDialog } from '@/components/admin/ui';
+import { adminService } from '@/services/admin.service';
+import { useToast } from '@/providers/ToastProvider';
 
 interface CategoryRecord {
-  id: string;
+  _id?: string;
   name: string;
   slug: string;
-  domain: 'Store' | 'Blog' | 'Projects';
-  itemCount: number;
-  description: string;
+  description?: string;
+  icon?: string;
+  isActive?: boolean;
 }
-
 export default function CategoriesManagementPage() {
-  const [categories, setCategories] = useState<CategoryRecord[]>([
-    { id: '1', name: 'Next.js Templates', slug: 'nextjs-templates', domain: 'Store', itemCount: 8, description: 'Production full-stack Next.js applications and boilerplates.' },
-    { id: '2', name: 'SaaS Architecture', slug: 'saas-architecture', domain: 'Projects', itemCount: 12, description: 'Enterprise structural design patterns and cloud devops.' },
-    { id: '3', name: 'AI Engineering', slug: 'ai-engineering', domain: 'Blog', itemCount: 19, description: 'Autonomous agent workflows, RAG systems, and Gemini SDK integrations.' },
-    { id: '4', name: 'UI Kits & Design Systems', slug: 'ui-kits', domain: 'Store', itemCount: 6, description: 'Glassmorphism and luxury Tailwind CSS components.' }
-  ]);
-
   const [isCreating, setIsCreating] = useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryRecord | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => adminService.fetch('/categories')
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (newCategory: any) => adminService.create('/categories', newCategory),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast('Category created successfully', 'success');
+      setIsCreating(false);
+    },
+    onError: () => toast('Failed to create category', 'error')
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string, data: any }) => adminService.update('/categories', id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast('Category updated successfully', 'success');
+      setIsCreating(false);
+    },
+    onError: () => toast('Failed to update category', 'error')
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => adminService.delete('/categories', id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast('Category deleted successfully', 'success');
+      setConfirmDelete(null);
+    },
+    onError: () => toast('Failed to delete category', 'error')
+  });
 
   const columns: Column<CategoryRecord>[] = [
     { header: 'Category Name & Slug', accessorKey: 'name', cell: (c) => (
@@ -30,20 +64,18 @@ export default function CategoriesManagementPage() {
         <span className="text-[10px] font-mono text-indigo-400">/{c.slug}</span>
       </div>
     )},
-    { header: 'Ecosystem Domain', accessorKey: 'domain', cell: (c) => (
+    { header: 'Status', accessorKey: 'isActive', cell: (c) => (
       <span className={`px-2.5 py-1 rounded-lg text-xs font-mono border ${
-        c.domain === 'Store' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-        c.domain === 'Blog' ? 'bg-pink-500/10 text-pink-400 border-pink-500/20' : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-      }`}>{c.domain} Hub</span>
+        c.isActive ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+      }`}>{c.isActive ? 'Active' : 'Inactive'}</span>
     )},
-    { header: 'Associated Records', accessorKey: 'itemCount', cell: (c) => <span className="font-mono text-xs font-bold text-white">{c.itemCount} active items</span> },
+    { header: 'Icon', accessorKey: 'icon', cell: (c) => <span className="text-xs text-gray-400">{c.icon || '-'}</span> },
     { header: 'Description', accessorKey: 'description', cell: (c) => <span className="text-xs text-gray-400 max-w-xs truncate block">{c.description}</span> }
   ];
 
   const handleDelete = () => {
     if (confirmDelete) {
-      setCategories(prev => prev.filter(c => c.id !== confirmDelete));
-      setConfirmDelete(null);
+      deleteMutation.mutate(confirmDelete);
     }
   };
 
@@ -56,7 +88,7 @@ export default function CategoriesManagementPage() {
         </div>
         {!isCreating && (
           <button
-            onClick={() => setIsCreating(true)}
+            onClick={() => { setSelectedCategory(null); setIsCreating(true); }}
             className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-black font-mono text-xs font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition-all hover:scale-105"
           >
             + Create Hierarchy Category
@@ -66,20 +98,27 @@ export default function CategoriesManagementPage() {
 
       {isCreating ? (
         <FormBuilder
-          title="Create New Platform Category"
+          title={selectedCategory ? `Edit Category: ${selectedCategory.name}` : "Create New Platform Category"}
           fields={[
-            { name: 'name', label: 'Category Display Name', type: 'text', required: true },
-            { name: 'slug', label: 'URL Slug Identifier', type: 'text', required: true },
-            { name: 'domain', label: 'Target Module Domain', type: 'select', options: [{ label: 'Store', value: 'Store' }, { label: 'Blog', value: 'Blog' }, { label: 'Projects', value: 'Projects' }], defaultValue: 'Store' },
-            { name: 'description', label: 'Category Summary Description', type: 'textarea', required: true }
+            { name: 'name', label: 'Category Display Name', type: 'text', defaultValue: selectedCategory?.name || '', required: true },
+            { name: 'slug', label: 'URL Slug Identifier', type: 'text', defaultValue: selectedCategory?.slug || '', required: true },
+            { name: 'icon', label: 'Icon String/Class', type: 'text', defaultValue: selectedCategory?.icon || '' },
+            { name: 'description', label: 'Category Summary Description', type: 'textarea', defaultValue: selectedCategory?.description || '', required: true },
+            { name: 'isActive', label: 'Is Active', type: 'boolean', defaultValue: selectedCategory?.isActive ?? true }
           ]}
           onCancel={() => setIsCreating(false)}
           onSubmit={(data) => {
-            setCategories(prev => [{ id: Date.now().toString(), itemCount: 0, ...data } as CategoryRecord, ...prev]);
-            setIsCreating(false);
+            if (selectedCategory && selectedCategory._id) {
+              updateMutation.mutate({ id: selectedCategory._id, data });
+            } else {
+              createMutation.mutate(data);
+            }
           }}
+          isSubmitting={createMutation.isPending || updateMutation.isPending}
           submitLabel="Save Category Node"
         />
+      ) : isLoading ? (
+        <div className="py-20 flex justify-center"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>
       ) : (
         <DataTable
           data={categories}
@@ -87,7 +126,10 @@ export default function CategoriesManagementPage() {
           searchPlaceholder="Search category hierarchies by name..."
           searchKey="name"
           actions={(item) => (
-            <button onClick={() => setConfirmDelete(item.id)} className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-mono text-xs border border-rose-500/20">Delete Node</button>
+            <>
+              <button onClick={() => { setSelectedCategory(item); setIsCreating(true); }} className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-mono text-xs border border-white/5">Edit</button>
+              <button onClick={() => setConfirmDelete(item._id!)} className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-mono text-xs border border-rose-500/20">Delete</button>
+            </>
           )}
         />
       )}

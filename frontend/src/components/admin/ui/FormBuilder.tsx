@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import { MarkdownEditor } from './MarkdownEditor';
+import { ImageUploader } from './ImageUploader';
 
 export interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'textarea' | 'number' | 'select' | 'boolean' | 'tags';
+  type: 'text' | 'textarea' | 'number' | 'select' | 'boolean' | 'tags' | 'markdown' | 'image';
   placeholder?: string;
   defaultValue?: any;
   options?: { label: string; value: any }[];
@@ -33,6 +35,14 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   isSubmitting = false
 }) => {
   const [formData, setFormData] = useState<Record<string, any>>(() => {
+    const draftKey = `draft_${title || 'form'}`;
+    const draft = typeof window !== 'undefined' ? localStorage.getItem(draftKey) : null;
+    if (draft) {
+      try {
+        return JSON.parse(draft);
+      } catch (e) {}
+    }
+
     const initial: Record<string, any> = {};
     fields.forEach((f) => {
       initial[f.name] = f.defaultValue !== undefined ? f.defaultValue : (f.type === 'boolean' ? false : f.type === 'tags' ? [] : '');
@@ -41,6 +51,29 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   });
 
   const [tagInput, setTagInput] = useState<Record<string, string>>({});
+  const [draftSaved, setDraftSaved] = useState(false);
+
+  React.useEffect(() => {
+    if (Object.keys(formData).length > 0) {
+      const timer = setTimeout(() => {
+        const draftKey = `draft_${title || 'form'}`;
+        localStorage.setItem(draftKey, JSON.stringify(formData));
+        setDraftSaved(true);
+        setTimeout(() => setDraftSaved(false), 2000);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [formData, title]);
+
+  React.useEffect(() => {
+    // Auto slug generator
+    const hasSlugField = fields.some(f => f.name === 'slug');
+    const sourceField = formData.title || formData.name;
+    if (hasSlugField && sourceField && !formData.slug) {
+      const slug = sourceField.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      setFormData(prev => ({ ...prev, slug }));
+    }
+  }, [formData.title, formData.name, fields, formData.slug]);
 
   const handleChange = (name: string, value: any) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -63,15 +96,24 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const draftKey = `draft_${title || 'form'}`;
+    localStorage.removeItem(draftKey);
     onSubmit(formData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-8 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-2xl">
       {(title || description) && (
-        <div className="border-b border-white/10 pb-5 mb-6">
-          {title && <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>}
-          {description && <p className="text-xs font-mono text-gray-400 mt-1">{description}</p>}
+        <div className="border-b border-white/10 pb-5 mb-6 flex justify-between items-start">
+          <div>
+            {title && <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>}
+            {description && <p className="text-xs font-mono text-gray-400 mt-1">{description}</p>}
+          </div>
+          {draftSaved && (
+            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20 transition-all duration-500">
+              Draft Auto-saved
+            </span>
+          )}
         </div>
       )}
 
@@ -163,6 +205,18 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
                       </span>
                     ))}
                   </div>
+                </div>
+              ) : field.type === 'markdown' ? (
+                <div className="pt-2">
+                  <MarkdownEditor value={formData[field.name] || ''} onChange={(val) => handleChange(field.name, val)} />
+                </div>
+              ) : field.type === 'image' ? (
+                <div className="pt-2">
+                  <ImageUploader 
+                    previewUrl={formData[field.name]} 
+                    onUploadSuccess={(url) => handleChange(field.name, url)}
+                    onUploadError={(err) => alert(err.message)}
+                  />
                 </div>
               ) : null}
             </div>

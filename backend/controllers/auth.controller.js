@@ -130,3 +130,45 @@ export const getMe = async (req, res, next) => {
     next(error);
   }
 };
+
+import jwt from 'jsonwebtoken';
+import { config } from '../config/env.config.js';
+import Token from '../models/token.model.js';
+
+/**
+ * @desc Handle OAuth login success
+ */
+export const oauthCallback = async (req, res) => {
+  if (!req.user) {
+    return res.redirect(`${process.env.FRONTEND_URL}/login?error=OAuthFailed`);
+  }
+  
+  // Create tokens
+  const accessToken = jwt.sign({ id: req.user._id }, config.jwt.secret, { expiresIn: '15m' });
+  const refreshToken = jwt.sign({ id: req.user._id }, config.jwt.refreshSecret, { expiresIn: '7d' });
+
+  // Store refresh token
+  await Token.create({
+    userId: req.user._id,
+    token: refreshToken,
+    type: 'refresh',
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+
+  res.cookie('jwt', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 15 * 60 * 1000,
+  });
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  // Redirect to frontend
+  res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+};

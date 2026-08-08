@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout, DataTable, Column, FormBuilder, ConfirmDialog } from '@/components/admin/ui';
 import { adminService } from '@/services/admin.service';
 import { PROJECT_CATEGORIES } from '@/constants/projects';
+import { useToast } from '@/providers/ToastProvider';
 
 interface ProjectRecord {
   _id?: string;
@@ -26,16 +28,47 @@ interface ProjectRecord {
 }
 
 export default function ProjectsManagementPage() {
-  const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [selectedProject, setSelectedProject] = useState<ProjectRecord | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  useEffect(() => {
-    adminService.fetch('/projects')
-      .then(data => { if (data) setProjects(data); })
-      .catch(console.error);
-  }, []);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: projects = [], isLoading } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => adminService.fetch('/projects')
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (newProject: any) => adminService.create('/projects', newProject),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast('Project created successfully', 'success');
+      setIsEditing(false);
+    },
+    onError: () => toast('Failed to create project', 'error')
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string, data: any }) => adminService.update('/projects', id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast('Project updated successfully', 'success');
+      setIsEditing(false);
+    },
+    onError: () => toast('Failed to update project', 'error')
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => adminService.delete('/projects', id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast('Project deleted successfully', 'success');
+      setConfirmDelete(null);
+    },
+    onError: () => toast('Failed to delete project', 'error')
+  });
 
   const columns: Column<ProjectRecord>[] = [
     { header: 'Project Showcase Title', accessorKey: 'title', cell: (p) => (
@@ -60,15 +93,9 @@ export default function ProjectsManagementPage() {
     )}
   ];
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (confirmDelete) {
-      try {
-        await adminService.delete('/projects', confirmDelete);
-        setProjects(prev => prev.filter(p => p._id !== confirmDelete));
-      } catch (err) {
-        console.error("Failed to delete", err);
-      }
-      setConfirmDelete(null);
+      deleteMutation.mutate(confirmDelete);
     }
   };
 
@@ -99,20 +126,20 @@ export default function ProjectsManagementPage() {
             { name: 'description', label: 'Short Description', type: 'text', defaultValue: selectedProject?.description || '', required: true },
             { name: 'category', label: 'Domain Category', type: 'select', defaultValue: selectedProject?.category || 'SaaS Architecture', options: PROJECT_CATEGORIES.map(c => ({ label: c, value: c })) },
             { name: 'summary', label: 'Summary', type: 'textarea', defaultValue: selectedProject?.summary || '' },
-            { name: 'image', label: 'Main Image URL', type: 'text', defaultValue: selectedProject?.image || '' },
+            { name: 'image', label: 'Main Image', type: 'image', defaultValue: selectedProject?.image || '' },
             { name: 'technologies', label: 'Tags', type: 'tags', defaultValue: selectedProject?.technologies || [] },
             { name: 'metrics', label: 'Metrics (JSON)', type: 'textarea', defaultValue: selectedProject?.metrics ? JSON.stringify(selectedProject.metrics, null, 2) : '[\n  { "label": "", "value": "", "description": "" }\n]' },
             { name: 'stack', label: 'Stack (JSON)', type: 'textarea', defaultValue: selectedProject?.stack ? JSON.stringify(selectedProject.stack, null, 2) : '[\n  { "name": "", "category": "", "benefit": "", "version": "" }\n]' },
             { name: 'challenges', label: 'Challenges (JSON)', type: 'textarea', defaultValue: selectedProject?.challenges ? JSON.stringify(selectedProject.challenges, null, 2) : '{\n  "problem": "",\n  "solution": "",\n  "architecture": ""\n}' },
             { name: 'technicalSpecs', label: 'Tech Specs (JSON)', type: 'textarea', defaultValue: selectedProject?.technicalSpecs ? JSON.stringify(selectedProject.technicalSpecs, null, 2) : '{\n  "backendStructure": "",\n  "databaseSchema": ""\n}' },
             { name: 'mediaGallery', label: 'Media Gallery (JSON)', type: 'textarea', defaultValue: selectedProject?.mediaGallery ? JSON.stringify(selectedProject.mediaGallery, null, 2) : '[\n  { "type": "image", "url": "", "caption": "" }\n]' },
-            { name: 'markdownContent', label: 'Markdown Content', type: 'textarea', defaultValue: selectedProject?.markdownContent || '' },
+            { name: 'markdownContent', label: 'Markdown Content', type: 'markdown', defaultValue: selectedProject?.markdownContent || '' },
             { name: 'githubUrl', label: 'GitHub Repository URL', type: 'text', defaultValue: selectedProject?.githubUrl || '' },
             { name: 'liveUrl', label: 'Live Demo Web URL', type: 'text', defaultValue: selectedProject?.liveUrl || '' },
             { name: 'isFeatured', label: 'Pin to Front Page Hero Showcase', type: 'boolean', defaultValue: selectedProject?.isFeatured || false }
           ]}
           onCancel={() => setIsEditing(false)}
-          onSubmit={async (data) => {
+          onSubmit={(data) => {
             const payload = { ...data };
             const jsonFields = ['metrics', 'stack', 'challenges', 'technicalSpecs', 'mediaGallery'];
             jsonFields.forEach(field => {
@@ -128,22 +155,17 @@ export default function ProjectsManagementPage() {
               }
             });
 
-            try {
-              if (selectedProject && selectedProject._id) {
-                const updated = await adminService.update('/projects', selectedProject._id, payload);
-                setProjects(prev => prev.map(p => p._id === updated._id ? updated : p));
-              } else {
-                const created = await adminService.create('/projects', payload);
-                setProjects(prev => [created, ...prev]);
-              }
-              setIsEditing(false);
-            } catch (err) {
-              console.error("Failed to save project", err);
-              alert("Failed to save project");
+            if (selectedProject && selectedProject._id) {
+              updateMutation.mutate({ id: selectedProject._id, data: payload });
+            } else {
+              createMutation.mutate(payload);
             }
           }}
+          isSubmitting={createMutation.isPending || updateMutation.isPending}
           submitLabel="Deploy Showcase Record"
         />
+      ) : isLoading ? (
+        <div className="py-20 flex justify-center"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>
       ) : (
         <DataTable
           data={projects}

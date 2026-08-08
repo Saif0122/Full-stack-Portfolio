@@ -1,11 +1,42 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout, FormBuilder, ConfirmDialog } from '@/components/admin/ui';
+import { adminService } from '@/services/admin.service';
+import { useToast } from '@/providers/ToastProvider';
 
 export default function GlobalSettingsPage() {
   const [activeGroup, setActiveGroup] = useState<'system' | 'security' | 'database' | 'backup'>('system');
   const [confirmClearCache, setConfirmClearCache] = useState<boolean>(false);
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: systemSettings, isLoading: loadingSystem } = useQuery({
+    queryKey: ['settings', 'system'],
+    queryFn: () => adminService.fetch('/settings/system').then(res => res?.value || null).catch(() => null)
+  });
+
+  const { data: securitySettings, isLoading: loadingSecurity } = useQuery({
+    queryKey: ['settings', 'security'],
+    queryFn: () => adminService.fetch('/settings/security').then(res => res?.value || null).catch(() => null)
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async ({ key, data }: { key: string, data: any }) => {
+      try {
+        await adminService.update('/settings', key, { key, value: data, group: 'admin' });
+      } catch (err) {
+        await adminService.create('/settings', { key, value: data, group: 'admin' });
+      }
+    },
+    onSuccess: (_, { key }) => {
+      queryClient.invalidateQueries({ queryKey: ['settings', key] });
+      toast('Settings synchronized successfully!', 'success');
+    },
+    onError: () => toast('Failed to save settings', 'error')
+  });
 
   return (
     <AdminLayout>
@@ -37,32 +68,44 @@ export default function GlobalSettingsPage() {
       </div>
 
       {activeGroup === 'system' ? (
-        <FormBuilder
-          title="Platform Preferences & Operational Rules"
-          description="Manage site-wide maintenance switches, admin theme glow effects, and logging intensity."
-          fields={[
-            { name: 'platformName', label: 'Executive Platform Display Name', type: 'text', defaultValue: 'Saif AI Enterprise Command Platform v11.0' },
-            { name: 'adminTheme', label: 'Admin Visual UI Theme Mode', type: 'select', defaultValue: 'Luxury Dark Glassmorphism (3D Amber/Indigo)', options: [{ label: 'Luxury Dark Glassmorphism (3D Amber/Indigo)', value: 'Luxury Dark Glassmorphism (3D Amber/Indigo)' }, { label: 'Oled Black Minimal', value: 'Oled Black Minimal' }] },
-            { name: 'enableAnimations', label: 'GPU-Accelerated Framer & 3D Micro-animations', type: 'boolean', defaultValue: true },
-            { name: 'maintenanceMode', label: 'Site-wide Maintenance Lockbox Mode', type: 'boolean', defaultValue: false },
-            { name: 'auditLogLevel', label: 'Telemetry Logging Granularity', type: 'select', defaultValue: 'Verbose Enterprise Audit Stream', options: [{ label: 'Verbose Enterprise Audit Stream', value: 'Verbose Enterprise Audit Stream' }, { label: 'Errors Only', value: 'Errors Only' }] }
-          ]}
-          onSubmit={() => alert('Platform global preferences synchronized across distributed edge servers.')}
-          submitLabel="Save System Preferences"
-        />
+        loadingSystem ? (
+          <div className="py-20 flex justify-center"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>
+        ) : (
+          <FormBuilder
+            key={`system-${systemSettings ? 'loaded' : 'new'}`}
+            title="Platform Preferences & Operational Rules"
+            description="Manage site-wide maintenance switches, admin theme glow effects, and logging intensity."
+            fields={[
+              { name: 'platformName', label: 'Executive Platform Display Name', type: 'text', defaultValue: systemSettings?.platformName || 'Saif AI Enterprise Command Platform v11.0' },
+              { name: 'adminTheme', label: 'Admin Visual UI Theme Mode', type: 'select', defaultValue: systemSettings?.adminTheme || 'Luxury Dark Glassmorphism (3D Amber/Indigo)', options: [{ label: 'Luxury Dark Glassmorphism (3D Amber/Indigo)', value: 'Luxury Dark Glassmorphism (3D Amber/Indigo)' }, { label: 'Oled Black Minimal', value: 'Oled Black Minimal' }] },
+              { name: 'enableAnimations', label: 'GPU-Accelerated Framer & 3D Micro-animations', type: 'boolean', defaultValue: systemSettings?.enableAnimations ?? true },
+              { name: 'maintenanceMode', label: 'Site-wide Maintenance Lockbox Mode', type: 'boolean', defaultValue: systemSettings?.maintenanceMode ?? false },
+              { name: 'auditLogLevel', label: 'Telemetry Logging Granularity', type: 'select', defaultValue: systemSettings?.auditLogLevel || 'Verbose Enterprise Audit Stream', options: [{ label: 'Verbose Enterprise Audit Stream', value: 'Verbose Enterprise Audit Stream' }, { label: 'Errors Only', value: 'Errors Only' }] }
+            ]}
+            onSubmit={(data) => saveMutation.mutate({ key: 'system', data })}
+            isSubmitting={saveMutation.isPending}
+            submitLabel="Save System Preferences"
+          />
+        )
       ) : activeGroup === 'security' ? (
-        <FormBuilder
-          title="API Keys, Security & Role Access Management"
-          description="Manage cryptographic secrets for Stripe payment gateways, Gemini 3.1 Pro AI SDKs, and JWT token rotation."
-          fields={[
-            { name: 'geminiKey', label: 'Google Gemini AI Pro API Secret', type: 'text', defaultValue: 'AIzaSy_•••••••••••••••••••••••••••••_E29w', required: true },
-            { name: 'stripeSecret', label: 'Stripe Commerce Live Webhook Key', type: 'text', defaultValue: 'whsec_•••••••••••••••••••••••••••••••89a2', required: true },
-            { name: 'jwtSecret', label: 'JWT Authorization Signing Key (Base64)', type: 'text', defaultValue: 'saif_ai_enterprise_super_secret_key_2026', required: true },
-            { name: 'requireMfa', label: 'Enforce Multi-Factor Auth (MFA) on Executive Roles', type: 'boolean', defaultValue: true }
-          ]}
-          onSubmit={() => alert('Cryptographic security parameters updated successfully.')}
-          submitLabel="Update Security Secrets"
-        />
+        loadingSecurity ? (
+          <div className="py-20 flex justify-center"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>
+        ) : (
+          <FormBuilder
+            key={`security-${securitySettings ? 'loaded' : 'new'}`}
+            title="API Keys, Security & Role Access Management"
+            description="Manage cryptographic secrets for Stripe payment gateways, Gemini 3.1 Pro AI SDKs, and JWT token rotation."
+            fields={[
+              { name: 'geminiKey', label: 'Google Gemini AI Pro API Secret', type: 'text', defaultValue: securitySettings?.geminiKey || 'AIzaSy_•••••••••••••••••••••••••••••_E29w', required: true },
+              { name: 'stripeSecret', label: 'Stripe Commerce Live Webhook Key', type: 'text', defaultValue: securitySettings?.stripeSecret || 'whsec_•••••••••••••••••••••••••••••••89a2', required: true },
+              { name: 'jwtSecret', label: 'JWT Authorization Signing Key (Base64)', type: 'text', defaultValue: securitySettings?.jwtSecret || 'saif_ai_enterprise_super_secret_key_2026', required: true },
+              { name: 'requireMfa', label: 'Enforce Multi-Factor Auth (MFA) on Executive Roles', type: 'boolean', defaultValue: securitySettings?.requireMfa ?? true }
+            ]}
+            onSubmit={(data) => saveMutation.mutate({ key: 'security', data })}
+            isSubmitting={saveMutation.isPending}
+            submitLabel="Update Security Secrets"
+          />
+        )
       ) : activeGroup === 'database' ? (
         <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl space-y-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">

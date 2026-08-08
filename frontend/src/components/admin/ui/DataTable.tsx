@@ -18,6 +18,9 @@ interface DataTableProps<T> {
   actions?: (item: T) => React.ReactNode;
   emptyMessage?: string;
   pageSize?: number;
+  enableSelection?: boolean;
+  onBulkDelete?: (selectedIds: string[]) => void;
+  onBulkPublish?: (selectedIds: string[], status: boolean) => void;
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -28,12 +31,16 @@ export function DataTable<T extends Record<string, any>>({
   onRowClick,
   actions,
   emptyMessage = 'No enterprise records found matching your filter.',
-  pageSize = 8
+  pageSize = 8,
+  enableSelection = false,
+  onBulkDelete,
+  onBulkPublish
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Search & Filter execution
   const filteredData = useMemo(() => {
@@ -80,6 +87,21 @@ export function DataTable<T extends Record<string, any>>({
     }
   };
 
+  const toggleSelectAll = () => {
+    if (selectedIds.size === paginatedData.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(paginatedData.map((item: any) => item._id || item.id)));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedIds(newSet);
+  };
+
   return (
     <div className="space-y-4">
       {/* Search Toolbar & Metrics Counter */}
@@ -97,8 +119,19 @@ export function DataTable<T extends Record<string, any>>({
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </div>
-        <div className="text-xs font-mono text-gray-400">
-          Showing <span className="text-white font-bold">{sortedData.length}</span> verified records
+        <div className="text-xs font-mono text-gray-400 flex items-center gap-4">
+          {selectedIds.size > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-indigo-400">{selectedIds.size} selected</span>
+              {onBulkPublish && (
+                <button onClick={() => onBulkPublish(Array.from(selectedIds), true)} className="px-3 py-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30">Publish</button>
+              )}
+              {onBulkDelete && (
+                <button onClick={() => onBulkDelete(Array.from(selectedIds))} className="px-3 py-1 rounded bg-rose-500/20 text-rose-400 hover:bg-rose-500/30">Delete</button>
+              )}
+            </div>
+          )}
+          <span>Showing <span className="text-white font-bold">{sortedData.length}</span> verified records</span>
         </div>
       </div>
 
@@ -107,6 +140,16 @@ export function DataTable<T extends Record<string, any>>({
         <table className="w-full border-collapse text-left text-sm text-gray-300">
           <thead className="bg-black/80 border-b border-white/10 text-[11px] font-mono uppercase tracking-wider text-gray-400">
             <tr>
+              {enableSelection && (
+                <th className="py-4 px-4 w-10">
+                  <input
+                    type="checkbox"
+                    checked={paginatedData.length > 0 && selectedIds.size === paginatedData.length}
+                    onChange={toggleSelectAll}
+                    className="rounded border-white/20 bg-black/50 text-indigo-500 focus:ring-indigo-500/50"
+                  />
+                </th>
+              )}
               {columns.map((col, idx) => (
                 <th
                   key={idx}
@@ -127,12 +170,22 @@ export function DataTable<T extends Record<string, any>>({
           </thead>
           <tbody className="divide-y divide-white/5 font-sans">
             {paginatedData.length > 0 ? (
-              paginatedData.map((item, rowIdx) => (
+              paginatedData.map((item: any, rowIdx) => (
                 <tr
                   key={rowIdx}
                   onClick={() => onRowClick && onRowClick(item)}
-                  className={`transition-colors duration-150 ${onRowClick ? 'cursor-pointer hover:bg-indigo-500/10' : 'hover:bg-white/[0.03]'}`}
+                  className={`transition-colors duration-150 ${onRowClick ? 'cursor-pointer hover:bg-indigo-500/10' : 'hover:bg-white/[0.03]'} ${selectedIds.has(item._id || item.id) ? 'bg-indigo-500/5' : ''}`}
                 >
+                  {enableSelection && (
+                    <td className="py-4 px-4 whitespace-nowrap text-xs" onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(item._id || item.id)}
+                        onChange={() => toggleSelectOne(item._id || item.id)}
+                        className="rounded border-white/20 bg-black/50 text-indigo-500 focus:ring-indigo-500/50"
+                      />
+                    </td>
+                  )}
                   {columns.map((col, colIdx) => (
                     <td key={colIdx} className="py-4 px-5 whitespace-nowrap text-xs">
                       {col.cell ? col.cell(item) : (item[col.accessorKey as string] !== undefined && item[col.accessorKey as string] !== null ? String(item[col.accessorKey as string]) : '—')}
@@ -147,7 +200,7 @@ export function DataTable<T extends Record<string, any>>({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="py-12 text-center text-gray-500 font-mono text-xs">
+                <td colSpan={columns.length + (actions ? 1 : 0) + (enableSelection ? 1 : 0)} className="py-12 text-center text-gray-500 font-mono text-xs">
                   {emptyMessage}
                 </td>
               </tr>

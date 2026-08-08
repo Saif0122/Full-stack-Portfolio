@@ -9,7 +9,7 @@ import { TypingIndicator } from './TypingIndicator';
 export const FloatingAssistant: React.FC = () => {
   const { isAIWidgetOpen, toggleAIWidget, pageContext } = useAIContext();
   // @ts-ignore - The types in this version of @ai-sdk/react are incorrectly missing input/handleInputChange despite existing at runtime
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages = [], input = '', handleInputChange, handleSubmit, isLoading } = useChat({
     // @ts-ignore - Bypass strict type checking for api
     api: '/api/chat',
     body: { context: pageContext },

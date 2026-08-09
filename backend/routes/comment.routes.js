@@ -7,7 +7,7 @@ import {
   getAllComments,
   moderateComment
 } from '../controllers/comment.controller.js';
-import { protect, restrictTo } from '../middleware/auth.middleware.js';
+import { protect, requireRole } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -20,7 +20,7 @@ router.post('/:id/like', protect, toggleCommentLike);
 router.post('/:id/report', protect, reportComment);
 
 // Admin routes
-router.get('/admin/all', protect, restrictTo('Admin', 'Super Admin', 'Editor'), getAllComments);
-router.patch('/admin/:id/moderate', protect, restrictTo('Admin', 'Super Admin', 'Editor'), moderateComment);
+router.get('/admin/all', protect, requireRole(['Admin', 'Super Admin', 'Editor']), getAllComments);
+router.patch('/admin/:id/moderate', protect, requireRole(['Admin', 'Super Admin', 'Editor']), moderateComment);
 
 export default router;

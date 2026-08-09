@@ -4,7 +4,7 @@ import {
   bulkPublish, bulkDelete, duplicatePost, togglePin,
   incrementView, toggleLike, toggleBookmark
 } from '../controllers/post.controller.js';
-import { protect, restrictTo } from '../middleware/auth.middleware.js';
+import { protect, requireRole } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -19,13 +19,13 @@ router.post('/:id/like', protect, toggleLike);
 router.post('/:id/bookmark', protect, toggleBookmark);
 
 // Admin routes
-router.post('/', protect, restrictTo('Admin', 'Super Admin', 'Editor', 'Author'), createPost);
-router.put('/:id', protect, restrictTo('Admin', 'Super Admin', 'Editor', 'Author'), updatePost);
-router.delete('/:id', protect, restrictTo('Admin', 'Super Admin', 'Editor'), deletePost);
+router.post('/', protect, requireRole(['Admin', 'Super Admin', 'Editor', 'Author']), createPost);
+router.put('/:id', protect, requireRole(['Admin', 'Super Admin', 'Editor', 'Author']), updatePost);
+router.delete('/:id', protect, requireRole(['Admin', 'Super Admin', 'Editor']), deletePost);
 
-router.post('/admin/bulk-publish', protect, restrictTo('Admin', 'Super Admin', 'Editor'), bulkPublish);
-router.post('/admin/bulk-delete', protect, restrictTo('Admin', 'Super Admin', 'Editor'), bulkDelete);
-router.post('/:id/duplicate', protect, restrictTo('Admin', 'Super Admin', 'Editor', 'Author'), duplicatePost);
-router.patch('/:id/pin', protect, restrictTo('Admin', 'Super Admin', 'Editor'), togglePin);
+router.post('/admin/bulk-publish', protect, requireRole(['Admin', 'Super Admin', 'Editor']), bulkPublish);
+router.post('/admin/bulk-delete', protect, requireRole(['Admin', 'Super Admin', 'Editor']), bulkDelete);
+router.post('/:id/duplicate', protect, requireRole(['Admin', 'Super Admin', 'Editor', 'Author']), duplicatePost);
+router.patch('/:id/pin', protect, requireRole(['Admin', 'Super Admin', 'Editor']), togglePin);
 
 export default router;

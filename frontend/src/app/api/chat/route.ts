@@ -1,5 +1,9 @@
-import { streamText } from 'ai';
-import { google } from '@ai-sdk/google';
+import { streamText, convertToModelMessages } from 'ai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || '',
+});
 
 export const runtime = 'edge';
 
@@ -28,7 +32,7 @@ export async function POST(req: Request) {
     let ragContext = '';
     try {
       const lastMessage = messages[messages.length - 1]?.content;
-      if (lastMessage && process.env.PINECONE_API_KEY && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      if (lastMessage && process.env.PINECONE_API_KEY && (process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY)) {
         // Dynamically import to avoid edge runtime issues if missing
         const { Pinecone } = await import('@pinecone-database/pinecone');
         const { GoogleGenerativeAI } = await import('@google/generative-ai');
@@ -36,7 +40,7 @@ export async function POST(req: Request) {
         const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
         const index = pc.Index(process.env.PINECONE_INDEX || 'portfolio-knowledge');
         
-        const ai = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY);
+        const ai = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || '');
         // Generate embedding for the user's query
         const embeddingModel = ai.getGenerativeModel({ model: 'text-embedding-004' });
         const result = await embeddingModel.embedContent(lastMessage);
@@ -62,15 +66,14 @@ export async function POST(req: Request) {
     // 4. Build Dynamic System Prompt
     const systemPrompt = buildSystemPrompt(context, ragContext);
 
-    // 4. Stream Response using Gemini API
     const result = streamText({
-      model: google('gemini-2.5-flash'), // or gemini-2.0-pro
+      model: google('gemini-3.5-flash'), // Updated to latest available model
       system: systemPrompt,
-      messages: messages as any,
+      messages: convertToModelMessages(messages),
       temperature: 0.7,
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error('AI Chat Error:', error);
     return new Response(error.message || 'Internal Server Error', { status: 500 });

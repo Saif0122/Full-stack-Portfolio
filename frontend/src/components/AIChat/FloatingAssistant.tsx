@@ -9,7 +9,7 @@ import { TypingIndicator } from './TypingIndicator';
 export const FloatingAssistant: React.FC = () => {
   const { isAIWidgetOpen, toggleAIWidget, pageContext } = useAIContext();
   // @ts-ignore - The types in this version of @ai-sdk/react are incorrectly missing input/handleInputChange despite existing at runtime
-  const { messages = [], append, isLoading } = useChat({
+  const { messages = [], sendMessage, isLoading } = useChat({
     // @ts-ignore - Bypass strict type checking for api
     api: '/api/chat',
     body: { context: pageContext },
@@ -22,8 +22,8 @@ export const FloatingAssistant: React.FC = () => {
 
   const onCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
-    append({ role: 'user', content: inputValue });
+    if (!inputValue.trim() || isLoading || !sendMessage) return;
+    sendMessage({ role: 'user', content: inputValue });
     setInputValue('');
   };
 

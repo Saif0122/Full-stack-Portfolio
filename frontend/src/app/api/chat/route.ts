@@ -1,10 +1,6 @@
 import { streamText, convertToModelMessages } from 'ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || '',
-});
-
 export const runtime = 'edge';
 
 // Basic in-memory rate limiting for edge (for production, use Upstash Redis)
@@ -66,6 +62,11 @@ export async function POST(req: Request) {
     // 4. Build Dynamic System Prompt
     const systemPrompt = buildSystemPrompt(context, ragContext);
 
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || '';
+    const google = createGoogleGenerativeAI({
+      apiKey: apiKey,
+    });
+
     const result = streamText({
       model: google('gemini-3.5-flash'), // Updated to latest available model
       system: systemPrompt,
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error('AI Chat Error:', error);
-    return new Response(error.message || 'Internal Server Error', { status: 500 });
+    return new Response(error.stack || error.message || 'Internal Server Error', { status: 500 });
   }
 }
 

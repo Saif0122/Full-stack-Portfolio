@@ -14,13 +14,28 @@ export async function POST(request: NextRequest) {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
-      model: 'gemini-flash-latest',
-      contents: contents,
-      config: {
-        systemInstruction: systemInstruction,
-      },
-    });
+    let response;
+    
+    try {
+      // Primary model: gemini-3.5-flash (same as the working chat assistant)
+      response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: contents,
+        config: {
+          systemInstruction: systemInstruction,
+        },
+      });
+    } catch (primaryError: any) {
+      console.warn('Primary AI model failed, falling back to gemini-3.5-flash-lite...', primaryError.message);
+      // Fallback model for high demand / 503 errors
+      response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash-lite',
+        contents: contents,
+        config: {
+          systemInstruction: systemInstruction,
+        },
+      });
+    }
 
     const text = response.text || 'No response generated.';
     return NextResponse.json({ text });

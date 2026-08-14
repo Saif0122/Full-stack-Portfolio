@@ -9,21 +9,27 @@ import { TypingIndicator } from './TypingIndicator';
 export const FloatingAssistant: React.FC = () => {
   const { isAIWidgetOpen, toggleAIWidget, pageContext } = useAIContext();
   // @ts-ignore - The types in this version of @ai-sdk/react are incorrectly missing input/handleInputChange despite existing at runtime
-  const { messages = [], append, isLoading } = useChat({
+  const { messages = [], sendMessage, status } = useChat({
     // @ts-ignore - Bypass strict type checking for api
     api: '/api/chat',
     body: { context: pageContext },
     initialMessages: [
-      { id: '1', role: 'assistant', content: "Hello! I am Nexus, Saif's AI assistant. How can I help you today?" }
+      { 
+        id: '1', 
+        role: 'assistant', 
+        parts: [{ type: 'text', text: "Hello! I am Nexus, Saif's AI assistant. How can I help you today?" }] 
+      }
     ]
   });
 
+  const isLoading = status === 'in_progress' || status === 'submitted';
   const [inputValue, setInputValue] = useState('');
 
   const onCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading || !append) return;
-    append({ role: 'user', content: inputValue });
+    if (!inputValue.trim() || isLoading || !sendMessage) return;
+    // @ts-ignore - Bypass strict type checking
+    sendMessage({ text: inputValue });
     setInputValue('');
   };
 
@@ -136,7 +142,12 @@ export const FloatingAssistant: React.FC = () => {
                       ? 'bg-primary text-black rounded-br-none' 
                       : 'bg-[#1F2937] text-gray-200 rounded-bl-none shadow-lg'
                   }`}>
-                    {msg.content}
+                    {msg.parts && msg.parts.length > 0 ? msg.parts.map((part: any, i: number) => {
+                      if (part.type === 'text') {
+                        return <span key={i}>{part.text}</span>;
+                      }
+                      return null;
+                    }) : msg.content}
                   </div>
                 </div>
               ))}

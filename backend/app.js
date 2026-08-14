@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import passport from './config/passport.config.js';
 import authRoutes from './routes/auth.routes.js';
 import portfolioRoutes from './routes/portfolio.routes.js';
@@ -25,27 +27,35 @@ import messageRoutes from './routes/message.routes.js';
 import newsletterRoutes from './routes/newsletter.routes.js';
 import usersRoutes from './routes/users.routes.js';
 import commentRoutes from './routes/comment.routes.js';
+import healthRoutes from './routes/health.routes.js';
+import exportRoutes from './routes/export.routes.js';
 import { config } from './config/env.config.js';
+
 const app = express();
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN || "https://example@sentry.io/123", // fallback
+  integrations: [
+    nodeProfilingIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0,
+});
+
+Sentry.setupExpressErrorHandler(app);
 
 // Global Middleware
 const allowedOrigins = config.allowedOrigins.split(',').map(url => url.trim());
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or server-to-server)
     if (!origin) return callback(null, true);
-    
-    // Check if the origin is explicitly whitelisted
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
-    // In development, be slightly more forgiving for localhost ports
     if (config.env !== 'production' && origin.startsWith('http://localhost:')) {
       return callback(null, true);
     }
-
     return callback(new Error('CORS policy violation: Origin not allowed'), false);
   },
   credentials: true
@@ -55,12 +65,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(passport.initialize());
 
-// Basic Health Check Route
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'API is running smoothly' });
-});
-
 // API Routes
+app.use('/api/health', healthRoutes);
+app.use('/api/export', exportRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/posts', postRoutes);
@@ -91,6 +98,9 @@ app.use((req, res, next) => {
     message: `Not Found - ${req.originalUrl}`
   });
 });
+
+// Sentry Error Handler
+// Optional: app.use(Sentry.expressErrorHandler()); if setupExpressErrorHandler is not used, but setupExpressErrorHandler handles it.
 
 // Global Error Handler Middleware
 app.use((err, req, res, next) => {

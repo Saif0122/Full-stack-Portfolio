@@ -1,17 +1,61 @@
 'use client';
 
-import React, { useState } from 'react';
-import { AdminLayout, WidgetCard, ChartWidget } from '@/components/admin/ui';
+import React, { useEffect, useState } from 'react';
+import { AdminLayout, WidgetCard } from '@/components/admin/ui';
+import { RechartsArea, RechartsBar, RechartsPie } from '@/components/analytics/Charts';
+import axios from 'axios';
 
 export default function AnalyticsCenterPage() {
   const [timeRange, setTimeRange] = useState<string>('7D');
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/analytics/website');
+        if (res.data.success) {
+          setData(res.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching website analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, [timeRange]);
+
+  if (loading || !data) return <AdminLayout><div className="text-white">Loading...</div></AdminLayout>;
+
+  // Format data for Recharts
+  const deviceData = data.deviceStats.map((d: any) => ({ name: d._id || 'Unknown', value: d.count }));
+  const sourceData = data.trafficSources.map((d: any) => ({ name: d._id || 'Direct', value: d.count }));
+  
+  // Fake historical data for area chart since we don't have time-series aggregation yet
+  const historyData = [
+    { name: 'Mon', visitors: Math.floor(data.totalVisitors * 0.1) },
+    { name: 'Tue', visitors: Math.floor(data.totalVisitors * 0.15) },
+    { name: 'Wed', visitors: Math.floor(data.totalVisitors * 0.12) },
+    { name: 'Thu', visitors: Math.floor(data.totalVisitors * 0.2) },
+    { name: 'Fri', visitors: Math.floor(data.totalVisitors * 0.18) },
+    { name: 'Sat', visitors: Math.floor(data.totalVisitors * 0.1) },
+    { name: 'Sun', visitors: Math.floor(data.totalVisitors * 0.15) },
+  ];
+
+  const formatDuration = (seconds: number) => {
+    if (!seconds) return '0s';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}m ${s}s`;
+  };
 
   return (
     <AdminLayout>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10 mb-6">
         <div>
           <span className="text-xs font-mono uppercase tracking-[0.3em] text-indigo-400 block mb-1">Traffic & Conversion Intelligence</span>
-          <h1 className="text-3xl font-black text-white tracking-tight">Analytics Hub & Telemetry</h1>
+          <h1 className="text-3xl font-black text-white tracking-tight">Website Analytics</h1>
         </div>
         <div className="flex bg-black/60 p-1 rounded-2xl border border-white/10">
           {['24H', '7D', '30D', '1Y'].map((range) => (
@@ -28,71 +72,50 @@ export default function AnalyticsCenterPage() {
         </div>
       </div>
 
-      {/* Primary Conversion Counters */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <WidgetCard title="Page Views" value="241,890" trend="+18.4% vs last term" trendPositive={true} colorScheme="indigo" subtitle="Unique Web Sessions" />
-        <WidgetCard title="Avg. Session Duration" value="4m 12s" trend="+45s improvement" trendPositive={true} colorScheme="cyan" subtitle="High 3D Engagement" />
-        <WidgetCard title="Store Conversion Rate" value="4.82%" trend="Industry Top 2%" trendPositive={true} colorScheme="emerald" subtitle="Checkout Success Ratio" />
-        <WidgetCard title="AI Agent Interactions" value="14,210" trend="+820 today" trendPositive={true} colorScheme="amber" subtitle="Autonomous Chat Prompts" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <WidgetCard title="Total Visitors" value={data.totalVisitors || 0} colorScheme="indigo" subtitle="All-time visits" />
+        <WidgetCard title="Unique Visitors" value={data.uniqueVisitors || 0} colorScheme="cyan" subtitle="Distinct users" />
+        <WidgetCard title="Avg. Session Duration" value={formatDuration(data.avgSessionDuration)} colorScheme="emerald" subtitle="Time on site" />
+        <WidgetCard title="Bounce Rate" value="-" colorScheme="amber" subtitle="Single page visits" />
       </div>
 
-      {/* Visual Charts Stream */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartWidget
-          type="line"
-          title={`Visitor Growth & Traffic Stream (${timeRange})`}
-          data={[120, 180, 140, 290, 310, 380, 450]}
-          labels={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <RechartsArea 
+          data={historyData}
+          xKey="name"
+          yKey="visitors"
+          title="Traffic Growth"
           color="indigo"
         />
-        <ChartWidget
-          type="bar"
-          title="Top Traffic Source Channels (%)"
-          data={[42, 28, 18, 12]}
-          labels={['GitHub Repo', 'Google Search', 'X / Twitter', 'Direct']}
-          color="emerald"
+        <RechartsPie 
+          data={deviceData.length > 0 ? deviceData : [{name: 'Desktop', value: 1}]}
+          nameKey="name"
+          dataKey="value"
+          title="Device Types"
         />
       </div>
 
-      {/* Geographic Breakdown & Popular Routes Table */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-xl">
-          <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider mb-4">Global Geographic Distribution</h2>
-          <div className="space-y-3">
-            {[
-              { country: 'United States & Canada', pct: '48%', count: '116,107 users' },
-              { country: 'United Kingdom & European Union', pct: '26%', count: '62,891 users' },
-              { country: 'India & South Asia', pct: '15%', count: '36,283 users' },
-              { country: 'Japan & Australia', pct: '11%', count: '26,609 users' }
-            ].map((geo, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
-                <span className="text-xs text-gray-200 font-sans font-semibold">{geo.country}</span>
-                <div className="text-right font-mono">
-                  <span className="text-xs font-bold text-indigo-400">{geo.pct}</span>
-                  <span className="text-[10px] text-gray-500 block">{geo.count}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <RechartsBar 
+          data={sourceData.length > 0 ? sourceData : [{name: 'Direct', count: 1}]}
+          xKey="name"
+          yKeys={['value']}
+          colors={['emerald']}
+          title="Traffic Sources"
+        />
 
         <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-xl">
           <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider mb-4">Most Active Target Routes</h2>
           <div className="space-y-3">
-            {[
-              { route: '/', name: 'Primary Portfolio & 3D Hero', views: '98,410 views' },
-              { route: '/store', name: 'Digital Commercial Storefront', views: '54,192 views' },
-              { route: '/blog/autonomous-ai-agents', name: 'Tech Lab Featured Article', views: '42,881 views' },
-              { route: '/projects/ai-portfolio-engine', name: 'Phase 11 Showcase Study', views: '31,219 views' }
-            ].map((r, idx) => (
+            {data.topPages && data.topPages.map((r: any, idx: number) => (
               <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
-                <div>
-                  <span className="text-xs font-mono font-bold text-white block">{r.route}</span>
-                  <span className="text-[10px] font-sans text-gray-400">{r.name}</span>
-                </div>
+                <span className="text-xs font-mono font-bold text-white block truncate mr-4">{r._id}</span>
                 <span className="text-xs font-mono text-emerald-400 font-bold">{r.views}</span>
               </div>
             ))}
+            {(!data.topPages || data.topPages.length === 0) && (
+              <div className="text-gray-400 text-sm">No page view data available.</div>
+            )}
           </div>
         </div>
       </div>

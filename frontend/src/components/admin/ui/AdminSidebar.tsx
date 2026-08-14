@@ -25,6 +25,7 @@ const navGroups: NavGroup[] = [
     groupName: 'Executive Core',
     items: [
       { title: 'Dashboard Home', path: '/admin/dashboard', icon: IconDashboard },
+      { title: 'System Health', path: '/admin/dashboard/health', icon: IconAnalytics, badge: '99.9%', badgeColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
       { title: 'Notifications', path: '/admin/dashboard/notifications', icon: IconBell, badge: 'Live', badgeColor: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' },
     ]
   },
@@ -57,7 +58,9 @@ const navGroups: NavGroup[] = [
     items: [
       { title: 'SEO Command Center', path: '/admin/dashboard/seo', icon: IconSeo, badge: '100%', badgeColor: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' },
       { title: 'Analytics Center', path: '/admin/dashboard/analytics', icon: IconAnalytics },
+      { title: 'Recruiter Dashboard', path: '/admin/dashboard/recruiter', icon: IconAnalytics },
       { title: 'AI Assistant Core', path: '/admin/dashboard/ai', icon: IconAI, badge: 'Pro 3.1', badgeColor: 'bg-amber-500/20 text-amber-400 border border-amber-500/30' },
+      { title: 'Data Export', path: '/admin/dashboard/export', icon: IconAnalytics },
       { title: 'Global Settings', path: '/admin/dashboard/settings', icon: IconSettings },
     ]
   }

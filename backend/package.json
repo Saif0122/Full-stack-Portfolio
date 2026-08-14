@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:coverage": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage"
   },
   "type": "module",
   "dependencies": {
@@ -14,23 +16,35 @@
     "@google/genai": "^2.16.0",
     "@google/generative-ai": "^0.24.1",
     "@pinecone-database/pinecone": "^8.2.0",
+    "@sentry/node": "^10.70.0",
+    "@sentry/profiling-node": "^10.70.0",
     "ai": "^7.0.58",
     "axios": "^1.19.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
     "express": "^4.19.2",
     "express-rate-limit": "^8.6.1",
     "joi": "^18.2.3",
+    "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.3",
     "mongodb-memory-server": "^11.2.0",
     "mongoose": "^8.3.4",
+    "node-cache": "^5.1.2",
     "nodemailer": "^9.0.5",
     "openai": "^6.49.0",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
+    "pdfkit": "^0.19.1",
     "stripe": "^22.4.0"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "jest": "^30.4.2",
+    "jest-environment-node": "^30.4.1",
+    "supertest": "^7.2.2"
   }
 }

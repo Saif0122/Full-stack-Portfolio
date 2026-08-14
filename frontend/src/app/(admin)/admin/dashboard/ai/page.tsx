@@ -1,8 +1,49 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout, FormBuilder, WidgetCard } from '@/components/admin/ui';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+import { RechartsBar, RechartsPie } from '@/components/analytics/Charts';
+
+const AIAnalyticsTab = () => {
+  const [data, setData] = useState<any>(null);
+  
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/analytics/ai').then(res => {
+      if (res.data.success) setData(res.data.data);
+    }).catch(console.error);
+  }, []);
+
+  if (!data) return <div className="text-white p-8">Loading Analytics...</div>;
+
+  const questionData = data.topQuestions ? data.topQuestions.map((q: any) => ({ name: q._id || 'Unknown', count: q.count })) : [];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <WidgetCard title="Total AI Interactions" value={data.totalInteractions || 0} colorScheme="indigo" subtitle="Prompts & queries" />
+        <WidgetCard title="Unique AI Sessions" value={data.aiSessions || 0} colorScheme="cyan" subtitle="Distinct users" />
+        <WidgetCard title="Avg Response Time" value={`${data.avgResponseTime || 0}ms`} colorScheme="emerald" subtitle="Inference latency" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RechartsBar 
+          data={questionData.length > 0 ? questionData : [{name: 'No data', count: 0}]}
+          xKey="name"
+          yKeys={['count']}
+          colors={['amber']}
+          title="Most Asked Questions"
+        />
+        <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-xl flex flex-col items-center justify-center">
+          <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider mb-4 w-full text-left">User Satisfaction Score</h2>
+          <div className="text-7xl font-black text-amber-400">{data.userSatisfaction || 100}%</div>
+          <div className="text-sm text-gray-400 mt-2">Based on AI feedback thumbs up/down</div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function AIAssistantPlatformPage() {
   const [activeWorkflow, setActiveWorkflow] = useState<'generate' | 'audit' | 'prompts'>('generate');
@@ -79,20 +120,22 @@ export default function AIAssistantPlatformPage() {
 
       {/* Studio Workflows */}
       <div className="flex gap-2 pt-2">
-        {(['generate', 'audit', 'prompts'] as const).map((wf) => (
+        {(['generate', 'audit', 'prompts', 'analytics'] as const).map((wf) => (
           <button
             key={wf}
-            onClick={() => setActiveWorkflow(wf)}
+            onClick={() => setActiveWorkflow(wf as any)}
             className={`px-5 py-2.5 rounded-2xl font-mono text-xs font-bold uppercase transition-all ${
               activeWorkflow === wf ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 scale-105 shadow-md' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/5'
             }`}
           >
-            {wf === 'generate' ? '✦ Content & Schema Generator Studio' : wf === 'audit' ? '🛡️ Autonomous Security & Regression Shield' : '⚙️ Custom System Instructions & Prompts'}
+            {wf === 'generate' ? '✦ Content & Schema Generator' : wf === 'audit' ? '🛡️ Security & Regression' : wf === 'prompts' ? '⚙️ System Prompts' : '📊 AI Analytics'}
           </button>
         ))}
       </div>
 
-      {activeWorkflow === 'generate' ? (
+      {activeWorkflow === 'analytics' ? (
+        <AIAnalyticsTab />
+      ) : activeWorkflow === 'generate' ? (
         <div className="space-y-6">
           <form onSubmit={handleGenerate} className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-xl space-y-4">
             <label className="block text-xs font-mono font-bold uppercase text-gray-300 tracking-wider">

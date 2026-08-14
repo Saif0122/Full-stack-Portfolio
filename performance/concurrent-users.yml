@@ -1,0 +1,32 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp up load"
+    - duration: 120
+      arrivalRate: 50
+      name: "Sustained peak load"
+  environments:
+    production:
+      target: "https://api.saiful.code"
+      phases:
+        - duration: 300
+          arrivalRate: 100
+scenarios:
+  - name: "Read heavy operations"
+    flow:
+      - get:
+          url: "/api/health"
+      - get:
+          url: "/api/products"
+      - get:
+          url: "/api/blog"
+  - name: "Analytics endpoint stress"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/analytics/summary"
+          headers:
+            authorization: "Bearer {{ $processEnvironment.ADMIN_TOKEN }}"

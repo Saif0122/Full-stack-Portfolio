@@ -61,8 +61,14 @@ const nextConfig: NextConfig = {
   },
 };
 
+import { withSentryConfig } from '@sentry/nextjs';
+
 const analyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
-export default analyzer(nextConfig);
+export default withSentryConfig(analyzer(nextConfig), {
+  silent: true,
+  org: "saif-pro",
+  project: "portfolio-frontend",
+});

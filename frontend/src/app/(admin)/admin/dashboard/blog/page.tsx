@@ -1,10 +1,63 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AdminLayout, DataTable, Column, FormBuilder, ConfirmDialog } from '@/components/admin/ui';
+import { AdminLayout, DataTable, Column, FormBuilder, ConfirmDialog, WidgetCard } from '@/components/admin/ui';
 import { adminService } from '@/services/admin.service';
 import { useToast } from '@/providers/ToastProvider';
+import axios from 'axios';
+import { RechartsBar, RechartsPie } from '@/components/analytics/Charts';
+
+const BlogAnalyticsTab = () => {
+  const [data, setData] = useState<any>(null);
+  
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/analytics/blog').then(res => {
+      if (res.data.success) setData(res.data.data);
+    }).catch(console.error);
+  }, []);
+
+  if (!data) return <div className="text-white p-8">Loading Analytics...</div>;
+
+  const engagementData = Object.entries(data.engagementActions || {}).map(([name, count]) => ({ name, count }));
+
+  return (
+    <div className="space-y-6 pt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <WidgetCard title="Total Views" value={data.totalViews || 0} colorScheme="indigo" subtitle="All articles" />
+        <WidgetCard title="Unique Readers" value={data.uniqueReaders || 0} colorScheme="pink" subtitle="Distinct visitors" />
+        <WidgetCard title="Shares" value={data.engagementActions?.share || 0} colorScheme="cyan" subtitle="Social shares" />
+        <WidgetCard title="Comments" value={data.engagementActions?.comment || 0} colorScheme="emerald" subtitle="User discussions" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-xl">
+          <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider mb-4">Top Performing Articles</h2>
+          <div className="space-y-3">
+            {data.topArticles && data.topArticles.map((a: any, idx: number) => (
+              <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
+                <span className="text-xs font-mono font-bold text-white block truncate mr-4">{a._id.replace('/blog/', '')}</span>
+                <span className="text-xs font-mono text-pink-400 font-bold">{a.views} views</span>
+              </div>
+            ))}
+            {(!data.topArticles || data.topArticles.length === 0) && (
+              <div className="text-gray-400 text-sm">No view data available.</div>
+            )}
+          </div>
+        </div>
+
+        <RechartsBar 
+          data={engagementData.length > 0 ? engagementData : [{name: 'No data', count: 0}]}
+          xKey="name"
+          yKeys={['count']}
+          colors={['pink']}
+          title="Engagement Breakdown"
+        />
+      </div>
+    </div>
+  );
+};
+
 
 interface BlogArticle {
   _id: string;
@@ -19,7 +72,7 @@ interface BlogArticle {
 }
 
 export default function BlogCmsStudioPage() {
-  const [activeTab, setActiveTab] = useState<'articles' | 'authors' | 'seo'>('articles');
+  const [activeTab, setActiveTab] = useState<'articles' | 'authors' | 'seo' | 'analytics'>('articles');
   const [isWriting, setIsWriting] = useState<boolean>(false);
   const [selectedArticle, setSelectedArticle] = useState<BlogArticle | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -104,15 +157,15 @@ export default function BlogCmsStudioPage() {
 
       {!isWriting && (
         <div className="flex gap-2 pb-4 pt-4">
-          {(['articles', 'authors', 'seo'] as const).map((tab) => (
+          {(['articles', 'authors', 'seo', 'analytics'] as const).map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => setActiveTab(tab as any)}
               className={`px-4 py-2 rounded-2xl font-mono text-xs uppercase font-bold transition-all ${
                 activeTab === tab ? 'bg-pink-500/20 text-pink-300 border border-pink-500/40' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/5'
               }`}
             >
-              {tab === 'articles' ? `All Articles & Drafts (${articles.length})` : tab === 'authors' ? 'Author Directory' : 'Blog SEO Defaults'}
+              {tab === 'articles' ? `All Articles & Drafts (${articles.length})` : tab === 'authors' ? 'Author Directory' : tab === 'seo' ? 'Blog SEO Defaults' : '📊 Blog Analytics'}
             </button>
           ))}
         </div>
@@ -178,6 +231,8 @@ export default function BlogCmsStudioPage() {
           <h2 className="text-lg font-bold text-white mb-4">Author Directory & Bio Profiles</h2>
           <div className="text-gray-400 text-sm">Author management module is connected to User Role RBAC.</div>
         </div>
+      ) : activeTab === 'analytics' ? (
+        <BlogAnalyticsTab />
       ) : (
         <FormBuilder
           title="Blog CMS Global SEO Defaults"

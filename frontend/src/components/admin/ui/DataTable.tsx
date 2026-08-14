@@ -21,6 +21,12 @@ interface DataTableProps<T> {
   enableSelection?: boolean;
   onBulkDelete?: (selectedIds: string[]) => void;
   onBulkPublish?: (selectedIds: string[], status: boolean) => void;
+  // Server-side options
+  serverSide?: boolean;
+  totalRecords?: number;
+  onPageChange?: (page: number) => void;
+  onSortChange?: (column: string, direction: 'asc' | 'desc') => void;
+  onSearchChange?: (term: string) => void;
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -34,7 +40,12 @@ export function DataTable<T extends Record<string, any>>({
   pageSize = 8,
   enableSelection = false,
   onBulkDelete,
-  onBulkPublish
+  onBulkPublish,
+  serverSide = false,
+  totalRecords = 0,
+  onPageChange,
+  onSortChange,
+  onSearchChange
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortColumn, setSortColumn] = useState<string | null>(null);
@@ -42,8 +53,38 @@ export function DataTable<T extends Record<string, any>>({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // Search & Filter execution
+  const handleSearchChange = (val: string) => {
+    setSearchTerm(val);
+    setCurrentPage(1);
+    if (serverSide && onSearchChange) {
+      onSearchChange(val);
+    }
+  };
+
+  const handleSort = (key: string, sortable?: boolean) => {
+    if (sortable === false) return;
+    let newDir: 'asc' | 'desc' = 'asc';
+    if (sortColumn === key) {
+      newDir = sortDirection === 'asc' ? 'desc' : 'asc';
+    }
+    setSortColumn(key);
+    setSortDirection(newDir);
+    
+    if (serverSide && onSortChange) {
+      onSortChange(key, newDir);
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    if (serverSide && onPageChange) {
+      onPageChange(newPage);
+    }
+  };
+
+  // Search & Filter execution (client-side only if not serverSide)
   const filteredData = useMemo(() => {
+    if (serverSide) return data; // Server handles it
     if (!searchTerm) return data;
     return data.filter((item) => {
       if (searchKey) {
@@ -54,10 +95,11 @@ export function DataTable<T extends Record<string, any>>({
         String(val || '').toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
-  }, [data, searchTerm, searchKey]);
+  }, [data, searchTerm, searchKey, serverSide]);
 
-  // Sort execution
+  // Sort execution (client-side only if not serverSide)
   const sortedData = useMemo(() => {
+    if (serverSide) return filteredData;
     if (!sortColumn) return filteredData;
     return [...filteredData].sort((a, b) => {
       const aVal = a[sortColumn];
@@ -68,24 +110,15 @@ export function DataTable<T extends Record<string, any>>({
       const comp = typeof aVal === 'number' ? aVal - bVal : String(aVal).localeCompare(String(bVal));
       return sortDirection === 'asc' ? comp : -comp;
     });
-  }, [filteredData, sortColumn, sortDirection]);
+  }, [filteredData, sortColumn, sortDirection, serverSide]);
 
-  // Pagination execution
-  const totalPages = Math.ceil(sortedData.length / pageSize) || 1;
+  // Pagination execution (client-side only if not serverSide)
+  const totalPages = serverSide ? Math.ceil(totalRecords / pageSize) || 1 : Math.ceil(sortedData.length / pageSize) || 1;
   const paginatedData = useMemo(() => {
+    if (serverSide) return sortedData; // Data from server is already paginated
     const start = (currentPage - 1) * pageSize;
     return sortedData.slice(start, start + pageSize);
-  }, [sortedData, currentPage, pageSize]);
-
-  const handleSort = (key: string, sortable?: boolean) => {
-    if (sortable === false) return;
-    if (sortColumn === key) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(key);
-      setSortDirection('asc');
-    }
-  };
+  }, [sortedData, currentPage, pageSize, serverSide]);
 
   const toggleSelectAll = () => {
     if (selectedIds.size === paginatedData.length) {
@@ -111,7 +144,7 @@ export function DataTable<T extends Record<string, any>>({
             type="text"
             placeholder={searchPlaceholder}
             value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            onChange={(e) => handleSearchChange(e.target.value)}
             aria-label={searchPlaceholder}
             className="w-full bg-black/60 text-white text-xs font-mono rounded-xl py-2.5 pl-9 pr-4 border border-white/10 focus:border-indigo-500 focus:outline-none transition-colors"
           />
@@ -131,7 +164,7 @@ export function DataTable<T extends Record<string, any>>({
               )}
             </div>
           )}
-          <span>Showing <span className="text-white font-bold">{sortedData.length}</span> verified records</span>
+          <span>Showing <span className="text-white font-bold">{serverSide ? paginatedData.length : sortedData.length}</span> verified records</span>
         </div>
       </div>
 
@@ -213,7 +246,7 @@ export function DataTable<T extends Record<string, any>>({
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-2 pt-2">
           <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
             className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono disabled:opacity-40 transition-colors"
           >
@@ -223,7 +256,7 @@ export function DataTable<T extends Record<string, any>>({
             Page <strong className="text-white">{currentPage}</strong> of <strong className="text-white">{totalPages}</strong>
           </span>
           <button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
             className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono disabled:opacity-40 transition-colors"
           >

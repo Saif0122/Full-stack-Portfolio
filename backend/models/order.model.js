@@ -21,4 +21,7 @@ const orderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
+
+orderSchema.index({ status: 1 });
+
 export default Order;

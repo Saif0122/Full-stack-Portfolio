@@ -7,6 +7,7 @@ import { ToastProvider } from './ToastProvider';
 import { ModalProvider } from './ModalProvider';
 import { GlobalErrorBoundary } from '../components/ErrorBoundary/GlobalErrorBoundary';
 import { ReactQueryProvider } from './ReactQueryProvider';
+import { AnalyticsProvider } from './AnalyticsProvider';
 
 /**
  * AppProviders — Single wrapper that nests all global providers
@@ -18,6 +19,7 @@ import { ReactQueryProvider } from './ReactQueryProvider';
  * 3. AuthProvider    — Session/user state (scaffold)
  * 4. ModalProvider   — Needs to render at root level
  * 5. ToastProvider   — Renders toast stack at root level
+ * 6. AnalyticsProvider - Tracks user events and sessions
  */
 export const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -25,11 +27,13 @@ export const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children
       <ThemeProvider>
         <AuthProvider>
           <ReactQueryProvider>
-            <ModalProvider>
-              <ToastProvider>
-                {children}
-              </ToastProvider>
-            </ModalProvider>
+            <AnalyticsProvider>
+              <ModalProvider>
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
+              </ModalProvider>
+            </AnalyticsProvider>
           </ReactQueryProvider>
         </AuthProvider>
       </ThemeProvider>

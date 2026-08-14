@@ -69,7 +69,7 @@ export async function POST(req: Request) {
     const result = streamText({
       model: google('gemini-3.5-flash'), // Updated to latest available model
       system: systemPrompt,
-      messages: convertToModelMessages(messages),
+      messages: await convertToModelMessages(messages),
       temperature: 0.7,
     });
 

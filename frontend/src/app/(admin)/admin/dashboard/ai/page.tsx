@@ -46,7 +46,7 @@ const AIAnalyticsTab = () => {
 };
 
 export default function AIAssistantPlatformPage() {
-  const [activeWorkflow, setActiveWorkflow] = useState<'generate' | 'audit' | 'prompts'>('generate');
+  const [activeWorkflow, setActiveWorkflow] = useState<'generate' | 'audit' | 'prompts' | 'analytics'>('generate');
   const [promptInput, setPromptInput] = useState<string>('Generate an SEO-optimized JSON-LD Schema and professional GitHub case study summary for my new autonomous MERN e-commerce application.');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);

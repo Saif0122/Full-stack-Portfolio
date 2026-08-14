@@ -22,7 +22,7 @@ export const FloatingAssistant: React.FC = () => {
     ]
   });
 
-  const isLoading = status === 'in_progress' || status === 'submitted';
+  const isLoading = status === 'streaming' || status === 'submitted';
   const [inputValue, setInputValue] = useState('');
 
   const onCustomSubmit = (e: React.FormEvent) => {

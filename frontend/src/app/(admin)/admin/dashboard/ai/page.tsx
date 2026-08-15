@@ -53,7 +53,7 @@ const AIAnalyticsTab = React.memo(() => {
       </div>
     </div>
   );
-};
+});
 
 export default function AIAssistantPlatformPage() {
   const [activeWorkflow, setActiveWorkflow] = useState<'generate' | 'audit' | 'prompts' | 'analytics'>('generate');

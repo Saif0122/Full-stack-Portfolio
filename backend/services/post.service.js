@@ -185,7 +185,7 @@ export class PostService {
 
   // Mapper to convert populated MongoDB docs into exact frontend UI format
   _mapPostToFrontend(post) {
-    const p = post.toObject();
+    const p = post;
     return {
       id: p._id.toString(),
       slug: p.slug,

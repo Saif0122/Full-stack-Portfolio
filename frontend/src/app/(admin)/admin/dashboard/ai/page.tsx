@@ -4,9 +4,19 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout, FormBuilder, WidgetCard } from '@/components/admin/ui';
 import { motion } from 'framer-motion';
 import axios from 'axios';
-import { RechartsBar, RechartsPie } from '@/components/analytics/Charts';
+import dynamic from 'next/dynamic';
 
-const AIAnalyticsTab = () => {
+const RechartsBar = dynamic(() => import('@/components/analytics/Charts').then((mod) => mod.RechartsBar), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full bg-white/5 animate-pulse rounded-2xl flex items-center justify-center text-gray-400 font-mono text-xs">Loading Analytics Chart...</div>
+});
+
+const RechartsPie = dynamic(() => import('@/components/analytics/Charts').then((mod) => mod.RechartsPie), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full bg-white/5 animate-pulse rounded-2xl flex items-center justify-center text-gray-400 font-mono text-xs">Loading Analytics Chart...</div>
+});
+
+const AIAnalyticsTab = React.memo(() => {
   const [data, setData] = useState<any>(null);
   
   useEffect(() => {

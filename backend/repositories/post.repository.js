@@ -2,15 +2,15 @@ import Post from '../models/post.model.js';
 
 export class PostRepository {
   async findAll(query = {}) {
-    return await Post.find(query).populate('categories tags author');
+    return await Post.find(query).populate('categories tags author').lean();
   }
 
   async findById(id) {
-    return await Post.findById(id).populate('categories tags author');
+    return await Post.findById(id).populate('categories tags author').lean();
   }
 
   async findBySlug(slug) {
-    return await Post.findOne({ slug }).populate('categories tags author');
+    return await Post.findOne({ slug }).populate('categories tags author').lean();
   }
 
   async create(data) {

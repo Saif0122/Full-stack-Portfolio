@@ -10,8 +10,6 @@ dist/
 out/
 build/
 *.tsbuildinfo
-*.md
-errorreadme.me
 
 # Environment variables
 .env

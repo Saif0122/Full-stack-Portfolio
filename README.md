@@ -106,5 +106,6 @@ If you are a CTO, HR professional, or CEO looking for a developer who doesn't ju
 
 <div align="center">
   <h3>Let's build something incredible.</h3>
-  <a href="mailto:your.email@example.com">Contact Me</a> • <a href="https://linkedin.com/in/yourprofile">LinkedIn</a>
+  <a href="mailto:saifulislam@gmail.com">Contact Me</a> • 
+  <a href="https://linkedin.comin/saif-ul-islam-66261b323">LinkedIn</a>
 </div>

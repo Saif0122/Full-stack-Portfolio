@@ -13,18 +13,18 @@ const ScrollToExploreExperience = dynamic(() => import('@/components/Home/Scroll
 import { BLOG_POSTS } from '@/constants/content';
 import Link from 'next/link';
 import { TypingText, FloatingCode, HeroCursorRefraction, LiveAvailabilityModal } from '@/components/Hero';
-import { Services } from '@/components/Home/Services';
-import { NexusArchitectureLab } from '@/components/Home/NexusArchitectureLab';
-import { TechnicalIntegrity } from '@/components/Home/TechnicalIntegrity';
-import { Pricing } from '@/components/Home/Pricing';
-import { Testimonials } from '@/components/Home/Testimonials';
-import { FAQ } from '@/components/Home/FAQ';
-import { FeaturedCaseStudy } from '@/components/Home/FeaturedCaseStudy';
-import { TechMarquee } from '@/components/Home/TechMarquee';
-import { ClosingCTA } from '@/components/Home/ClosingCTA';
-import { ArchitectureDiagram } from '@/components/Home/ArchitectureDiagram';
-import { TerminalSimulation } from '@/components/Home/TerminalSimulation';
-import { BlogBlueprintPreview } from '@/components/Home/BlogBlueprintPreview';
+const Services = dynamic(() => import('@/components/Home/Services').then((mod) => mod.Services));
+const NexusArchitectureLab = dynamic(() => import('@/components/Home/NexusArchitectureLab').then((mod) => mod.NexusArchitectureLab), { ssr: false });
+const TechnicalIntegrity = dynamic(() => import('@/components/Home/TechnicalIntegrity').then((mod) => mod.TechnicalIntegrity));
+const Pricing = dynamic(() => import('@/components/Home/Pricing').then((mod) => mod.Pricing));
+const Testimonials = dynamic(() => import('@/components/Home/Testimonials').then((mod) => mod.Testimonials));
+const FAQ = dynamic(() => import('@/components/Home/FAQ').then((mod) => mod.FAQ));
+const FeaturedCaseStudy = dynamic(() => import('@/components/Home/FeaturedCaseStudy').then((mod) => mod.FeaturedCaseStudy));
+const TechMarquee = dynamic(() => import('@/components/Home/TechMarquee').then((mod) => mod.TechMarquee));
+const ClosingCTA = dynamic(() => import('@/components/Home/ClosingCTA').then((mod) => mod.ClosingCTA));
+const ArchitectureDiagram = dynamic(() => import('@/components/Home/ArchitectureDiagram').then((mod) => mod.ArchitectureDiagram));
+const TerminalSimulation = dynamic(() => import('@/components/Home/TerminalSimulation').then((mod) => mod.TerminalSimulation));
+const BlogBlueprintPreview = dynamic(() => import('@/components/Home/BlogBlueprintPreview').then((mod) => mod.BlogBlueprintPreview));
 import { HoverGlowCard, MagneticButtonWrapper, ScrollReveal } from '@/animations';
 
 interface Stat {

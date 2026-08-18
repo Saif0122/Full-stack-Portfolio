@@ -48,20 +48,33 @@ export const MouseParallaxCamera: React.FC<MouseParallaxCameraProps> = ({
     };
   }, []);
 
-  useFrame((state) => {
-    const cam = state.camera;
-    if (prefersReducedMotion.current) {
-      // Keep static at base position if reduced motion is requested
-      cam.position.x = THREE.MathUtils.lerp(cam.position.x, basePosition[0], damping);
-      cam.position.y = THREE.MathUtils.lerp(cam.position.y, basePosition[1], damping);
-      cam.position.z = THREE.MathUtils.lerp(cam.position.z, basePosition[2], damping);
-      cam.lookAt(0, 0, 0);
-      return;
-    }
+    const scrollYRef = useRef(0);
+    
+    useEffect(() => {
+      const handleScroll = () => {
+        scrollYRef.current = window.scrollY;
+      };
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      // Set initial value
+      handleScroll();
+      
+      return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
-    const mouseX = mouseRef.current.x !== 0 ? mouseRef.current.x : state.mouse.x;
-    const mouseY = mouseRef.current.y !== 0 ? mouseRef.current.y : state.mouse.y;
-    const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+    useFrame((state) => {
+      const cam = state.camera;
+      if (prefersReducedMotion.current) {
+        // Keep static at base position if reduced motion is requested
+        cam.position.x = THREE.MathUtils.lerp(cam.position.x, basePosition[0], damping);
+        cam.position.y = THREE.MathUtils.lerp(cam.position.y, basePosition[1], damping);
+        cam.position.z = THREE.MathUtils.lerp(cam.position.z, basePosition[2], damping);
+        cam.lookAt(0, 0, 0);
+        return;
+      }
+  
+      const mouseX = mouseRef.current.x !== 0 ? mouseRef.current.x : state.mouse.x;
+      const mouseY = mouseRef.current.y !== 0 ? mouseRef.current.y : state.mouse.y;
+      const scrollY = scrollYRef.current;
 
     const targetX = basePosition[0] + mouseX * intensity;
     const targetY = basePosition[1] + mouseY * intensity - scrollY * scrollIntensity;

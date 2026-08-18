@@ -24,7 +24,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   transpilePackages: ['three'],
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',

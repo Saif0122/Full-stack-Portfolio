@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 interface ProductGalleryProps {
   images: string[];
@@ -17,16 +18,23 @@ export default function ProductGallery({ images, thumbnail }: ProductGalleryProp
       {/* Main Image */}
       <div className="relative aspect-video rounded-3xl overflow-hidden bg-muted border border-border/50">
         <AnimatePresence mode="wait">
-          <motion.img
+          <motion.div
             key={activeIndex}
-            src={allImages[activeIndex] || 'https://via.placeholder.com/1200x800'}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="w-full h-full object-cover"
-            alt={`Gallery image ${activeIndex + 1}`}
-          />
+            className="w-full h-full relative"
+          >
+            <Image
+              src={allImages[activeIndex] || 'https://via.placeholder.com/1200x800'}
+              fill
+              sizes="(max-width: 768px) 100vw, 800px"
+              className="object-cover"
+              alt={`Gallery image ${activeIndex + 1}`}
+              priority
+            />
+          </motion.div>
         </AnimatePresence>
       </div>
 
@@ -41,7 +49,7 @@ export default function ProductGallery({ images, thumbnail }: ProductGalleryProp
               ${activeIndex === idx ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}
             `}
           >
-            <img src={img || 'https://via.placeholder.com/200x120'} className="w-full h-full object-cover" alt="" />
+            <Image src={img || 'https://via.placeholder.com/200x120'} fill sizes="96px" className="object-cover" alt="" />
           </button>
         ))}
       </div>

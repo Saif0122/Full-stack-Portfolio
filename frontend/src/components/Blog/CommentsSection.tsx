@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Image from 'next/image';
 import { useAuth } from '@/providers/AuthProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { adminService } from '@/services/admin.service';
@@ -81,7 +82,7 @@ export const CommentsSection: React.FC<{ postId: string }> = ({ postId }) => {
     <div className={`flex gap-4 ${isReply ? 'ml-12 mt-4' : 'mt-8'} border-b border-white/5 pb-4 last:border-0`}>
       <div className="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">
         {comment.user.avatar ? (
-          <img src={comment.user.avatar} alt="avatar" className="w-full h-full rounded-full object-cover" />
+          <Image src={comment.user.avatar} alt="avatar" width={40} height={40} className="w-full h-full rounded-full object-cover" />
         ) : (
           comment.user.name.charAt(0).toUpperCase()
         )}

@@ -65,9 +65,9 @@ export default function SeoCommandCenterPage() {
     setIsScanning(true);
     try {
       // POST to /api/seo/validate (admin route)
-      const res = await adminService.fetch('/seo/validate', { method: 'POST' });
+      const res = await adminService.create('/seo/validate', {});
       setScanResult(res);
-      toast(`Scan complete: Found ${res.totalIssues} issues across ${res.totalPaths} routes.`, res.errorPaths > 0 ? 'warning' : 'success');
+      toast(`Scan complete: Found ${res.totalIssues} issues across ${res.totalPaths} routes.`, res.errorPaths > 0 ? 'error' : 'success');
     } catch (err) {
       toast('Failed to run SEO validation scan', 'error');
     } finally {

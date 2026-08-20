@@ -10,6 +10,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   try {
     const res = await fetch(`${API_BASE}/settings/seo_vitals`, {
       next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(5000)
     });
 
     if (res.ok) {

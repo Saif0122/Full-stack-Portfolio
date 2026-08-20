@@ -9,7 +9,10 @@ type SitemapEntry = MetadataRoute.Sitemap[number];
 
 async function safeFetch<T>(url: string): Promise<T[]> {
   try {
-    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const res = await fetch(url, { 
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(5000) 
+    });
     if (!res.ok) return [];
     const json = await res.json();
     return Array.isArray(json.data) ? json.data : [];

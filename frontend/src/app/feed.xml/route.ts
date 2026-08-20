@@ -7,7 +7,10 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 async function safeFetch<T>(url: string): Promise<T[]> {
   try {
-    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const res = await fetch(url, { 
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(5000) 
+    });
     if (!res.ok) return [];
     const json = await res.json();
     return Array.isArray(json.data) ? json.data : [];

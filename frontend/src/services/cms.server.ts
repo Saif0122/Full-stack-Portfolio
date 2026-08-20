@@ -3,7 +3,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 export async function getPortfolioData() {
   try {
     const res = await fetch(`${API_URL}/portfolio`, {
-      next: { revalidate: 60, tags: ['portfolio'] } // Revalidate every minute, or on-demand
+      next: { revalidate: 60, tags: ['portfolio'] }, // Revalidate every minute, or on-demand
+      signal: AbortSignal.timeout(5000) // Fail fast during Vercel build
     });
     if (!res.ok) {
       throw new Error('Failed to fetch portfolio data');
@@ -27,7 +28,8 @@ export async function getPortfolioData() {
 export async function getProjectsData() {
   try {
     const res = await fetch(`${API_URL}/projects`, {
-      next: { revalidate: 60, tags: ['projects'] }
+      next: { revalidate: 60, tags: ['projects'] },
+      signal: AbortSignal.timeout(5000) // Fail fast during Vercel build
     });
     if (!res.ok) {
       throw new Error('Failed to fetch projects data');

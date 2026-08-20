@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     og: { type: 'website' },
   }),
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'qY4TKlCSlu1EzVgc6H51hQj_MUKZPB7dWUbjNVSBFCk',
   },
 };
 

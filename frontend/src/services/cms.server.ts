@@ -23,3 +23,19 @@ export async function getPortfolioData() {
     return {}; // Return empty object as fallback
   }
 }
+
+export async function getProjectsData() {
+  try {
+    const res = await fetch(`${API_URL}/projects`, {
+      next: { revalidate: 60, tags: ['projects'] }
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch projects data');
+    }
+    const result = await res.json();
+    return result.data || [];
+  } catch (error) {
+    console.error('Error fetching projects data:', error);
+    return [];
+  }
+}

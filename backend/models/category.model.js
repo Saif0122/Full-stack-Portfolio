@@ -6,7 +6,18 @@ const categorySchema = new mongoose.Schema({
   description: { type: String },
   icon: { type: String }, // optional icon class or url
   isActive: { type: Boolean, default: true },
+  // Per-category SEO override
+  seo: {
+    metaTitle: { type: String },
+    metaDescription: { type: String },
+    keywords: [{ type: String }],
+    canonicalUrl: { type: String },
+    noIndex: { type: Boolean, default: false },
+    openGraphImage: { type: String }
+  }
 }, { timestamps: true });
+
+categorySchema.index({ slug: 1 });
 
 const Category = mongoose.models.Category || mongoose.model('Category', categorySchema);
 export default Category;

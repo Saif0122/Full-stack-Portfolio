@@ -60,6 +60,10 @@ const postSchema = new mongoose.Schema({
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   }]
 }, { timestamps: true });
+// Indexes for performance
+postSchema.index({ status: 1, publishedAt: -1 });
+postSchema.index({ slug: 1 });
+postSchema.index({ title: 'text', content: 'text' });
 
 const Post = mongoose.models.Post || mongoose.model('Post', postSchema);
 export default Post;

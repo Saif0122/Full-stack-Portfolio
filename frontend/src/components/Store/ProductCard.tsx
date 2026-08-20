@@ -2,15 +2,16 @@
 
 import { Product } from '@/types/store';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import Image from 'next/image';
+import { memo, useRef } from 'react';
 import Link from 'next/link';
-import { useRef } from 'react';
 
 interface ProductCardProps {
   product: Product;
   index: number;
 }
 
-export default function ProductCard({ product, index }: ProductCardProps) {
+const ProductCard = memo(function ProductCard({ product, index }: ProductCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -74,14 +75,21 @@ export default function ProductCard({ product, index }: ProductCardProps) {
         {/* Image Container */}
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-[2rem]">
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent z-10" />
-          <motion.img 
-            src={product.thumbnail || 'https://via.placeholder.com/800x600'} 
-            alt={product.title}
-            className="object-cover w-full h-full"
+          <motion.div
+            className="w-full h-full"
             style={{ transform: "translateZ(20px)" }}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.5 }}
-          />
+          >
+            <Image 
+              src={product.thumbnail || 'https://via.placeholder.com/800x600'} 
+              alt={product.title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              priority={index < 4}
+            />
+          </motion.div>
           
           {/* Badges */}
           <div className="absolute top-5 left-5 z-20 flex gap-2" style={{ transform: "translateZ(40px)" }}>
@@ -132,4 +140,6 @@ export default function ProductCard({ product, index }: ProductCardProps) {
       </Link>
     </motion.div>
   );
-}
+});
+
+export default ProductCard;

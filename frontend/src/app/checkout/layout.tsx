@@ -1,5 +1,28 @@
 import React from 'react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/seo/helpers';
+import { PAGE_SEO_DEFAULTS } from '@/lib/seo/config';
+
+/**
+ * noindex: true on /checkout — intentional decision.
+ *
+ * EFFECT: Checkout pages are never shown in search results.
+ * WHY: Checkout URLs are transactional and session-specific.
+ *      If Google indexed them, users would land on an empty
+ *      or broken checkout flow with no items in their cart.
+ *
+ * DISADVANTAGE: None for a checkout page. You WANT this.
+ *      There is no SEO value to a checkout page appearing in
+ *      search results — it would only confuse users.
+ */
+export const metadata: Metadata = generatePageMetadata({
+  title: PAGE_SEO_DEFAULTS.checkout.title,
+  description: PAGE_SEO_DEFAULTS.checkout.description,
+  path: '/checkout',
+  noindex: true,
+  nofollow: true, // Don't follow links from checkout — keep bots out
+});
 
 export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -21,7 +21,7 @@ interface ScrollRevealProps extends HTMLMotionProps<"div"> {
  * Reusable viewport reveal wrapper supporting directional slide/scale, staggering,
  * and automatic WCAG AA reduced-motion fallback.
  */
-export const ScrollReveal: React.FC<ScrollRevealProps> = ({
+const ScrollRevealComponent: React.FC<ScrollRevealProps> = ({
   children,
   direction = 'up',
   delay = 0,
@@ -72,3 +72,5 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
     </motion.div>
   );
 };
+
+export const ScrollReveal = React.memo(ScrollRevealComponent);

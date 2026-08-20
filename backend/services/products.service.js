@@ -108,7 +108,8 @@ export class ProductService {
       .populate('category')
       .sort(sortOption)
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .lean();
     
     const total = await Product.countDocuments(filter);
 
@@ -125,12 +126,13 @@ export class ProductService {
   async getFeaturedProducts() {
     const products = await Product.find({ isActive: true, isFeatured: true })
       .populate('category')
-      .limit(6);
+      .limit(6)
+      .lean();
     return products.map(p => this._mapProductToFrontend(p));
   }
 
   async getProductDetails(slug) {
-    const product = await Product.findOne({ slug }).populate('category');
+    const product = await Product.findOne({ slug }).populate('category').lean();
     return product ? this._mapProductToFrontend(product) : null;
   }
 
@@ -140,7 +142,7 @@ export class ProductService {
 
   // Mapper to convert populated MongoDB docs into exact frontend UI format
   _mapProductToFrontend(product) {
-    const p = product.toObject();
+    const p = product.toObject ? product.toObject() : product;
     return {
       id: p._id.toString(),
       slug: p.slug,

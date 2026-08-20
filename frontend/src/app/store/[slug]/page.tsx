@@ -5,29 +5,33 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { fetchProductBySlug, fetchAllProducts } from '@/services/store.service';
 import LiveDataRefresher from '@/components/LiveDataRefresher';
+import { generatePageMetadata, generateJsonLdScript } from '@/lib/seo/helpers';
+import { mergeSeoOptions } from '@/lib/seo/service';
+import { buildProductSchema } from '@/lib/seo/schemas/product.schema';
+import { productBreadcrumb } from '@/lib/seo/schemas/breadcrumb.schema';
 
 export const revalidate = 60;
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const product = await fetchProductBySlug(params.slug);
-  if (!product) return { title: 'Product Not Found' };
+type PageProps = { params: Promise<{ slug: string }> };
 
-  return {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await fetchProductBySlug(slug);
+  if (!product) return { title: 'Product Not Found | Developer Store' };
+
+  const seoOpts = mergeSeoOptions(null, {
     title: `${product.title} | Developer Store`,
     description: product.shortDescription || product.description,
-    openGraph: {
-      title: product.title,
-      description: product.shortDescription,
-      images: product.thumbnail ? [product.thumbnail] : [],
+    keywords: product.technologies ?? [],
+    og: {
       type: 'website',
+      images: product.thumbnail
+        ? [{ url: product.thumbnail, width: 1200, height: 630, alt: product.title }]
+        : undefined,
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: product.title,
-      description: product.shortDescription,
-      images: product.thumbnail ? [product.thumbnail] : [],
-    }
-  };
+  }, `/store/${slug}`);
+
+  return generatePageMetadata(seoOpts);
 }
 
 export async function generateStaticParams() {
@@ -37,8 +41,10 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
-  const product = await fetchProductBySlug(params.slug);
+
+export default async function ProductDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const product = await fetchProductBySlug(slug);
 
   if (!product) {
     return notFound();
@@ -46,8 +52,26 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
 
   const isMockData = !!product._isMock;
 
+  // JSON-LD schemas
+  const productSchema = buildProductSchema({
+    title: product.title,
+    description: product.description,
+    slug: product.slug,
+    thumbnail: product.thumbnail,
+    price: product.price,
+    salePrice: product.salePrice,
+    rating: product.rating,
+    reviewCount: product.reviewCount,
+    features: product.features,
+    technologies: product.technologies,
+    isActive: true,
+  });
+
+  const breadcrumbSchema = productBreadcrumb(product.title, product.slug, product.category);
+
   return (
     <>
+      <script {...generateJsonLdScript([productSchema, breadcrumbSchema])} />
       <LiveDataRefresher isMockData={isMockData} />
       <div className="min-h-screen pt-32 pb-24">
         <div className="container mx-auto px-4">
@@ -106,3 +130,4 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
     </>
   );
 }
+

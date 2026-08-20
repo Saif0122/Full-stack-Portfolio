@@ -25,8 +25,10 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setModalTitle(undefined);
   }, []);
 
+  const contextValue = React.useMemo(() => ({ openModal, closeModal }), [openModal, closeModal]);
+
   return (
-    <ModalContext.Provider value={{ openModal, closeModal }}>
+    <ModalContext.Provider value={contextValue}>
       {children}
       <AnimatePresence>
         {modalContent && (

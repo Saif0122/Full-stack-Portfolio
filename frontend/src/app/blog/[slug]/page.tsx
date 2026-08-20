@@ -4,8 +4,13 @@ import { Metadata } from 'next';
 import { fetchPostBySlug, fetchAllPosts } from '@/services/blog.service';
 import { CLUSTERS } from '@/constants/blog';
 import { BlogPostView } from './BlogPostView';
+import { generatePageMetadata, generateJsonLdScript } from '@/lib/seo/helpers';
+import { mergeSeoOptions } from '@/lib/seo/service';
+import { buildArticleSchema } from '@/lib/seo/schemas/article.schema';
+import { blogPostBreadcrumb } from '@/lib/seo/schemas/breadcrumb.schema';
+import { CANONICAL_DOMAIN } from '@/lib/seo/config';
 
-export const revalidate = 60; // Revalidate at most every 60 seconds
+export const revalidate = 60;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -14,26 +19,26 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const resolvedParams = await params;
   const post = await fetchPostBySlug(resolvedParams.slug);
-  if (!post) return { title: 'Post Not Found' };
+  if (!post) return { title: 'Post Not Found | Saiful Islam' };
 
-  return {
+  const seoOpts = mergeSeoOptions(null, {
     title: post.seo?.metaTitle || `${post.title} | The Nexus Logs`,
     description: post.seo?.metaDescription || post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      images: post.coverImage ? [post.coverImage] : [],
+    keywords: post.seo?.focusKeyword ? [post.seo.focusKeyword] : post.tags,
+    og: {
       type: 'article',
+      images: post.coverImage
+        ? [{ url: post.coverImage, width: 1200, height: 630, alt: post.title }]
+        : undefined,
       publishedTime: post.date,
-      authors: post.author ? [post.author.name] : [],
+      modifiedTime: post.updatedAt || post.date,
+      authors: post.author ? [post.author.name] : undefined,
+      tags: post.tags,
+      section: post.category,
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.excerpt,
-      images: post.coverImage ? [post.coverImage] : [],
-    }
-  };
+  }, `/blog/${resolvedParams.slug}`);
+
+  return generatePageMetadata(seoOpts);
 }
 
 export async function generateStaticParams() {
@@ -46,15 +51,38 @@ export async function generateStaticParams() {
 export default async function BlogPostPage({ params }: PageProps) {
   const resolvedParams = await params;
   const post = await fetchPostBySlug(resolvedParams.slug);
-  
+
   if (!post) {
     notFound();
   }
 
-  // To support Series Navigation logic
   const allPosts = await fetchAllPosts();
   const cluster = CLUSTERS.find(c => c.id === post.clusterId) || null;
   const clusterPosts = allPosts.filter(p => p.clusterId === post.clusterId);
 
-  return <BlogPostView post={post} cluster={cluster} clusterPosts={clusterPosts} />;
+  // JSON-LD schemas
+  const articleSchema = buildArticleSchema({
+    title: post.title,
+    description: post.excerpt || '',
+    slug: post.slug,
+    coverImage: post.coverImage,
+    authorName: post.author?.name,
+    authorUrl: `${CANONICAL_DOMAIN}/about`,
+    datePublished: post.date,
+    dateModified: post.updatedAt,
+    keywords: post.tags,
+    readTimeMinutes: post.readTime ? parseInt(post.readTime, 10) : undefined,
+    category: post.category,
+    isTechnical: true,
+  });
+
+  const breadcrumbSchema = blogPostBreadcrumb(post.title, post.slug);
+
+  return (
+    <>
+      <script {...generateJsonLdScript([articleSchema, breadcrumbSchema])} />
+      <BlogPostView post={post} cluster={cluster} clusterPosts={clusterPosts} />
+    </>
+  );
 }
+

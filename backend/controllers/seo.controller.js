@@ -24,13 +24,36 @@ export const getConfig = async (req, res, next) => {
   }
 };
 
+export const getGlobalDefaults = async (req, res, next) => {
+  try {
+    const data = await seoService.getGlobalDefaults();
+    if (!data) return res.status(404).json({ success: false, message: 'Global SEO defaults not found. They will be seeded on next getAllConfigs call.' });
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateGlobalDefaults = async (req, res, next) => {
+  try {
+    const userId = req.user?._id || null;
+    const { changeNote, ...seoData } = req.body;
+    const data = await seoService.updateGlobalDefaults(seoData, userId, changeNote);
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateConfig = async (req, res, next) => {
   try {
     const { error, value } = seoValidationSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ success: false, message: error.details[0].message });
     }
-    const data = await seoService.updateConfig(value.path, value);
+    const userId = req.user?._id || null;
+    const { changeNote, ...seoData } = value;
+    const data = await seoService.updateConfig(seoData.path, seoData, userId, changeNote);
     res.status(200).json({ success: true, data });
   } catch (error) {
     next(error);
@@ -64,3 +87,32 @@ export const scanBrokenLinks = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * POST /api/seo/validate
+ * Runs the metadata validation engine on all SEO records.
+ * Stores validation issues in the DB for display in Admin Dashboard.
+ */
+export const validateAllConfigs = async (req, res, next) => {
+  try {
+    const results = await seoService.validateAllConfigs();
+    res.status(200).json({ success: true, data: results });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/seo/:path/versions
+ * Returns the audit version history for a specific SEO path.
+ */
+export const getVersionHistory = async (req, res, next) => {
+  try {
+    const path = decodeURIComponent(req.params.path);
+    const versions = await seoService.getVersionHistory(path);
+    res.status(200).json({ success: true, data: versions });
+  } catch (error) {
+    next(error);
+  }
+};
+

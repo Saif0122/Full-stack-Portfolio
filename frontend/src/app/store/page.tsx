@@ -1,15 +1,17 @@
 import React from 'react';
+import { Metadata } from 'next';
 import { fetchAllProducts } from '@/services/store.service';
 import StoreView from './StoreView';
 import LiveDataRefresher from '@/components/LiveDataRefresher';
-import { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/seo/helpers';
+import { resolveStoreSeo } from '@/lib/seo/service';
 
-export const revalidate = 60; // Revalidate at most every 60 seconds
+export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: 'Developer Store | Premium Tools & Boilerplates',
-  description: 'Enterprise-grade Next.js templates, SaaS boilerplates, and React UI components.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seoOpts = await resolveStoreSeo();
+  return generatePageMetadata(seoOpts);
+}
 
 export default async function StorePage() {
   const products = await fetchAllProducts();
@@ -22,3 +24,4 @@ export default async function StorePage() {
     </>
   );
 }
+

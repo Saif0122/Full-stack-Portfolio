@@ -6,6 +6,11 @@ import { PageLoader } from '@/components/ui/PageLoader';
 import { CustomCursor } from '@/components/ui/CustomCursor';
 import { ClientLayoutWrapper } from '@/components/Navigation';
 import { AIContextProvider } from '@/components/providers/AIContextProvider';
+import { generatePageMetadata, generateJsonLdScript } from '@/lib/seo/helpers';
+import { SEO_CONFIG, CANONICAL_DOMAIN } from '@/lib/seo/config';
+import { buildWebSiteSchema } from '@/lib/seo/schemas/website.schema';
+import { buildOrganizationSchema } from '@/lib/seo/schemas/organization.schema';
+import { fetchOrganizationLogoUrl } from '@/lib/seo/service';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -21,42 +26,45 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'Saiful Islam | MERN Stack Developer & Full Stack Engineer',
-  description: 'Senior MERN Stack Developer & Next.js specialist. Expert in scalable SaaS application development, high-performance web apps, and custom Node.js solutions.',
-  keywords: ['MERN stack developer', 'full stack developer', 'Next.js developer', 'MongoDB expert', 'SaaS development', 'React engineer'],
-  metadataBase: new URL('https://saiful.code'),
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    type: 'website',
-    url: 'https://saiful.code',
-    title: 'Saiful Islam | Principal MERN Stack Developer',
-    description: 'Building scalable web applications with high-performance MERN architecture. Specializing in SaaS and custom API development.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Saiful Islam',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Saiful Islam | MERN & Next.js Specialist',
-    description: 'Custom web development and scalable SaaS architecture. Senior Full Stack Engineer.',
-  },
-};
+export const metadata: Metadata = generatePageMetadata({
+  title: SEO_CONFIG.defaultTitle,
+  description: SEO_CONFIG.defaultDescription,
+  path: '/',
+  keywords: SEO_CONFIG.defaultKeywords,
+  og: { type: 'website' },
+});
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Fetch org logo from Admin media library (falls back to static config logo)
+  const logoUrl = await fetchOrganizationLogoUrl();
+
+  const websiteSchema = buildWebSiteSchema({
+    name: SEO_CONFIG.siteName,
+    url: CANONICAL_DOMAIN,
+    description: SEO_CONFIG.defaultDescription,
+  });
+
+  const orgSchema = buildOrganizationSchema({
+    name: SEO_CONFIG.organizationName,
+    url: CANONICAL_DOMAIN,
+    logoUrl,
+    description: SEO_CONFIG.defaultDescription,
+    sameAs: [
+      'https://github.com/Saif0122',
+      'https://linkedin.com/in/saifulislam',
+    ],
+  });
+
   return (
-    <html lang="en" className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang={SEO_CONFIG.language} className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Global JSON-LD: WebSite + Organization — renders once, site-wide */}
+        <script {...generateJsonLdScript([websiteSchema, orgSchema])} />
+      </head>
       <body className="antialiased" suppressHydrationWarning>
         <AppProviders>
           <PageLoader />

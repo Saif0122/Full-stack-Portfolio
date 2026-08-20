@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { memo } from 'react';
 import Link from 'next/link';
 import { BlogPost } from '@/types/blog';
 
@@ -8,7 +8,7 @@ interface BlogCardProps {
   post: BlogPost;
 }
 
-export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
+export const BlogCard: React.FC<BlogCardProps> = memo(({ post }) => {
   return (
     <div className="group relative bg-card/50 backdrop-blur-sm border border-white/5 rounded-[2.5rem] p-10 hover:border-primary/30 transition-all overflow-hidden flex flex-col h-full hover:shadow-[0_20px_60px_-15px_rgba(0,245,255,0.1)] hover:-translate-y-1 duration-500">
       
@@ -59,4 +59,4 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
       </div>
     </div>
   );
-};
+});

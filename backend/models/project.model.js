@@ -22,7 +22,19 @@ const projectSchema = new mongoose.Schema({
   isFeatured: { type: Boolean, default: false },
   status: { type: String, enum: ['draft', 'published'], default: 'draft' },
   order: { type: Number, default: 0 },
+  // Per-project SEO override — consumed by projects/[slug]/page.tsx generateMetadata
+  seo: {
+    metaTitle: { type: String },
+    metaDescription: { type: String },
+    keywords: [{ type: String }],
+    canonicalUrl: { type: String },
+    noIndex: { type: Boolean, default: false },
+    openGraphImage: { type: String }
+  }
 }, { timestamps: true });
+
+projectSchema.index({ slug: 1, status: 1 });
 
 const Project = mongoose.models.Project || mongoose.model('Project', projectSchema);
 export default Project;
+

@@ -2,9 +2,13 @@
 
 import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExplodedStack, StackTier } from '@/three/components/ExplodedStack';
+import type { StackTier } from '@/three/components/ExplodedStack';
 import { ViewportPauseController } from '@/three/utils/useViewportPause';
+
+const ExplodedStack = dynamic(() => import('@/three/components/ExplodedStack').then((mod) => mod.ExplodedStack), { ssr: false });
+
 import { HoverGlowCard, MagneticButtonWrapper, ScrollReveal } from '@/animations';
 import { useNexusAudio } from '@/three/utils/useNexusAudio';
 

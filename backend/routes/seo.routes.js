@@ -1,18 +1,35 @@
-import express from 'express';
-import * as seoController from '../controllers/seo.controller.js';
-import { protect, requireRole } from '../middleware/auth.middleware.js';
+import { Router } from 'express';
+import {
+  getAllConfigs,
+  getConfig,
+  getGlobalDefaults,
+  updateGlobalDefaults,
+  updateConfig,
+  deleteConfig,
+  getSitemapManifest,
+  scanBrokenLinks,
+  validateAllConfigs,
+  getVersionHistory,
+} from '../controllers/seo.controller.js';
+import { protect, restrictTo } from '../middleware/auth.middleware.js';
 
-const router = express.Router();
+const router = Router();
 
-// Public read access for frontend SEO meta and dynamic sitemaps
-router.get('/all', seoController.getAllConfigs);
-router.get('/config', seoController.getConfig);
-router.get('/sitemap-manifest', seoController.getSitemapManifest);
+// ── Public Routes ─────────────────────────────────────────────────────────────
+// These are called by the Next.js frontend (server components) to fetch SEO config.
+router.get('/config', getConfig);               // GET /api/seo/config?path=/blog
+router.get('/global', getGlobalDefaults);       // GET /api/seo/global
 
-// Protected SEO Command Center execution routes
-router.use(protect, requireRole(['Admin', 'Super Admin']));
-router.post('/scan-links', seoController.scanBrokenLinks);
-router.put('/update', seoController.updateConfig);
-router.delete('/:path', seoController.deleteConfig);
+// ── Admin-Protected Routes ────────────────────────────────────────────────────
+router.use(protect, restrictTo('admin'));
+
+router.get('/',           getAllConfigs);        // GET  /api/seo
+router.post('/',          updateConfig);         // POST /api/seo  (upsert by path)
+router.put('/global',     updateGlobalDefaults); // PUT  /api/seo/global
+router.post('/validate',  validateAllConfigs);   // POST /api/seo/validate  (run SEO scan)
+router.get('/sitemap',    getSitemapManifest);   // GET  /api/seo/sitemap
+router.get('/scan',       scanBrokenLinks);      // GET  /api/seo/scan
+router.get('/:path/versions', getVersionHistory); // GET /api/seo/:path/versions
+router.delete('/:path',   deleteConfig);         // DELETE /api/seo/:path
 
 export default router;

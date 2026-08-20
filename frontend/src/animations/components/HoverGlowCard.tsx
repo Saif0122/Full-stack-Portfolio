@@ -18,7 +18,7 @@ interface HoverGlowCardProps {
  * Glassmorphic card container featuring a cursor-following radial spotlight glow,
  * dynamic border lighting, 3D Z-axis extrusion physics, and high-voltage perimeter spark borders.
  */
-export const HoverGlowCard: React.FC<HoverGlowCardProps> = ({
+const HoverGlowCardComponent: React.FC<HoverGlowCardProps> = ({
   children,
   className = '',
   glowColor = 'rgba(0, 245, 255, 0.15)',
@@ -140,3 +140,4 @@ export const HoverGlowCard: React.FC<HoverGlowCardProps> = ({
     </motion.div>
   );
 };
+export const HoverGlowCard = React.memo(HoverGlowCardComponent);

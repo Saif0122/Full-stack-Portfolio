@@ -30,8 +30,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     info: 'border-primary/50 text-primary',
   };
 
+  const contextValue = React.useMemo(() => ({ toast }), [toast]);
+
   return (
-    <ToastContext.Provider value={{ toast }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <div className="fixed bottom-6 right-6 z-[200] flex flex-col gap-3 pointer-events-none">
         <AnimatePresence>

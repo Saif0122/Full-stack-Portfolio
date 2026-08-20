@@ -6,18 +6,32 @@ import { AdminLayout, FormBuilder, DataTable, Column, ChartWidget } from '@/comp
 import { adminService } from '@/services/admin.service';
 import { useToast } from '@/providers/ToastProvider';
 
-interface SchemaRecord {
-  id: string;
-  type: 'WebSite' | 'ProfilePage' | 'SoftwareApplication' | 'TechArticle' | 'Product' | 'Organization';
-  targetPath: string;
-  isSynced: boolean;
-  lastVerified: string;
+interface ValidationIssue {
+  type: string;
+  severity: 'error' | 'warning' | 'info';
+  message: string;
+  field: string;
+}
+
+interface ValidationResult {
+  path: string;
+  issueCount: number;
+  hasErrors: boolean;
+  issues: ValidationIssue[];
+}
+
+interface ValidationScan {
+  scannedAt: string;
+  totalPaths: number;
+  totalIssues: number;
+  errorPaths: number;
+  results: ValidationResult[];
 }
 
 export default function SeoCommandCenterPage() {
-  const [activeView, setActiveView] = useState<'meta' | 'schemas' | 'vitals'>('schemas');
-  const [isCheckingLinks, setIsCheckingLinks] = useState<boolean>(false);
-  const [brokenLinksCount, setBrokenLinksCount] = useState<number>(0);
+  const [activeView, setActiveView] = useState<'scan' | 'meta' | 'vitals'>('scan');
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<ValidationScan | null>(null);
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -47,38 +61,45 @@ export default function SeoCommandCenterPage() {
     onError: () => toast('Failed to save SEO configuration', 'error')
   });
 
-  const [schemas] = useState<SchemaRecord[]>([
-    { id: '1', type: 'WebSite', targetPath: '/', isSynced: true, lastVerified: '2 mins ago' },
-    { id: '2', type: 'ProfilePage', targetPath: '/about', isSynced: true, lastVerified: '5 mins ago' },
-    { id: '3', type: 'Organization', targetPath: '/contact', isSynced: true, lastVerified: '12 mins ago' },
-    { id: '4', type: 'Product', targetPath: '/store/ai-portfolio-pro', isSynced: true, lastVerified: '1 hour ago' },
-    { id: '5', type: 'TechArticle', targetPath: '/blog/autonomous-ai-agents', isSynced: true, lastVerified: '3 hours ago' },
-    { id: '6', type: 'SoftwareApplication', targetPath: '/projects/ai-portfolio-engine', isSynced: true, lastVerified: '1 day ago' }
-  ]);
-
-  const runBrokenLinkChecker = () => {
-    setIsCheckingLinks(true);
-    setTimeout(() => {
-      setIsCheckingLinks(false);
-      setBrokenLinksCount(0);
-      alert('Autonomous SEO Audit Complete: Scanned 142 internal & outbound links across Portfolio, Store, and Blog. Verified 0 broken routes!');
-    }, 1500);
+  const runValidationScan = async () => {
+    setIsScanning(true);
+    try {
+      // POST to /api/seo/validate (admin route)
+      const res = await adminService.fetch('/seo/validate', { method: 'POST' });
+      setScanResult(res);
+      toast(`Scan complete: Found ${res.totalIssues} issues across ${res.totalPaths} routes.`, res.errorPaths > 0 ? 'warning' : 'success');
+    } catch (err) {
+      toast('Failed to run SEO validation scan', 'error');
+    } finally {
+      setIsScanning(false);
+    }
   };
 
-  const schemaColumns: Column<SchemaRecord>[] = [
-    { header: 'JSON-LD Schema Type', accessorKey: 'type', cell: (s) => (
-      <span className="font-mono font-bold text-sm text-emerald-400 block">{s.type} Schema</span>
+  const validationColumns: Column<ValidationResult>[] = [
+    { header: 'Route Path', accessorKey: 'path', cell: (r) => (
+      <span className="font-mono text-xs text-indigo-300 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">{r.path}</span>
     )},
-    { header: 'Target Path & Canonical Route', accessorKey: 'targetPath', cell: (s) => (
-      <span className="font-mono text-xs text-indigo-300 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">{s.targetPath}</span>
-    )},
-    { header: 'Google Index Sync', accessorKey: 'isSynced', cell: (s) => (
-      <span className="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-mono font-semibold">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        Synchronized
+    { header: 'Status', accessorKey: 'hasErrors', cell: (r) => (
+      <span className={`inline-flex items-center gap-1.5 text-xs font-mono font-semibold ${r.hasErrors ? 'text-rose-400' : r.issueCount > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
+        <span className={`w-2 h-2 rounded-full animate-pulse ${r.hasErrors ? 'bg-rose-400' : r.issueCount > 0 ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+        {r.hasErrors ? 'Errors Found' : r.issueCount > 0 ? 'Warnings' : 'Healthy'}
       </span>
     )},
-    { header: 'Verification Time', accessorKey: 'lastVerified', cell: (s) => <span className="font-mono text-xs text-gray-500">{s.lastVerified}</span> }
+    { header: 'Issues', accessorKey: 'issues', cell: (r) => (
+      <div className="space-y-1">
+        {r.issues.slice(0, 2).map((i, idx) => (
+          <div key={idx} className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+            i.severity === 'error' ? 'bg-rose-500/10 text-rose-300 border-rose-500/20' :
+            i.severity === 'warning' ? 'bg-amber-500/10 text-amber-300 border-amber-500/20' :
+            'bg-blue-500/10 text-blue-300 border-blue-500/20'
+          }`}>
+            [{i.field}] {i.message}
+          </div>
+        ))}
+        {r.issues.length > 2 && <div className="text-[10px] text-gray-500">+{r.issues.length - 2} more...</div>}
+        {r.issues.length === 0 && <span className="text-gray-500 text-xs">No issues detected</span>}
+      </div>
+    )}
   ];
 
   return (
@@ -89,11 +110,11 @@ export default function SeoCommandCenterPage() {
           <h1 className="text-3xl font-black text-white tracking-tight">SEO Command Center</h1>
         </div>
         <button
-          onClick={runBrokenLinkChecker}
-          disabled={isCheckingLinks}
+          onClick={runValidationScan}
+          disabled={isScanning}
           className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 text-white font-mono text-xs font-bold uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 disabled:opacity-50"
         >
-          {isCheckingLinks ? '⚡ Running Autonomous Scan...' : '🔍 Scan 142 Routes for Broken Links'}
+          {isScanning ? '⚡ Validating Metadata...' : '🔍 Scan All Routes for SEO Issues'}
         </button>
       </div>
 
@@ -102,8 +123,8 @@ export default function SeoCommandCenterPage() {
         <ChartWidget
           type="gauge"
           title="Overall SEO & Schema Health"
-          data={[100]}
-          labels={['Canonical Tags', 'OpenGraph Sync']}
+          data={[scanResult ? (scanResult.totalPaths - scanResult.errorPaths) / Math.max(1, scanResult.totalPaths) * 100 : 100]}
+          labels={['Compliance Score']}
           color="emerald"
         />
         <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-xl flex flex-col justify-between">
@@ -116,17 +137,21 @@ export default function SeoCommandCenterPage() {
         </div>
         <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-xl flex flex-col justify-between">
           <div>
-            <span className="text-xs font-mono font-bold uppercase text-gray-400">Broken Link Audit</span>
-            <div className="text-3xl font-black text-white mt-2 font-mono">{brokenLinksCount} Errors</div>
-            <p className="text-xs text-gray-500 font-mono mt-1">Last autonomous scan completed 2 mins ago.</p>
+            <span className="text-xs font-mono font-bold uppercase text-gray-400">Validation Scan Audit</span>
+            <div className={`text-3xl font-black mt-2 font-mono ${scanResult?.errorPaths ? 'text-rose-400' : 'text-white'}`}>
+              {scanResult ? `${scanResult.errorPaths} Errors` : 'Awaiting Scan'}
+            </div>
+            <p className="text-xs text-gray-500 font-mono mt-1">
+              {scanResult ? `Last scan completed ${new Date(scanResult.scannedAt).toLocaleTimeString()}` : 'Click "Scan All Routes" to begin.'}
+            </p>
           </div>
-          <span className="text-[11px] font-mono text-emerald-400 font-bold">✓ Zero Redirect Loops Detected</span>
+          <span className="text-[11px] font-mono text-emerald-400 font-bold">✓ Validation Engine Ready</span>
         </div>
       </div>
 
       {/* Navigation Stream */}
       <div className="flex gap-2 pt-2">
-        {(['schemas', 'meta', 'vitals'] as const).map((v) => (
+        {(['scan', 'meta', 'vitals'] as const).map((v) => (
           <button
             key={v}
             onClick={() => setActiveView(v)}
@@ -134,17 +159,23 @@ export default function SeoCommandCenterPage() {
               activeView === v ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 scale-105' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/5'
             }`}
           >
-            {v === 'schemas' ? 'JSON-LD Structured Schemas (6 Required)' : v === 'meta' ? 'Global OpenGraph & Meta Config' : 'Robots.txt & Sitemap Rules'}
+            {v === 'scan' ? 'Metadata Validation Results' : v === 'meta' ? 'Global OpenGraph & Meta Config' : 'Robots.txt & Sitemap Rules'}
           </button>
         ))}
       </div>
 
-      {activeView === 'schemas' ? (
+      {activeView === 'scan' ? (
         <div className="space-y-4">
           <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 text-xs text-emerald-300 font-mono">
-            <strong>Enterprise Schema Compliance Matrix:</strong> Automatically injecting dynamic structured data for WebSite, ProfilePage, SoftwareApplication, TechArticle, Product, and Organization domains.
+            <strong>Enterprise Validation Matrix:</strong> Scans all database SEO records for missing titles, description lengths, canonical URLs, and duplicate titles across the ecosystem.
           </div>
-          <DataTable data={schemas} columns={schemaColumns} />
+          {scanResult ? (
+            <DataTable data={scanResult.results} columns={validationColumns} />
+          ) : (
+            <div className="text-center py-12 text-gray-400 font-mono text-sm border border-dashed border-white/10 rounded-2xl">
+              No scan results available. Run a scan to validate your SEO infrastructure.
+            </div>
+          )}
         </div>
       ) : activeView === 'meta' ? (
         loadingMeta ? (
@@ -156,8 +187,8 @@ export default function SeoCommandCenterPage() {
             fields={[
               { name: 'defaultTitle', label: 'Primary Site Title', type: 'text', defaultValue: seoMetaSettings?.defaultTitle || 'Saiful Islam — Principal Software Architect & Full Stack MERN Engineer' },
               { name: 'defaultDesc', label: 'Global Meta Description', type: 'textarea', defaultValue: seoMetaSettings?.defaultDesc || 'Architecting next-generation AI platforms, immersive 3D store storefronts, and highly scalable distributed web applications.' },
-              { name: 'canonicalUrl', label: 'Canonical Edge Domain', type: 'text', defaultValue: seoMetaSettings?.canonicalUrl || 'https://saiful-ai-portfolio.dev' },
-              { name: 'ogImage', label: 'Default OpenGraph Sharing Image Banner', type: 'text', defaultValue: seoMetaSettings?.ogImage || 'https://cdn.saiful-ai-portfolio.dev/images/og-hero-luxury.webp' },
+              { name: 'canonicalUrl', label: 'Canonical Edge Domain', type: 'text', defaultValue: seoMetaSettings?.canonicalUrl || 'https://saifulislam.vercel.app' },
+              { name: 'ogImage', label: 'Default OpenGraph Sharing Image Banner', type: 'text', defaultValue: seoMetaSettings?.ogImage || 'https://saifulislam.vercel.app/images/og-hero-luxury.webp' },
               { name: 'twitterCard', label: 'Twitter / X Card Strategy', type: 'select', defaultValue: seoMetaSettings?.twitterCard || 'summary_large_image', options: [{ label: 'Summary Large Image Card', value: 'summary_large_image' }, { label: 'Standard Compact Summary', value: 'summary' }] }
             ]}
             onSubmit={(data) => saveMutation.mutate({ key: 'seo_meta', data })}
@@ -174,7 +205,7 @@ export default function SeoCommandCenterPage() {
             title="Robots.txt & XML Sitemap Automation"
             fields={[
               { name: 'sitemapEnabled', label: 'Autonomous Dynamic XML Sitemap Builder (/sitemap.xml)', type: 'boolean', defaultValue: seoVitalsSettings?.sitemapEnabled ?? true },
-              { name: 'robotsRules', label: 'Robots.txt Crawler Directives', type: 'textarea', defaultValue: seoVitalsSettings?.robotsRules || 'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/admin/\nSitemap: https://saiful-ai-portfolio.dev/sitemap.xml' },
+              { name: 'robotsRules', label: 'Robots.txt Crawler Directives', type: 'textarea', defaultValue: seoVitalsSettings?.robotsRules || 'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/admin/\nSitemap: https://saifulislam.vercel.app/sitemap.xml' },
               { name: 'crawlDelay', label: 'Spider Rate-Limit Crawl Delay (seconds)', type: 'number', defaultValue: seoVitalsSettings?.crawlDelay || 1 }
             ]}
             onSubmit={(data) => saveMutation.mutate({ key: 'seo_vitals', data })}
@@ -186,3 +217,4 @@ export default function SeoCommandCenterPage() {
     </AdminLayout>
   );
 }
+

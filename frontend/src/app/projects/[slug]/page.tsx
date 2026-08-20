@@ -2,20 +2,60 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { ProjectMetricsGrid } from '@/components/Projects/ProjectMetricsGrid';
 import { TechBadge } from '@/components/Projects/TechBadge';
+import { generatePageMetadata, generateJsonLdScript } from '@/lib/seo/helpers';
+import { mergeSeoOptions } from '@/lib/seo/service';
+import { buildProjectSchema } from '@/lib/seo/schemas/project.schema';
+import { projectBreadcrumb } from '@/lib/seo/schemas/breadcrumb.schema';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-export default async function ProjectCaseStudy({ params }: { params: { slug: string } }) {
-  const res = await fetch(`${API_URL}/v1/projects`, { cache: 'no-store' });
-  let project = null;
-  if (res.ok) {
+type PageProps = { params: Promise<{ slug: string }> };
+
+async function getProject(slug: string) {
+  try {
+    const res = await fetch(`${API_URL}/v1/projects`, { next: { revalidate: 60 } });
+    if (!res.ok) return null;
     const data = await res.json();
     if (data.success && data.data) {
-      project = data.data.find((p: any) => p.slug === params.slug);
+      return data.data.find((p: any) => p.slug === slug) ?? null;
     }
+    return null;
+  } catch {
+    return null;
   }
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getProject(slug);
+  if (!project) return { title: 'Project Not Found | Saiful Islam' };
+
+  const seoOpts = mergeSeoOptions(
+    project.seo ?? null,
+    {
+      title: project.seo?.metaTitle || `${project.title} | Projects`,
+      description: project.seo?.metaDescription || project.description,
+      keywords: project.technologies ?? [],
+      og: {
+        type: 'website',
+        images: project.image
+          ? [{ url: project.image, width: 1200, height: 630, alt: project.title }]
+          : undefined,
+      },
+    },
+    `/projects/${slug}`
+  );
+
+  return generatePageMetadata(seoOpts);
+}
+
+
+export default async function ProjectCaseStudy({ params }: PageProps) {
+  const { slug } = await params;
+  const project = await getProject(slug);
 
   if (!project) {
     notFound();
@@ -27,8 +67,26 @@ export default async function ProjectCaseStudy({ params }: { params: { slug: str
   const stack = project.stack || [];
   const mediaGallery = project.mediaGallery || [];
 
+  // JSON-LD schemas
+  const projectSchema = buildProjectSchema({
+    title: project.title,
+    description: project.description,
+    slug: project.slug,
+    image: project.image,
+    technologies: project.technologies,
+    liveUrl: project.liveUrl,
+    githubUrl: project.githubUrl,
+    category: project.category,
+    datePublished: project.createdAt,
+  });
+
+  const breadcrumbSchema = projectBreadcrumb(project.title, project.slug);
+
+
   return (
-    <div className="min-h-screen bg-background pt-32 pb-24 selection:bg-primary/30 selection:text-primary">
+    <>
+      <script {...generateJsonLdScript([projectSchema, breadcrumbSchema])} />
+      <div className="min-h-screen bg-background pt-32 pb-24 selection:bg-primary/30 selection:text-primary">
       {/* 1. Hero Section */}
       <section className="max-w-7xl mx-auto px-6 mb-16 relative">
         <Link href="/projects" className="inline-flex items-center gap-2 text-gray-500 hover:text-white transition-colors mb-8 text-xs font-mono uppercase tracking-widest">
@@ -156,6 +214,7 @@ export default async function ProjectCaseStudy({ params }: { params: { slug: str
         </div>
       </section>
     </div>
+    </>
   );
 }
 

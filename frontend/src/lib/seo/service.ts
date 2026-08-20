@@ -102,12 +102,16 @@ export function mergeSeoOptions(
   // noindex / nofollow: DB → static
   const noindex = dbRecord?.noIndex ?? staticDefaults.noindex ?? false;
   const nofollow = dbRecord?.noFollow ?? staticDefaults.nofollow ?? false;
+  
+  // Focus keyword: DB
+  const focusKeyword = dbRecord?.focusKeyword || staticDefaults.focusKeyword;
 
   return {
     title,
     description,
     path: canonicalUrl ? new URL(canonicalUrl).pathname : path,
     keywords,
+    focusKeyword,
     noindex,
     nofollow,
     og: {

@@ -163,6 +163,12 @@ export default function SeoCommandCenterPage() {
           </button>
         ))}
         <a
+          href="/admin/dashboard/seo/keywords"
+          className="px-5 py-2.5 rounded-2xl font-mono text-xs font-bold uppercase transition-all whitespace-nowrap bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 flex items-center gap-2"
+        >
+          Keyword Manager & AI ↗
+        </a>
+        <a
           href="/admin/dashboard/seo/redirects"
           className="px-5 py-2.5 rounded-2xl font-mono text-xs font-bold uppercase transition-all whitespace-nowrap bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-500/20 flex items-center gap-2"
         >

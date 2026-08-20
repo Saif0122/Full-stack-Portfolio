@@ -351,6 +351,36 @@ export function validateMetadata(opts: Partial<SeoOptions>): ValidationResult[] 
     });
   }
 
+  // ── Focus Keyword Checks ─────────────────
+  if (!opts.focusKeyword) {
+    issues.push({
+      type: 'missing_focus_keyword',
+      severity: 'warning',
+      message: 'Focus keyword is missing. You should target a specific keyword for this page.',
+      field: 'focusKeyword',
+      path: opts.path,
+    });
+  } else {
+    if (opts.title && !opts.title.toLowerCase().includes(opts.focusKeyword.toLowerCase())) {
+      issues.push({
+        type: 'keyword_missing_in_title',
+        severity: 'warning',
+        message: `Focus keyword "${opts.focusKeyword}" is not present in the title.`,
+        field: 'title',
+        path: opts.path,
+      });
+    }
+    if (opts.description && !opts.description.toLowerCase().includes(opts.focusKeyword.toLowerCase())) {
+      issues.push({
+        type: 'keyword_missing_in_desc',
+        severity: 'warning',
+        message: `Focus keyword "${opts.focusKeyword}" is not present in the description.`,
+        field: 'description',
+        path: opts.path,
+      });
+    }
+  }
+
   // ── OG Image ───────────────────────────────
   const hasOgImage = opts.og?.images && opts.og.images.length > 0 && opts.og.images[0].url;
   if (!hasOgImage) {

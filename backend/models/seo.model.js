@@ -5,6 +5,10 @@ const seoSchema = new mongoose.Schema({
   metaTitle: { type: String, required: true },
   metaDescription: { type: String, required: true },
   keywords: [{ type: String }],
+  focusKeyword: { type: String },
+  secondaryKeywords: [{ type: String }],
+  searchIntent: { type: String, enum: ['informational', 'navigational', 'commercial', 'transactional'] },
+  seoPriority: { type: String, enum: ['high', 'medium', 'low'] },
   openGraph: {
     title: { type: String },
     description: { type: String },

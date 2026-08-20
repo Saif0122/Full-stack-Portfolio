@@ -38,7 +38,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     {
       title: project.seo?.metaTitle || `${project.title} | Projects`,
       description: project.seo?.metaDescription || project.description,
-      keywords: project.technologies ?? [],
+      keywords: project.seo?.technologyKeywords ?? project.technologies ?? [],
+      focusKeyword: project.seo?.focusKeyword,
       og: {
         type: 'website',
         images: project.image

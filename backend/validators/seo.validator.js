@@ -14,5 +14,11 @@ export const seoValidationSchema = Joi.object({
   sitemapPriority: Joi.number().min(0).max(1).optional(),
   redirectUrl: Joi.string().optional().allow(''),
   redirectType: Joi.number().optional(),
-  isBrokenLink: Joi.boolean().optional()
+  isBrokenLink: Joi.boolean().optional(),
+  focusKeyword: Joi.string().optional().allow(''),
+  secondaryKeywords: Joi.array().items(Joi.string()).optional(),
+  searchIntent: Joi.string().valid('informational', 'navigational', 'commercial', 'transactional').optional(),
+  seoPriority: Joi.string().valid('high', 'medium', 'low').optional(),
+  schemaType: Joi.string().optional().allow(''),
+  changeNote: Joi.string().optional().allow('')
 });

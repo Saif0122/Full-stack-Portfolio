@@ -91,6 +91,7 @@ export interface SeoOptions {
   description: string;
   path: string;
   keywords?: string[];
+  focusKeyword?: string;
   author?: string;
   og?: Partial<OgOptions>;
   twitter?: Partial<TwitterOptions>;
@@ -121,7 +122,10 @@ export type ValidationIssueType =
   | 'canonical_mismatch'
   | 'missing_og_image'
   | 'invalid_robots'
-  | 'missing_keywords';
+  | 'missing_keywords'
+  | 'missing_focus_keyword'
+  | 'keyword_missing_in_title'
+  | 'keyword_missing_in_desc';
 
 export interface ValidationResult {
   type: ValidationIssueType;
@@ -147,10 +151,15 @@ export type SchemaType =
 // ─── DB SEO Record (matches backend Seo model) ───────────────────────────────
 
 export interface DbSeoRecord {
+  _id?: string;
   path: string;
   metaTitle: string;
   metaDescription: string;
   keywords: string[];
+  focusKeyword?: string;
+  secondaryKeywords?: string[];
+  searchIntent?: 'informational' | 'navigational' | 'commercial' | 'transactional';
+  seoPriority?: 'high' | 'medium' | 'low';
   openGraph?: {
     title?: string;
     description?: string;

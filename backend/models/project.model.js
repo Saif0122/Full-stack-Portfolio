@@ -27,6 +27,13 @@ const projectSchema = new mongoose.Schema({
     metaTitle: { type: String },
     metaDescription: { type: String },
     keywords: [{ type: String }],
+    focusKeyword: { type: String },
+    secondaryKeywords: [{ type: String }],
+    technologyKeywords: [{ type: String }],
+    difficultyLevel: { type: String, enum: ['beginner', 'intermediate', 'advanced', 'enterprise'] },
+    industry: { type: String },
+    targetAudience: { type: String },
+    projectType: { type: String },
     canonicalUrl: { type: String },
     noIndex: { type: Boolean, default: false },
     openGraphImage: { type: String }

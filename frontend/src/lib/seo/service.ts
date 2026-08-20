@@ -23,7 +23,10 @@ export async function fetchPathSeoConfig(path: string): Promise<DbSeoRecord | nu
   try {
     const res = await fetch(
       `${API_BASE}/seo/config?path=${encodeURIComponent(path)}`,
-      { next: { revalidate: 300 } }  // cache for 5 minutes
+      { 
+        next: { revalidate: 300 }, // cache for 5 minutes
+        signal: AbortSignal.timeout(5000) // Fail fast during Vercel build if backend is asleep
+      }  
     );
     if (!res.ok) return null;
     const json = await res.json();
@@ -48,6 +51,7 @@ export async function fetchOrganizationLogoUrl(): Promise<string> {
   try {
     const res = await fetch(`${API_BASE}/settings/branding_logo`, {
       next: { revalidate: 3600 }, // cache for 1 hour
+      signal: AbortSignal.timeout(5000) // Fail fast during Vercel build
     });
     if (!res.ok) return SEO_CONFIG.organizationLogoUrl ?? `${CANONICAL_DOMAIN}/logo.png`;
     const json = await res.json();

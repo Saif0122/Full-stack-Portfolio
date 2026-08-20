@@ -15,7 +15,18 @@ const tagSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+import { slugify } from '../utils/slugify.util.js';
+
 tagSchema.index({ slug: 1 });
+
+tagSchema.pre('save', function (next) {
+  if (this.isModified('name') && !this.slug) {
+    this.slug = slugify(this.name);
+  } else if (this.isModified('slug')) {
+    this.slug = slugify(this.slug);
+  }
+  next();
+});
 
 const Tag = mongoose.models.Tag || mongoose.model('Tag', tagSchema);
 export default Tag;

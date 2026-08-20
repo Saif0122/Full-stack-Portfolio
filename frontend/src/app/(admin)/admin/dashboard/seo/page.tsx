@@ -150,18 +150,24 @@ export default function SeoCommandCenterPage() {
       </div>
 
       {/* Navigation Stream */}
-      <div className="flex gap-2 pt-2">
+      <div className="flex gap-2 pt-2 overflow-x-auto pb-2">
         {(['scan', 'meta', 'vitals'] as const).map((v) => (
           <button
             key={v}
             onClick={() => setActiveView(v)}
-            className={`px-5 py-2.5 rounded-2xl font-mono text-xs font-bold uppercase transition-all ${
+            className={`px-5 py-2.5 rounded-2xl font-mono text-xs font-bold uppercase transition-all whitespace-nowrap ${
               activeView === v ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 scale-105' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/5'
             }`}
           >
             {v === 'scan' ? 'Metadata Validation Results' : v === 'meta' ? 'Global OpenGraph & Meta Config' : 'Robots.txt & Sitemap Rules'}
           </button>
         ))}
+        <a
+          href="/admin/dashboard/seo/redirects"
+          className="px-5 py-2.5 rounded-2xl font-mono text-xs font-bold uppercase transition-all whitespace-nowrap bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-500/20 flex items-center gap-2"
+        >
+          URL Redirects & 404 Routing ↗
+        </a>
       </div>
 
       {activeView === 'scan' ? (

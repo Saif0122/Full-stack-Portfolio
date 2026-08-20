@@ -65,6 +65,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(passport.initialize());
 
+import redirectRoutes from './routes/redirect.routes.js';
+
 // API Routes
 app.use('/api/health', healthRoutes);
 app.use('/api/export', exportRoutes);
@@ -90,6 +92,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/newsletters', newsletterRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/redirects', redirectRoutes);
 
 // 404 Route Not Found Middleware
 app.use((req, res, next) => {

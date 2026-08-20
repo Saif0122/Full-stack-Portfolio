@@ -33,7 +33,18 @@ const projectSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+import { slugify } from '../utils/slugify.util.js';
+
 projectSchema.index({ slug: 1, status: 1 });
+
+projectSchema.pre('save', function (next) {
+  if (this.isModified('title') && !this.slug) {
+    this.slug = slugify(this.title);
+  } else if (this.isModified('slug')) {
+    this.slug = slugify(this.slug);
+  }
+  next();
+});
 
 const Project = mongoose.models.Project || mongoose.model('Project', projectSchema);
 export default Project;

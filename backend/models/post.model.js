@@ -60,10 +60,21 @@ const postSchema = new mongoose.Schema({
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   }]
 }, { timestamps: true });
+import { slugify } from '../utils/slugify.util.js';
+
 // Indexes for performance
 postSchema.index({ status: 1, publishedAt: -1 });
 postSchema.index({ slug: 1 });
 postSchema.index({ title: 'text', content: 'text' });
+
+postSchema.pre('save', function (next) {
+  if (this.isModified('title') && !this.slug) {
+    this.slug = slugify(this.title);
+  } else if (this.isModified('slug')) {
+    this.slug = slugify(this.slug);
+  }
+  next();
+});
 
 const Post = mongoose.models.Post || mongoose.model('Post', postSchema);
 export default Post;

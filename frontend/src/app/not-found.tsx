@@ -1,8 +1,27 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui';
 
 export default function NotFound() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      fetch(`${apiUrl}/redirects/404`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path: pathname,
+          referrer: document.referrer || '',
+        }),
+      }).catch(() => {});
+    }
+  }, [pathname]);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-blue-600 mb-6 tracking-tighter">

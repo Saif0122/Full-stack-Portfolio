@@ -17,7 +17,18 @@ const categorySchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+import { slugify } from '../utils/slugify.util.js';
+
 categorySchema.index({ slug: 1 });
+
+categorySchema.pre('save', function (next) {
+  if (this.isModified('name') && !this.slug) {
+    this.slug = slugify(this.name);
+  } else if (this.isModified('slug')) {
+    this.slug = slugify(this.slug);
+  }
+  next();
+});
 
 const Category = mongoose.models.Category || mongoose.model('Category', categorySchema);
 export default Category;

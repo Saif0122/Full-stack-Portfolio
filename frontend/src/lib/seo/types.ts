@@ -98,6 +98,10 @@ export interface SeoOptions {
   noindex?: boolean;
   nofollow?: boolean;
   alternates?: AlternateEntry[];
+  pagination?: {
+    prev?: string;
+    next?: string;
+  };
   jsonLd?: object | object[];
 }
 

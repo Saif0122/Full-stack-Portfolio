@@ -26,13 +26,18 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-export const metadata: Metadata = generatePageMetadata({
-  title: SEO_CONFIG.defaultTitle,
-  description: SEO_CONFIG.defaultDescription,
-  path: '/',
-  keywords: SEO_CONFIG.defaultKeywords,
-  og: { type: 'website' },
-});
+export const metadata: Metadata = {
+  ...generatePageMetadata({
+    title: SEO_CONFIG.defaultTitle,
+    description: SEO_CONFIG.defaultDescription,
+    path: '/',
+    keywords: SEO_CONFIG.defaultKeywords,
+    og: { type: 'website' },
+  }),
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
+};
 
 export default async function RootLayout({
   children,

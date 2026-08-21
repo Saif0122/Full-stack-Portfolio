@@ -35,6 +35,13 @@ export const SEO_CONFIG: SeoConfig = {
     'high-performance web apps, AI platforms, and custom Node.js solutions.',
 
   defaultKeywords: [
+    'saif.code',
+    'saif developer',
+    'saif mern stack developer',
+    'best developer in pakistan',
+    'best developer in kpk',
+    'Mern stack developer islamabad',
+    'Mern stack developer peshawar',
     'MERN stack developer',
     'full stack engineer',
     'Next.js developer',
@@ -92,7 +99,7 @@ export const PAGE_SEO_DEFAULTS = {
     title: 'Saiful Islam | Principal MERN Stack Architect',
     description:
       'Senior MERN Stack Engineer specializing in SaaS application development, scalable web applications, and AI-powered platforms.',
-    keywords: ['portfolio', 'MERN stack', 'software architect', 'full stack developer'],
+    keywords: ['saif.code', 'saif developer', 'saif mern stack developer', 'best developer in pakistan', 'best developer in kpk', 'Mern stack developer islamabad', 'Mern stack developer peshawar', 'portfolio', 'MERN stack', 'software architect', 'full stack developer'],
   },
 
   about: {
@@ -162,19 +169,19 @@ export const NOFOLLOW_PATHS: string[] = [];
 
 export const SITEMAP_CONFIG = {
   static: [
-    { path: '/',         priority: 1.0, changeFrequency: 'weekly'  as const },
-    { path: '/about',    priority: 0.9, changeFrequency: 'monthly' as const },
-    { path: '/projects', priority: 0.9, changeFrequency: 'weekly'  as const },
-    { path: '/blog',     priority: 0.9, changeFrequency: 'daily'   as const },
-    { path: '/store',    priority: 0.9, changeFrequency: 'weekly'  as const },
-    { path: '/contact',  priority: 0.7, changeFrequency: 'yearly'  as const },
+    { path: '/', priority: 1.0, changeFrequency: 'weekly' as const },
+    { path: '/about', priority: 0.9, changeFrequency: 'monthly' as const },
+    { path: '/projects', priority: 0.9, changeFrequency: 'weekly' as const },
+    { path: '/blog', priority: 0.9, changeFrequency: 'daily' as const },
+    { path: '/store', priority: 0.9, changeFrequency: 'weekly' as const },
+    { path: '/contact', priority: 0.7, changeFrequency: 'yearly' as const },
   ],
   dynamic: {
-    blogPost:  { priority: 0.8, changeFrequency: 'weekly'  as const },
-    product:   { priority: 0.8, changeFrequency: 'weekly'  as const },
-    project:   { priority: 0.7, changeFrequency: 'monthly' as const },
-    category:  { priority: 0.6, changeFrequency: 'monthly' as const },
-    tag:       { priority: 0.5, changeFrequency: 'monthly' as const },
+    blogPost: { priority: 0.8, changeFrequency: 'weekly' as const },
+    product: { priority: 0.8, changeFrequency: 'weekly' as const },
+    project: { priority: 0.7, changeFrequency: 'monthly' as const },
+    category: { priority: 0.6, changeFrequency: 'monthly' as const },
+    tag: { priority: 0.5, changeFrequency: 'monthly' as const },
   },
 } as const;
 
@@ -186,6 +193,6 @@ export const SCHEMA_CONTEXT = 'https://schema.org' as const;
 // Currently English-only. Add entries here as new languages are added.
 
 export const HREFLANG_CONFIG = [
-  { hreflang: 'en',    href: CANONICAL_DOMAIN },
+  { hreflang: 'en', href: CANONICAL_DOMAIN },
   { hreflang: 'x-default', href: CANONICAL_DOMAIN },
 ] as const;

@@ -21,7 +21,14 @@ async function getRedirects() {
   if (now - lastFetch > CACHE_TTL) {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
-      const res = await fetch(`${apiUrl}/redirects/active`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 800);
+
+      const res = await fetch(`${apiUrl}/redirects/active`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
@@ -30,7 +37,9 @@ async function getRedirects() {
         }
       }
     } catch (e) {
-      // Gracefully fail and use old cache or empty array
+      // Gracefully fail if backend is sleeping or times out.
+      // Update lastFetch to avoid stalling every request for 60s.
+      lastFetch = now;
     }
   }
   return cachedRedirects;

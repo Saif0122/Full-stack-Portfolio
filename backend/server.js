@@ -2,7 +2,6 @@ import app from './app.js';
 import mongoose from 'mongoose';
 import { config } from './config/env.config.js';
 
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { seedDatabase } from './database/seeder.js';
 import { seedPortfolio } from './database/portfolio-seed.js';
 
@@ -15,6 +14,7 @@ const connectDB = async () => {
     if (config.env !== 'production' && (uri.includes('localhost') || uri.includes('127.0.0.1'))) {
       try {
         console.log('Attempting to spin up in-memory MongoDB for local development...');
+        const { MongoMemoryServer } = await import('mongodb-memory-server');
         const mongoServer = await MongoMemoryServer.create();
         uri = mongoServer.getUri();
       } catch (err) {

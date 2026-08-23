@@ -29,7 +29,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUploadSuccess, o
     
     try {
       // NOTE: Using a custom fetch because adminService.create uses JSON
-      const API_URL = typeof window !== 'undefined' ? '/api/v1' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
+      const API_URL = typeof window !== 'undefined' ? '/api/v1' : (process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api');
       
       const res = await fetch(`${API_URL}/media/upload`, {
         method: 'POST',

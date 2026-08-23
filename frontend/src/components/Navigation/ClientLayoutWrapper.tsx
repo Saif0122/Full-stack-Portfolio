@@ -26,8 +26,11 @@ export const ClientLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ c
 
   return (
     <div className="flex flex-col min-h-screen">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[9999] focus:p-4 focus:bg-primary focus:text-black focus:font-bold">
+        Skip to main content
+      </a>
       <Navbar />
-      <main className="flex-1 w-full">
+      <main id="main-content" className="flex-1 w-full">
         {children}
       </main>
       <Footer />

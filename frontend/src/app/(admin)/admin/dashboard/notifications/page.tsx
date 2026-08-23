@@ -21,7 +21,7 @@ export default function NotificationsHubPage() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/notifications');
+      const res = await axios.get('https://full-stack-portfolio-1-m5b1.onrender.com/api/notifications');
       if (res.data.success) {
         setNotifications(res.data.data);
       }
@@ -62,7 +62,7 @@ export default function NotificationsHubPage() {
 
   const markAllRead = async () => {
     try {
-      await axios.put('http://localhost:5000/api/notifications/mark-all-read');
+      await axios.put('https://full-stack-portfolio-1-m5b1.onrender.com/api/notifications/mark-all-read');
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       toast('All executive alert notifications marked as acknowledged.', 'success');
     } catch (error) {
@@ -72,7 +72,7 @@ export default function NotificationsHubPage() {
 
   const toggleRead = async (item: NotificationRecord) => {
     try {
-      await axios.put(`http://localhost:5000/api/notifications/${item._id}`, { isRead: !item.isRead });
+      await axios.put(`https://full-stack-portfolio-1-m5b1.onrender.com/api/notifications/${item._id}`, { isRead: !item.isRead });
       setNotifications(prev => prev.map(n => n._id === item._id ? { ...n, isRead: !n.isRead } : n));
     } catch (error) {
       toast('Failed to update notification', 'error');

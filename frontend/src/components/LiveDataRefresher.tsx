@@ -19,7 +19,7 @@ export default function LiveDataRefresher({ isMockData }: LiveDataRefresherProps
 
     const checkBackend = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
         const res = await fetch(`${API_URL}/health`, { cache: 'no-store' });
         if (res.ok) {
            // Backend is awake! Refresh the server components to get real data

@@ -237,9 +237,9 @@ export const FAQ: React.FC = () => {
                 >
                   <button
                     onClick={() => setActiveIndex(activeIndex === i ? null : i)}
-                    className="w-full px-8 py-6 flex items-center justify-between text-left transition-colors"
+                    className="w-full px-5 py-5 sm:px-8 sm:py-6 flex items-center justify-between text-left transition-colors"
                   >
-                    <span className="text-lg font-bold text-white">{faq.question}</span>
+                    <span className="text-base sm:text-lg font-bold text-white pr-4">{faq.question}</span>
                     <svg 
                       className={`w-6 h-6 text-primary transition-transform duration-300 ${activeIndex === i ? 'rotate-180 drop-shadow-[0_0_8px_#00F5FF]' : ''}`} 
                       fill="none" 
@@ -257,7 +257,7 @@ export const FAQ: React.FC = () => {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
                       >
-                        <div className="px-8 pb-6 text-gray-400 font-light leading-relaxed border-t border-white/5 pt-4">
+                        <div className="px-5 sm:px-8 pb-5 sm:pb-6 text-gray-400 font-light leading-relaxed border-t border-white/5 pt-4">
                           {faq.answer}
                         </div>
                       </motion.div>

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import DOMPurify from 'isomorphic-dompurify';
 
 const HeroScene = dynamic(() => import('@/three/HeroScene').then((mod) => mod.HeroScene), {
   ssr: false,
@@ -54,8 +55,8 @@ const HomeClient: React.FC<HomeClientProps> = ({ initialData }) => {
     titleLine2: 'Architect',
     subtitle: 'Senior MERN Stack Engineer specializing in SaaS application development and scalable web applications. I engineer high-performance digital products using the modern MERN ecosystem.',
     stats: [
-      { label: 'Years Experience', value: '3+' },
-      { label: 'Client', value: '500+' },
+      { label: 'Projects Built', value: '25+' },
+      { label: 'Lines of Code', value: '100k+' },
       { label: 'MERN Expertise', value: 'Expert' }
     ]
   };
@@ -126,7 +127,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ initialData }) => {
               </div>
 
               <h2 className="text-gray-400 text-lg md:text-xl font-light leading-relaxed max-w-2xl mb-12">
-                <span dangerouslySetInnerHTML={{ __html: heroData.subtitle.replace(/SaaS application development/g, '<strong>SaaS application development</strong>').replace(/scalable web applications/g, '<strong>scalable web applications</strong>') }} />
+                <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(heroData.subtitle.replace(/SaaS application development/g, '<strong>SaaS application development</strong>').replace(/scalable web applications/g, '<strong>scalable web applications</strong>')) }} />
               </h2>
 
               <div className="flex flex-wrap gap-6 mb-16">

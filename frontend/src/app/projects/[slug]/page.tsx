@@ -10,7 +10,7 @@ import { mergeSeoOptions } from '@/lib/seo/service';
 import { buildProjectSchema } from '@/lib/seo/schemas/project.schema';
 import { projectBreadcrumb } from '@/lib/seo/schemas/breadcrumb.schema';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
 
 type PageProps = { params: Promise<{ slug: string }> };
 

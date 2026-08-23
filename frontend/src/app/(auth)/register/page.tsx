@@ -42,7 +42,7 @@ export default function RegisterPage() {
   };
 
   const handleOAuth = (provider: 'google' | 'github') => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/${provider}`;
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api'}/auth/${provider}`;
   };
 
   return (

@@ -1,6 +1,6 @@
 export const getCoupons = async (req, res, next) => {
   try {
-    res.status(200).json({ success: true, data: [] });
+    res.status(501).json({ success: false, message: 'Not Implemented' });
   } catch (error) {
     next(error);
   }

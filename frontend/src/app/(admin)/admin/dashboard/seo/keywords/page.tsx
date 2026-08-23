@@ -1,69 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { AdminLayout } from '@/components/admin/ui';
 import { Card } from '@/components/ui';
 import { adminService } from '@/services/admin.service';
-import { useToast } from '@/providers/ToastProvider';
-import { SearchPreviewWidget } from '@/components/admin/seo/SearchPreviewWidget';
-import { AiSeoAssistant } from '@/components/admin/seo/AiSeoAssistant';
-import type { DbSeoRecord } from '@/lib/seo/types';
+import { AlertTriangle, Search, Filter } from 'lucide-react';
 
 export default function KeywordManagerPage() {
-  const [selectedPath, setSelectedPath] = useState<string>('/');
-  const [formData, setFormData] = useState<Partial<DbSeoRecord>>({});
-  
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  const { data: configs, isLoading } = useQuery({
-    queryKey: ['seo', 'configs'],
-    queryFn: () => adminService.fetch('/seo').then(res => res as DbSeoRecord[])
+  const { data: keywords, isLoading } = useQuery({
+    queryKey: ['seo', 'keywords-aggregated'],
+    queryFn: () => adminService.fetch('/seo/keywords').then(res => res as any[])
   });
 
-  useEffect(() => {
-    if (configs) {
-      const active = configs.find(c => c.path === selectedPath);
-      if (active) {
-        setFormData(active);
-      } else {
-        setFormData({ path: selectedPath, metaTitle: '', metaDescription: '', focusKeyword: '' });
-      }
-    }
-  }, [selectedPath, configs]);
-
-  const saveMutation = useMutation({
-    mutationFn: async (data: Partial<DbSeoRecord>) => {
-      // updateConfig in controller uses the body with path
-      return adminService.update('/seo', encodeURIComponent(data.path!), data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['seo', 'configs'] });
-      toast('SEO metadata updated successfully!', 'success');
-    },
-    onError: () => toast('Failed to update SEO metadata', 'error')
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.path || !formData.metaTitle || !formData.metaDescription) {
-      toast('Path, Title, and Description are required', 'error');
-      return;
-    }
-    saveMutation.mutate(formData);
-  };
-
-  const handleAiApply = (suggestions: { title?: string; description?: string }) => {
-    setFormData(prev => ({
-      ...prev,
-      ...(suggestions.title && { metaTitle: suggestions.title }),
-      ...(suggestions.description && { metaDescription: suggestions.description })
-    }));
-    toast('AI suggestions applied! Remember to save.', 'success');
-  };
-
-  const availablePaths = ['/', '/about', '/projects', '/store', '/contact'];
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [intentFilter, setIntentFilter] = React.useState('all');
 
   if (isLoading) {
     return (
@@ -73,115 +24,119 @@ export default function KeywordManagerPage() {
     );
   }
 
+  const filteredKeywords = keywords?.filter((kw: any) => {
+    const matchesSearch = kw.keyword.includes(searchTerm.toLowerCase());
+    const matchesIntent = intentFilter === 'all' || kw.intent === intentFilter;
+    return matchesSearch && matchesIntent;
+  }) || [];
+
   return (
     <AdminLayout>
       <div className="pb-6 border-b border-white/10 mb-6">
-        <span className="text-xs font-mono uppercase tracking-[0.3em] text-emerald-400 block mb-1">Portfolio SEO</span>
+        <span className="text-xs font-mono uppercase tracking-[0.3em] text-emerald-400 block mb-1">Global SEO</span>
         <h1 className="text-3xl font-black text-white tracking-tight">Keyword Manager</h1>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto mb-6 pb-2">
-        {availablePaths.map(p => (
-          <button
-            key={p}
-            onClick={() => setSelectedPath(p)}
-            className={`px-4 py-2 rounded-xl font-mono text-xs font-bold transition-all whitespace-nowrap ${
-              selectedPath === p 
-                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' 
-                : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
-            }`}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+          <input 
+            type="text" 
+            placeholder="Search keywords..." 
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors"
+          />
+        </div>
+        <div className="flex gap-2">
+          <select
+            value={intentFilter}
+            onChange={e => setIntentFilter(e.target.value)}
+            className="bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
           >
-            {p === '/' ? 'Home ( / )' : p}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Editor Form */}
-        <div className="space-y-6">
-          <Card className="p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Metadata Editor</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              
-              <div className="grid grid-cols-2 gap-4 border-b border-gray-800 pb-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Focus Keyword</label>
-                  <input
-                    type="text"
-                    value={formData.focusKeyword || ''}
-                    onChange={e => setFormData({ ...formData, focusKeyword: e.target.value })}
-                    placeholder="e.g. MERN Stack Developer"
-                    className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Search Intent</label>
-                  <select
-                    value={formData.searchIntent || 'informational'}
-                    onChange={e => setFormData({ ...formData, searchIntent: e.target.value as any })}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-white"
-                  >
-                    <option value="informational">Informational</option>
-                    <option value="navigational">Navigational</option>
-                    <option value="commercial">Commercial</option>
-                    <option value="transactional">Transactional</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  SEO Title <span className="text-gray-500 font-normal">({formData.metaTitle?.length || 0} / 60)</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.metaTitle || ''}
-                  onChange={e => setFormData({ ...formData, metaTitle: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Meta Description <span className="text-gray-500 font-normal">({formData.metaDescription?.length || 0} / 160)</span>
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  value={formData.metaDescription || ''}
-                  onChange={e => setFormData({ ...formData, metaDescription: e.target.value })}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-white resize-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={saveMutation.isPending}
-                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-bold transition-colors"
-              >
-                {saveMutation.isPending ? 'Saving...' : 'Save Metadata'}
-              </button>
-            </form>
-          </Card>
-
-          <AiSeoAssistant 
-            currentTitle={formData.metaTitle || ''}
-            currentDescription={formData.metaDescription || ''}
-            focusKeyword={formData.focusKeyword || ''}
-            onApply={handleAiApply}
-          />
-        </div>
-
-        {/* Live Previews */}
-        <div>
-          <SearchPreviewWidget 
-            title={formData.metaTitle || ''}
-            description={formData.metaDescription || ''}
-            path={formData.path || '/'}
-          />
+            <option value="all">All Intents</option>
+            <option value="informational">Informational</option>
+            <option value="transactional">Transactional</option>
+            <option value="commercial">Commercial</option>
+            <option value="navigational">Navigational</option>
+          </select>
         </div>
       </div>
+
+      <Card className="overflow-hidden bg-gray-900 border-gray-800">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-800 text-gray-300 text-sm uppercase tracking-wider">
+                <th className="p-4 font-semibold">Keyword</th>
+                <th className="p-4 font-semibold">Intent</th>
+                <th className="p-4 font-semibold">Difficulty</th>
+                <th className="p-4 font-semibold">Usage</th>
+                <th className="p-4 font-semibold">Sources</th>
+                <th className="p-4 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-800">
+              {filteredKeywords.map((kw: any, idx: number) => (
+                <tr key={idx} className="text-gray-300 hover:bg-gray-800/50 transition-colors">
+                  <td className="p-4">
+                    <div className="font-bold text-white text-base">{kw.keyword}</div>
+                  </td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded text-[10px] uppercase tracking-wider font-bold ${
+                      kw.intent === 'transactional' ? 'bg-purple-500/10 text-purple-400' :
+                      kw.intent === 'commercial' ? 'bg-blue-500/10 text-blue-400' :
+                      'bg-gray-700 text-gray-300'
+                    }`}>
+                      {kw.intent}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${kw.difficulty > 70 ? 'bg-red-500' : kw.difficulty > 40 ? 'bg-yellow-500' : 'bg-green-500'}`} 
+                          style={{ width: `${kw.difficulty}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-400">{kw.difficulty}</span>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <span className="text-white font-bold bg-gray-800 px-2 py-1 rounded-md text-sm">{kw.usageCount}</span>
+                  </td>
+                  <td className="p-4">
+                    <div className="space-y-1">
+                      {kw.sources.map((src: any, i: number) => (
+                        <div key={i} className="text-xs flex items-center gap-2">
+                          <span className="text-gray-500 w-16">{src.type}</span>
+                          <span className="text-gray-300 truncate max-w-[200px]" title={src.title}>{src.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    {kw.hasCannibalization ? (
+                      <span className="inline-flex items-center gap-1 text-red-400 text-xs font-semibold bg-red-500/10 px-2 py-1 rounded">
+                        <AlertTriangle size={12} /> Cannibalization Risk
+                      </span>
+                    ) : (
+                      <span className="text-emerald-500 text-xs font-semibold">✓ Optimized</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {filteredKeywords.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-gray-500">
+                    No keywords found matching the criteria.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </AdminLayout>
   );
 }

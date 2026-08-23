@@ -6,11 +6,21 @@ let cachedRedirects: { source: string; destination: string; statusCode: number }
 let lastFetch = 0;
 const CACHE_TTL = 60000; // 60 seconds
 
+function decodeJwt(token: string) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(decoded);
+  } catch (e) {
+    return null;
+  }
+}
+
 async function getRedirects() {
   const now = Date.now();
   if (now - lastFetch > CACHE_TTL) {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
       const res = await fetch(`${apiUrl}/redirects/active`);
       if (res.ok) {
         const json = await res.json();
@@ -51,10 +61,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/admin', request.url));
   }
 
-  if (isAdminPage && !token) {
-    const url = new URL('/login', request.url);
-    url.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(url);
+  if (isAdminPage) {
+    if (!token) {
+      const url = new URL('/login', request.url);
+      url.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(url);
+    }
+    const decoded = decodeJwt(token);
+    if (!decoded || decoded.role !== 'admin') {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
   return NextResponse.next();

@@ -24,7 +24,7 @@ export class PostService {
         author = await User.create({
           name: 'Saiful Islam',
           email: 'saiful@example.com',
-          password: 'Password123!',
+          password: process.env.SEED_PASSWORD || Math.random().toString(36).slice(-10) + 'A1!',
           jobTitle: 'Principal Software Architect',
           avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
         });
@@ -59,7 +59,7 @@ export class PostService {
           clusterId: 'db-deep',
           readTime: '12 min read',
           mermaidDiagram: `graph TD\n  A[Client App] --> B[Nginx Load Balancer]\n  B --> C[Node.js API Instances]\n  C --> D[MongoDB Mongos]\n  D --> E[Shard 1 - Atlas]\n  D --> F[Shard 2 - Atlas]\n  D --> G[Shard 3 - Atlas]`,
-          githubRepo: { owner: 'saifulislam', repo: 'mongodb-scaling-toolkit', stars: 420, cta: 'Explore Indexing Tools' },
+          githubRepo: { owner: 'Saif0122', repo: 'mongodb-scaling-toolkit', stars: 420, cta: 'Explore Indexing Tools' },
           technicalSegments: {
             architecturalDecisions: 'Switched from vertical scaling to a 3-shard cluster on MongoDB Atlas with hashed shard keys.',
             tradeOffs: 'Higher architectural complexity vs absolute horizontal write scalability.',
@@ -85,7 +85,7 @@ export class PostService {
           clusterId: 'mern-arch',
           readTime: '15 min read',
           mermaidDiagram: `sequenceDiagram\n  User->>API: Request with JWT\n  API->>Middleware: Extract TenantID\n  Middleware->>Context: Set Global Context\n  Context->>DB: Query { tenantId: "ctx.id" }\n  DB-->>User: Isolated Data`,
-          githubRepo: { owner: 'saifulislam', repo: 'nexus-saas-core', stars: 850, cta: 'View SaaS Boilerplate' },
+          githubRepo: { owner: 'Saif0122', repo: 'nexus-saas-core', stars: 850, cta: 'View SaaS Boilerplate' },
           technicalSegments: {
             architecturalDecisions: 'Adopted a "Single-DB, Logical Isolation" model with strict Mongoose middleware hooks.',
             tradeOffs: 'Cost efficiency vs potential risk of noisy neighbor issues.',
@@ -136,7 +136,7 @@ export class PostService {
           clusterId: 'mern-arch',
           readTime: '20 min read',
           mermaidDiagram: `graph TD\n  A[User Intent] --> B[Orchestrator Agent]\n  B --> C[DB Query Agent]\n  B --> D[API Executor Agent]\n  C --> E[Data Synthesis]\n  D --> E\n  E --> F[Final Response]`,
-          githubRepo: { owner: 'saifulislam', repo: 'agentic-node-framework', stars: 1240, cta: 'View Agent Framework' },
+          githubRepo: { owner: 'Saif0122', repo: 'agentic-node-framework', stars: 1240, cta: 'View Agent Framework' },
           technicalSegments: {
             architecturalDecisions: 'Implemented a DAG-based orchestration engine for multi-agent workflows in Node.js.',
             tradeOffs: 'Higher latency due to multi-step reasoning vs extreme flexibility and autonomous error recovery.',

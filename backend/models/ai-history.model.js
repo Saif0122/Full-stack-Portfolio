@@ -21,9 +21,46 @@ const aiHistorySchema = new mongoose.Schema({
   provider: {
     type: String,
   },
-  tokensUsed: {
+  inputTokens: {
     type: Number,
     default: 0,
+  },
+  outputTokens: {
+    type: Number,
+    default: 0,
+  },
+  totalTokens: {
+    type: Number,
+    default: 0,
+  },
+  isEstimated: {
+    type: Boolean,
+    default: false,
+  },
+  cost: {
+    type: Number,
+    default: 0,
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'accepted', 'rejected', 'edited'],
+    default: 'pending'
+  },
+  originalSuggestion: {
+    type: mongoose.Schema.Types.Mixed, // Can be text or JSON
+  },
+  finalApplied: {
+    type: mongoose.Schema.Types.Mixed,
+  },
+  confidenceScore: {
+    type: Number
+  },
+  explanation: {
+    type: String
+  },
+  promptVersion: {
+    type: Number,
+    default: 1
   }
 }, { timestamps: true });
 

@@ -5,10 +5,16 @@
   <img src="https://img.shields.io/badge/React%2019-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19" />
   <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
   <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-  <img src="https://img.shields.io/badge/Google_Gemini_3.1_Pro-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" />
+  <img src="https://img.shields.io/badge/Google_Gemini_1.5_Pro-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" />
   <img src="https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Three.js" />
 </div>
 
+<div align="center">
+  <a href="https://saifulislam.vercel.app">
+    <img src="https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
+  </a>
+  <img src="https://img.shields.io/github/actions/workflow/status/Saif0122/Full-stack-Portfolio/ci.yml?style=for-the-badge" alt="Build Status" />
+</div>
 <br />
 
 > **“A static showroom is dead. Welcome to the era of immersive, intelligent web experiences.”**
@@ -22,7 +28,7 @@ This is not a traditional portfolio. It is a high-performance, AI-driven **MERN 
 ### 1. 🌌 WebGL/Three.js Interactive Universe
 Forget standard hero text. Powered by `react-three-fiber` and physics-based particle simulations, the interface dynamically responds to user interaction. It proves deep understanding of complex front-end engineering, mathematics, and raw performance optimization.
 
-### 2. 🧠 Autonomous AI Persona (Gemini 3.1 Pro)
+### 2. 🧠 Autonomous AI Persona (Gemini 1.5 Pro)
 Why read a resume when you can interview the developer? Integrated with `@google/genai` and Pinecone Vector Database, the built-in AI agent is fine-tuned to my exact architecture decisions, workflows, and personality.
 *   *Recruiter prompt:* "How did Saiful solve database indexing optimization?"
 *   *AI Response:* Instant, context-aware, technical deep dive.
@@ -52,7 +58,7 @@ CEOs and Engineering Managers love data. An integrated, secure Admin Dashboard p
 ### Backend & Cloud Infrastructure
 *   **Runtime:** Node.js, Express.js
 *   **Database & ORM:** MongoDB (Mongoose), Pinecone (Vector Database)
-*   **AI Integrations:** Google GenAI (Gemini 3.1 Pro), OpenAI, Anthropic, AI SDK
+*   **AI Integrations:** Google GenAI (Gemini 1.5 Pro), OpenAI, Anthropic, AI SDK
 *   **Authentication & Payments:** Passport (Google/GitHub OAuth), JWT, Stripe
 *   **Security & Reliability:** Sentry (Node Profiling), Express Rate Limit, Joi Validation
 
@@ -107,5 +113,5 @@ If you are a CTO, HR professional, or CEO looking for a developer who doesn't ju
 <div align="center">
   <h3>Let's build something incredible.</h3>
   <a href="mailto:saifulislam@gmail.com">Contact Me</a> • 
-  <a href="https://linkedin.comin/saif-ul-islam-66261b323">LinkedIn</a>
+  <a href="https://linkedin.com/in/saif-ul-islam-66261b323">LinkedIn</a>
 </div>

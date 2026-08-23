@@ -17,7 +17,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
       "font-src 'self' fonts.gstatic.com",
       "img-src 'self' data: blob: https://picsum.photos https://images.unsplash.com https://unsplash.com",
-      "connect-src 'self' generativelanguage.googleapis.com http://localhost:5000",
+      "connect-src 'self' generativelanguage.googleapis.com https://full-stack-portfolio-1-m5b1.onrender.com",
     ].join('; ')
   }
 ];
@@ -77,7 +77,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api'}/:path*`,
       },
     ];
   },

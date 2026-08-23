@@ -6,6 +6,7 @@ import Analytics from '../models/analytics.model.js';
 import Download from '../models/download.model.js';
 import Project from '../models/project.model.js';
 import Notification from '../models/notification.model.js';
+import Session from '../models/session.model.js';
 import NodeCache from 'node-cache';
 
 const analyticsCache = new NodeCache({ stdTTL: 300 }); // 5 minutes cache
@@ -73,8 +74,8 @@ export const getAnalyticsSummary = async (req, res, next) => {
       products: { total: productCount, trend: `${productCount} Live` },
       blogs: { total: postCount, trend: `${postCount} Published` },
       projects: { total: projectCount, trend: '100% Synced' },
-      seoScore: 98,
-      systemHealth: '18ms Latency • MongoDB Clustered',
+      seoScore: '[Demo] 98',
+      systemHealth: '[Demo] 18ms Latency • MongoDB Clustered',
       recentActivity: recentActivity.length > 0 ? recentActivity : [
         { time: 'Just now', user: 'Admin System', action: 'System initialized.', type: 'SYSTEM' }
       ]
@@ -111,7 +112,7 @@ export const trackEvent = async (req, res, next) => {
 
     // If it's a page_view, ensure session exists
     if (event === 'page_view' && sessionId) {
-      import('../models/session.model.js').then(async ({ default: Session }) => {
+      try {
         const existingSession = await Session.findOne({ sessionId });
         if (!existingSession) {
           const ipHash = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
@@ -126,7 +127,9 @@ export const trackEvent = async (req, res, next) => {
             referrer: source
           });
         }
-      });
+      } catch (err) {
+        console.error('Session tracking error:', err);
+      }
     }
 
     res.status(200).json({ success: true, message: 'Event tracked' });
@@ -142,7 +145,7 @@ export const endSession = async (req, res, next) => {
     const { sessionId, exitPage, duration } = req.body;
     
     if (sessionId) {
-      import('../models/session.model.js').then(async ({ default: Session }) => {
+      try {
         await Session.findOneAndUpdate(
           { sessionId },
           { 
@@ -151,7 +154,9 @@ export const endSession = async (req, res, next) => {
             endedAt: new Date() 
           }
         );
-      });
+      } catch (err) {
+        console.error('Session end error:', err);
+      }
     }
     
     res.status(200).json({ success: true });
@@ -192,46 +197,44 @@ export const getRecruiterAnalytics = async (req, res, next) => {
 
 export const getWebsiteAnalytics = async (req, res, next) => {
   try {
-    import('../models/session.model.js').then(async ({ default: Session }) => {
-      const totalVisitors = await Session.countDocuments();
-      const uniqueVisitors = (await Session.distinct('visitorId')).length;
-      
-      const averageSessionDurationResult = await Session.aggregate([
-        { $group: { _id: null, avgDuration: { $avg: '$duration' } } }
-      ]);
-      const avgSessionDuration = averageSessionDurationResult.length ? averageSessionDurationResult[0].avgDuration : 0;
+    const totalVisitors = await Session.countDocuments();
+    const uniqueVisitors = (await Session.distinct('visitorId')).length;
+    
+    const averageSessionDurationResult = await Session.aggregate([
+      { $group: { _id: null, avgDuration: { $avg: '$duration' } } }
+    ]);
+    const avgSessionDuration = averageSessionDurationResult.length ? averageSessionDurationResult[0].avgDuration : 0;
 
-      const deviceStats = await Session.aggregate([
-        { $group: { _id: '$device', count: { $sum: 1 } } }
-      ]);
-      
-      const osStats = await Session.aggregate([
-        { $group: { _id: '$os', count: { $sum: 1 } } }
-      ]);
-      
-      const trafficSources = await Session.aggregate([
-        { $group: { _id: '$referrer', count: { $sum: 1 } } }
-      ]);
+    const deviceStats = await Session.aggregate([
+      { $group: { _id: '$device', count: { $sum: 1 } } }
+    ]);
+    
+    const osStats = await Session.aggregate([
+      { $group: { _id: '$os', count: { $sum: 1 } } }
+    ]);
+    
+    const trafficSources = await Session.aggregate([
+      { $group: { _id: '$referrer', count: { $sum: 1 } } }
+    ]);
 
-      const topPages = await Analytics.aggregate([
-        { $match: { event: 'page_view' } },
-        { $group: { _id: '$path', views: { $sum: 1 } } },
-        { $sort: { views: -1 } },
-        { $limit: 10 }
-      ]);
+    const topPages = await Analytics.aggregate([
+      { $match: { event: 'page_view' } },
+      { $group: { _id: '$path', views: { $sum: 1 } } },
+      { $sort: { views: -1 } },
+      { $limit: 10 }
+    ]);
 
-      res.status(200).json({
-        success: true,
-        data: {
-          totalVisitors,
-          uniqueVisitors,
-          avgSessionDuration,
-          deviceStats,
-          osStats,
-          trafficSources,
-          topPages
-        }
-      });
+    res.status(200).json({
+      success: true,
+      data: {
+        totalVisitors,
+        uniqueVisitors,
+        avgSessionDuration,
+        deviceStats,
+        osStats,
+        trafficSources,
+        topPages
+      }
     });
   } catch (error) { next(error); }
 };
@@ -254,8 +257,8 @@ export const getAiAnalytics = async (req, res, next) => {
         totalInteractions,
         aiSessions,
         topQuestions,
-        avgResponseTime: 420, // ms mocked for now if not tracked
-        userSatisfaction: 94 // percentage mocked for now
+        avgResponseTime: '[Demo] 420',
+        userSatisfaction: '[Demo] 94'
       }
     });
   } catch (error) { next(error); }

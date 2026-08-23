@@ -2,27 +2,32 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { getAIChatResponse } from '@/services/aiService';
 
-// Logic for a Zod-like validation schema
-const validateForm = (data: any) => {
-  const errors: Record<string, string> = {};
-  if (!data.name || data.name.length < 2) errors.name = "Identifier required (min 2 chars).";
-  if (!data.email || !/^\S+@\S+\.\S+$/.test(data.email)) errors.email = "Valid digital address required.";
-  if (!data.message || data.message.length < 10) errors.message = "Message depth insufficient.";
-  return errors;
-};
+const contactSchema = z.object({
+  name: z.string().min(2, "Identifier required (min 2 chars)."),
+  email: z.string().email("Valid digital address required."),
+  projectType: z.string(),
+  budget: z.string(),
+  message: z.string().min(10, "Message depth insufficient."),
+});
+
+type ContactFormValues = z.infer<typeof contactSchema>;
 
 const Contact: React.FC = () => {
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    projectType: 'SaaS Platform',
-    budget: '$5k - $15k',
-    message: ''
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ContactFormValues>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      projectType: 'SaaS Platform',
+      budget: '$5k - $15k',
+      message: ''
+    }
   });
-  
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   
   // AI Assistant State
@@ -34,7 +39,7 @@ const Contact: React.FC = () => {
     if (!aiInput.trim()) return;
     setIsAiLoading(true);
     try {
-      const prompt = `Help me describe a project professionaly based on these keywords: ${aiInput}. Keep it technical and concise for a developer.`;
+      const prompt = `Help me describe a project professionally based on these keywords: ${aiInput}. Keep it technical and concise for a developer.`;
       const result = await getAIChatResponse([{ role: 'user', content: prompt }]);
       setAiSuggestion(result);
     } catch {
@@ -44,21 +49,29 @@ const Contact: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validateForm(formState);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    
-    setErrors({});
+  const onSubmit = async (data: ContactFormValues) => {
     setStatus('submitting');
     
-    // Simulate API Transmission
-    setTimeout(() => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
+      const res = await fetch(`${apiUrl}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          subject: `Project Inquiry: ${data.projectType} (${data.budget})`,
+          message: data.message
+        })
+      });
+      
+      if (!res.ok) throw new Error('Network response was not ok');
       setStatus('success');
-    }, 2000);
+    } catch (error) {
+      console.error('Contact form submission error:', error);
+      setStatus('error');
+      setErrors({ message: 'Transmission failed. Please try again or use direct email.' });
+    }
   };
 
   return (
@@ -99,7 +112,7 @@ const Contact: React.FC = () => {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">SOMETHING POWERFUL.</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-400 font-light leading-relaxed">
-              I help startups and businesses build scalable Project&apos;s using MERN and Full stack with high-performance engineering.
+              I help startups and businesses build scalable projects using MERN and Full stack with high-performance engineering.
             </p>
           </motion.div>
         </section>
@@ -167,30 +180,39 @@ const Contact: React.FC = () => {
                     <button onClick={() => setStatus('idle')} className="text-primary text-xs font-black uppercase tracking-widest underline">Reset Terminal</button>
                   </motion.div>
                 ) : (
-                  <form key="form" onSubmit={handleSubmit} className="space-y-8 relative z-10">
+                  <form key="form" onSubmit={handleSubmit(onSubmit)} className="space-y-8 relative z-10">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <FormInput 
-                        label="Identifier (Name)" 
-                        error={errors.name}
-                        value={formState.name}
-                        onChange={(v) => setFormState({...formState, name: v})}
-                        placeholder="Project Stakeholder"
-                      />
-                      <FormInput 
-                        label="Digital Address (Email)" 
-                        error={errors.email}
-                        value={formState.email}
-                        onChange={(v) => setFormState({...formState, email: v})}
-                        placeholder="contact@domain.com"
-                      />
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-end mb-2">
+                          <label className="text-[10px] uppercase tracking-widest text-gray-500 font-black">Identifier (Name)</label>
+                          {errors.name && <span className="text-rose-500 text-[10px] font-bold uppercase">{errors.name.message}</span>}
+                        </div>
+                        <input 
+                          type="text" 
+                          {...register('name')}
+                          placeholder="Project Stakeholder"
+                          className={`w-full bg-black/50 border ${errors.name ? 'border-rose-500' : 'border-white/10'} rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary/50 transition-all text-sm`}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-end mb-2">
+                          <label className="text-[10px] uppercase tracking-widest text-gray-500 font-black">Digital Address (Email)</label>
+                          {errors.email && <span className="text-rose-500 text-[10px] font-bold uppercase">{errors.email.message}</span>}
+                        </div>
+                        <input 
+                          type="email" 
+                          {...register('email')}
+                          placeholder="contact@domain.com"
+                          className={`w-full bg-black/50 border ${errors.email ? 'border-rose-500' : 'border-white/10'} rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary/50 transition-all text-sm`}
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-2">
                         <label className="text-[10px] uppercase tracking-widest text-gray-500 font-black">Project Vertical</label>
                         <select 
-                          value={formState.projectType}
-                          onChange={(e) => setFormState({...formState, projectType: e.target.value})}
+                          {...register('projectType')}
                           className="w-full bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary/50 transition-all appearance-none text-sm"
                         >
                           {['SaaS Platform', 'E-commerce Engine', 'AI/ML Integration', 'Mobile Hybrid', 'Custom Architecture'].map(t => <option key={t} value={t}>{t}</option>)}
@@ -199,8 +221,7 @@ const Contact: React.FC = () => {
                       <div className="space-y-2">
                         <label className="text-[10px] uppercase tracking-widest text-gray-500 font-black">Fiscal Allocation (Budget)</label>
                         <select 
-                          value={formState.budget}
-                          onChange={(e) => setFormState({...formState, budget: e.target.value})}
+                          {...register('budget')}
                           className="w-full bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary/50 transition-all appearance-none text-sm"
                         >
                           {['< $5k', '$5k - $15k', '$15k - $50k', '$50k+'].map(t => <option key={t} value={t}>{t}</option>)}
@@ -211,14 +232,13 @@ const Contact: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between items-end mb-2">
                         <label className="text-[10px] uppercase tracking-widest text-gray-500 font-black">Logic Breakdown (Message)</label>
-                        {errors.message && <span className="text-rose-500 text-[10px] font-bold uppercase">{errors.message}</span>}
+                        {errors.message && <span className="text-rose-500 text-[10px] font-bold uppercase">{errors.message.message}</span>}
                       </div>
                       <textarea 
                         rows={6}
-                        value={formState.message}
-                        onChange={(e) => setFormState({...formState, message: e.target.value})}
+                        {...register('message')}
                         placeholder="Describe the technical scope and scaling requirements..."
-                        className="w-full bg-black/50 border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-primary/50 transition-all text-sm resize-none"
+                        className={`w-full bg-black/50 border ${errors.message ? 'border-rose-500' : 'border-white/10'} rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-primary/50 transition-all text-sm resize-none`}
                       />
                     </div>
 
@@ -251,7 +271,7 @@ const Contact: React.FC = () => {
                                {aiSuggestion}
                                <button 
                                  type="button"
-                                 onClick={() => setFormState({...formState, message: aiSuggestion})}
+                                 onClick={() => setValue('message', aiSuggestion, { shouldValidate: true })}
                                  className="block mt-2 text-primary font-bold uppercase hover:underline"
                                >
                                  USE SUGGESTION
@@ -289,27 +309,7 @@ const Contact: React.FC = () => {
   );
 };
 
-const FormInput: React.FC<{ 
-  label: string, 
-  error?: string, 
-  value: string, 
-  onChange: (v: string) => void,
-  placeholder: string
-}> = ({ label, error, value, onChange, placeholder }) => (
-  <div className="space-y-2">
-    <div className="flex justify-between items-end mb-2">
-      <label className="text-[10px] uppercase tracking-widest text-gray-500 font-black">{label}</label>
-      {error && <span className="text-rose-500 text-[10px] font-bold uppercase">{error}</span>}
-    </div>
-    <input 
-      type="text" 
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className={`w-full bg-black/50 border ${error ? 'border-rose-500' : 'border-white/10'} rounded-xl px-5 py-4 text-white focus:outline-none focus:border-primary/50 transition-all text-sm`}
-    />
-  </div>
-);
+
 
 const ContactMethod: React.FC<{ 
   title: string, 

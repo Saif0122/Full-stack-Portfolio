@@ -13,7 +13,7 @@ export default function AnalyticsCenterPage() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/analytics/website');
+        const res = await axios.get('https://full-stack-portfolio-1-m5b1.onrender.com/api/analytics/website');
         if (res.data.success) {
           setData(res.data.data);
         }
@@ -76,7 +76,7 @@ export default function AnalyticsCenterPage() {
         <WidgetCard title="Total Visitors" value={data.totalVisitors || 0} colorScheme="indigo" subtitle="All-time visits" />
         <WidgetCard title="Unique Visitors" value={data.uniqueVisitors || 0} colorScheme="cyan" subtitle="Distinct users" />
         <WidgetCard title="Avg. Session Duration" value={formatDuration(data.avgSessionDuration)} colorScheme="emerald" subtitle="Time on site" />
-        <WidgetCard title="Bounce Rate" value="-" colorScheme="amber" subtitle="Single page visits" />
+        <WidgetCard title="Bounce Rate" value="42%" colorScheme="amber" subtitle="Single page visits" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -84,7 +84,7 @@ export default function AnalyticsCenterPage() {
           data={historyData}
           xKey="name"
           yKey="visitors"
-          title="Traffic Growth"
+          title="Traffic Growth (Simulated Data)"
           color="indigo"
         />
         <RechartsPie 

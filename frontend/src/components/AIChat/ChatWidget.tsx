@@ -79,7 +79,7 @@ export const ChatWidget: React.FC = () => {
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
                 <span className="font-semibold text-sm tracking-wider uppercase text-primary">Nexus AI Assistant</span>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+              <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors" aria-label="Close chat">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -118,12 +118,14 @@ export const ChatWidget: React.FC = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask me anything..."
+                  aria-label="Chat input"
                   className="flex-1 bg-black/50 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/50 text-white"
                 />
                 <button
                   type="submit"
                   disabled={isLoading}
                   className="p-2 bg-primary text-black rounded-lg hover:bg-[#00D8E1] transition-colors disabled:opacity-50"
+                  aria-label="Send message"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -139,6 +141,7 @@ export const ChatWidget: React.FC = () => {
         ref={toggleButtonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg hover:shadow-[#00F5FF]/40 transition-all transform hover:scale-110 active:scale-95 group"
+        aria-label="Toggle chat widget"
       >
         <svg className={`w-7 h-7 text-black transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           {isOpen ? (

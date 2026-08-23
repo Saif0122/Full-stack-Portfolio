@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { CANONICAL_DOMAIN } from '@/lib/seo/config';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
 
 export const revalidate = 3600; // Revalidate robots.txt hourly
 

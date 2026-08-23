@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { slugify } from '../utils/slugify.util.js';
 
 const postSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -33,12 +34,35 @@ const postSchema = new mongoose.Schema({
     monitoring: String,
   },
   seo: {
-    metaTitle: String,
-    metaDescription: String,
+    metaTitle: { type: String, maxLength: 60 },
+    metaDescription: { type: String, maxLength: 160 },
     focusKeyword: String,
-    keywordDifficulty: String,
-    internalLinks: [String],
-    externalLinks: [String],
+    secondaryKeywords: [String],
+    longTailKeywords: [String],
+    canonicalUrl: String,
+    openGraphImage: String,
+    twitterImage: String,
+    robots: {
+      index: { type: Boolean, default: true },
+      follow: { type: Boolean, default: true }
+    },
+    readingLevel: { type: String, enum: ['beginner', 'intermediate', 'advanced'] },
+    estimatedReadingTime: Number,
+    evergreenContent: { type: Boolean, default: false },
+    
+    aiSuggestions: {
+      faq: [{ question: String, answer: String }],
+      internalLinks: [{ url: String, anchorText: String, rationale: String }],
+      externalLinks: [{ url: String, anchorText: String }],
+      cta: [String]
+    },
+    
+    seoScore: { type: Number, min: 0, max: 100 },
+    contentQuality: {
+      duplicateTitle: Boolean,
+      thinContent: Boolean,
+      missingHeadings: Boolean
+    }
   },
   // Engagement
   views: { type: Number, default: 0 },
@@ -60,7 +84,7 @@ const postSchema = new mongoose.Schema({
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   }]
 }, { timestamps: true });
-import { slugify } from '../utils/slugify.util.js';
+
 
 // Indexes for performance
 postSchema.index({ status: 1, publishedAt: -1 });

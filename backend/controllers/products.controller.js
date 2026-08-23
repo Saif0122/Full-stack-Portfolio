@@ -1,6 +1,10 @@
 import { ProductService } from '../services/products.service.js';
+import { ProductRepository } from '../repositories/product.repository.js';
+import { ProductSearchOptimizer } from '../services/product-search-optimizer.js';
 
 const productService = new ProductService();
+const repo = new ProductRepository();
+const optimizer = new ProductSearchOptimizer();
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -44,8 +48,6 @@ export const updateProduct = async (req, res, next) => {
   try {
     // Basic implementation since service.update isn't explicitly defined yet, we can use Mongoose Model directly or add it to service.
     // Assuming product.service.js has update or we can add it there. Wait, I'll just use the repo.
-    const { ProductRepository } = await import('../repositories/product.repository.js');
-    const repo = new ProductRepository();
     const data = await repo.update(req.params.id, req.body);
     res.status(200).json({ success: true, data });
   } catch (error) { next(error); }
@@ -53,9 +55,21 @@ export const updateProduct = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   try {
-    const { ProductRepository } = await import('../repositories/product.repository.js');
-    const repo = new ProductRepository();
     await repo.delete(req.params.id);
     res.status(200).json({ success: true, data: {} });
+  } catch (error) { next(error); }
+};
+
+export const searchProducts = async (req, res, next) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q) {
+      const trending = await optimizer.getTrendingProducts();
+      return res.status(200).json({ success: true, trending, results: [] });
+    }
+
+    const results = await optimizer.getAutocompleteSuggestions(q);
+    res.status(200).json({ success: true, results });
   } catch (error) { next(error); }
 };

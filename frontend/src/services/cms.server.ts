@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
 
 export async function getPortfolioData() {
   try {
@@ -25,6 +25,8 @@ export async function getPortfolioData() {
   }
 }
 
+import { PROJECTS } from '../constants/projects';
+
 export async function getProjectsData() {
   try {
     const res = await fetch(`${API_URL}/projects`, {
@@ -35,9 +37,9 @@ export async function getProjectsData() {
       throw new Error('Failed to fetch projects data');
     }
     const result = await res.json();
-    return result.data || [];
+    return result.data && result.data.length > 0 ? result.data : PROJECTS;
   } catch (error) {
-    console.error('Error fetching projects data:', error);
-    return [];
+    console.error('Error fetching projects data, falling back to demo data:', error);
+    return PROJECTS;
   }
 }

@@ -8,9 +8,7 @@ import { ClientLayoutWrapper } from '@/components/Navigation';
 import { AIContextProvider } from '@/components/providers/AIContextProvider';
 import { generatePageMetadata, generateJsonLdScript } from '@/lib/seo/helpers';
 import { SEO_CONFIG, CANONICAL_DOMAIN } from '@/lib/seo/config';
-import { buildWebSiteSchema } from '@/lib/seo/schemas/website.schema';
-import { buildOrganizationSchema } from '@/lib/seo/schemas/organization.schema';
-import { fetchOrganizationLogoUrl } from '@/lib/seo/service';
+import { StructuredData } from '@/components/seo/StructuredData';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -44,31 +42,12 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Fetch org logo from Admin media library (falls back to static config logo)
-  const logoUrl = await fetchOrganizationLogoUrl();
-
-  const websiteSchema = buildWebSiteSchema({
-    name: SEO_CONFIG.siteName,
-    url: CANONICAL_DOMAIN,
-    description: SEO_CONFIG.defaultDescription,
-  });
-
-  const orgSchema = buildOrganizationSchema({
-    name: SEO_CONFIG.organizationName,
-    url: CANONICAL_DOMAIN,
-    logoUrl,
-    description: SEO_CONFIG.defaultDescription,
-    sameAs: [
-      'https://github.com/Saif0122',
-      'https://linkedin.com/in/saifulislam',
-    ],
-  });
-
   return (
     <html lang={SEO_CONFIG.language} className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
-        {/* Global JSON-LD: WebSite + Organization — renders once, site-wide */}
-        <script {...generateJsonLdScript([websiteSchema, orgSchema])} />
+        {/* Global JSON-LD: WebSite + Organization — renders once, site-wide via the backend generator */}
+        <StructuredData type="Organization" />
+        <StructuredData type="WebSite" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <AppProviders>

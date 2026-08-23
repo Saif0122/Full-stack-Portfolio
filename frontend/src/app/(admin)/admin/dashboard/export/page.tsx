@@ -14,7 +14,7 @@ export default function DataExportPage() {
   const handleExport = async () => {
     try {
       setIsExporting(true);
-      const url = `http://localhost:5000/api/export?resource=${resource}&format=${format}`;
+      const url = `https://full-stack-portfolio-1-m5b1.onrender.com/api/export?resource=${resource}&format=${format}`;
       
       const response = await fetch(url);
       if (!response.ok) {

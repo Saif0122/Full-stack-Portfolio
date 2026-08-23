@@ -4,6 +4,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import DOMPurify from 'isomorphic-dompurify';
 import { BlogPost } from '@/types/blog';
 
 const MermaidDiagram = dynamic(() => import('./MermaidDiagram').then((mod) => mod.MermaidDiagram), {
@@ -22,7 +23,7 @@ export const ArticleBody: React.FC<ArticleBodyProps> = ({ post }) => {
           {post.markdownContent}
         </ReactMarkdown>
       ) : (
-        <div dangerouslySetInnerHTML={{ __html: post.content }} />
+        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }} />
       )}
 
       {post.mermaidDiagram && (

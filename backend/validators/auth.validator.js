@@ -1,22 +1,16 @@
-/**
- * Middleware to validate registration input
- * Normally you would use a library like Joi or Zod here.
- */
-export const validateRegistration = (req, res, next) => {
-  const { name, email, password } = req.body;
-  const errors = [];
+import Joi from 'joi';
+import validate from '../middleware/validate.middleware.js';
 
-  if (!name) errors.push('Name is required');
-  if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.push('Valid email is required');
-  if (!password || password.length < 6) errors.push('Password must be at least 6 characters');
+const registerSchema = Joi.object({
+  name: Joi.string().min(2).max(50).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).max(128).required(),
+});
 
-  if (errors.length > 0) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Validation failed',
-      errors
-    });
-  }
+const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+});
 
-  next();
-};
+export const validateRegistration = validate(registerSchema);
+export const validateLogin = validate(loginSchema);

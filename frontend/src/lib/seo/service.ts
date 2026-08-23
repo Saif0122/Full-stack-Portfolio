@@ -11,7 +11,7 @@
 import type { SeoOptions, DbSeoRecord } from './types';
 import { SEO_CONFIG, PAGE_SEO_DEFAULTS, CANONICAL_DOMAIN } from './config';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
 
 // ─── Fetch Helpers ────────────────────────────────────────────────────────────
 

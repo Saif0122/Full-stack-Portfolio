@@ -20,7 +20,7 @@ export const BLOG_POSTS: BlogPost[] = [
     author: {
       name: 'Saiful Islam',
       role: 'Principal Software Architect',
-      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
+      avatarUrl: 'https://ui-avatars.com/api/?name=Saiful+Islam&background=0A0F1C&color=00F5FF&size=200'
     },
     coverImage: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&q=80&w=1600',
     content: `<h2>Mastering the ESR Rule</h2><p>In high-velocity MERN systems, the database often becomes the primary bottleneck. To scale MongoDB to handle 1M+ active users, we must move beyond basic CRUD and implement the <strong>Equality, Sort, Range (ESR)</strong> rule for index design.</p><h3>Compound Index Optimization</h3><p>A compound index <code>{ status: 1, created_at: -1, price: 1 }</code> is optimized when the equality field comes first, followed by the sort order, and finally the range filter. This prevents large-scale collection scans and minimizes the "Scanned / Returned" ratio.</p><h3>Sharding and Partitioning</h3><p>Horizontal scaling via sharding requires a robust <strong>Shard Key</strong> strategy. Hashing the <code>tenant_id</code> or <code>user_id</code> ensures an even distribution of data across chunks, preventing "Hot Shards" in write-heavy applications.</p>`,
@@ -73,7 +73,7 @@ Horizontal scaling via sharding requires a robust **Shard Key** strategy. Hashin
     author: {
       name: 'Saiful Islam',
       role: 'Principal Software Architect',
-      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
+      avatarUrl: 'https://ui-avatars.com/api/?name=Saiful+Islam&background=0A0F1C&color=00F5FF&size=200'
     },
     coverImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=1600',
     content: `<h2>The Challenge of Multi-Tenancy</h2><p>Multi-tenancy is the backbone of modern SaaS. Whether you choose <strong>Logical Isolation</strong> (shared database) or <strong>Physical Isolation</strong> (separate databases), the goal remains the same: ensure no data leakage between customers.</p><h3>The Tenant Context Middleware</h3><p>In Node.js, we utilize <code>AsyncLocalStorage</code> or custom middleware to inject the <code>tenantId</code> into every database request. This creates a "Tenant Sandbox" where the application logic automatically filters results based on the authenticated context.</p><h3>Dynamic RBAC Implementation</h3><p>Scaling permissions requires a robust Role-Based Access Control (RBAC) engine. By storing permissions in a Redis cache, we can verify authorization in sub-5ms without taxing the primary database.</p>`,
@@ -126,7 +126,7 @@ Scaling permissions requires a robust Role-Based Access Control (RBAC) engine. B
     author: {
       name: 'Saiful Islam',
       role: 'Principal Software Architect',
-      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
+      avatarUrl: 'https://ui-avatars.com/api/?name=Saiful+Islam&background=0A0F1C&color=00F5FF&size=200'
     },
     coverImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1600',
     content: `<h2>Architecting for the Future</h2><p>High-performance MERN architecture is no longer about just connecting four technologies. It is about <strong>Distributed Systems Design</strong>. In this first part, we focus on the foundation: Hexagonal Architecture (Ports and Adapters) in Node.js.</p><h3>Why Hexagonal?</h3><p>By decoupling your business logic from external drivers like MongoDB or Express, you make your system highly testable and resilient to technology swaps. Your "Core Domain" becomes a pure JavaScript engine that doesn't care about the HTTP layer.</p>`,
@@ -168,7 +168,7 @@ By decoupling your business logic from external drivers like MongoDB or Express,
     author: {
       name: 'Saiful Islam',
       role: 'Principal Software Architect',
-      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
+      avatarUrl: 'https://ui-avatars.com/api/?name=Saiful+Islam&background=0A0F1C&color=00F5FF&size=200'
     },
     coverImage: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=1600',
     content: `<h2>The Shift to Agentic Systems</h2><p>In 2026, we have moved past simple prompt wrappers. Enterprise applications now require <strong>Agentic Workflows</strong> where LLMs have autonomous access to tools, databases, and APIs.</p><h3>Tool Calling vs Autonomous Action</h3><p>The architectural gap between a chatbot and an autonomous agent is the <strong>Tool Abstraction Layer</strong>. By wrapping legacy REST APIs into strictly typed schemas (like JSON Schema or Zod), we enable models like GPT-4o and Claude 3.5 Sonnet to execute multi-step backend operations autonomously.</p>`,

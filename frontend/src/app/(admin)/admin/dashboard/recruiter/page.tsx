@@ -12,7 +12,7 @@ export default function RecruiterDashboardPage() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/analytics/recruiter');
+        const res = await axios.get('https://full-stack-portfolio-1-m5b1.onrender.com/api/analytics/recruiter');
         if (res.data.success) {
           setData(res.data.data);
         }

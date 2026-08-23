@@ -6,7 +6,7 @@ module.exports = {
   collectCoverageFrom: [
     'controllers/**/*.js',
     'services/**/*.js',
-    'middlewares/**/*.js',
+    'middleware/**/*.js',
     'utils/**/*.js'
   ],
   coverageThreshold: {

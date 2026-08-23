@@ -13,7 +13,7 @@ export default function SystemHealthPage() {
   const fetchHealth = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/health');
+      const res = await axios.get('https://full-stack-portfolio-1-m5b1.onrender.com/api/health');
       setHealthData(res.data);
       setLastChecked(new Date().toLocaleTimeString());
     } catch (error: any) {

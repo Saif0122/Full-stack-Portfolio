@@ -1,8 +1,19 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api',
   withCredentials: true, // Important for cookies
+});
+
+// Request interceptor for CSRF token
+api.interceptors.request.use((config) => {
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.match(new RegExp('(^| )csrf-token=([^;]+)'));
+    if (match) {
+      config.headers['X-CSRF-Token'] = match[2];
+    }
+  }
+  return config;
 });
 
 // Response interceptor to handle token refresh

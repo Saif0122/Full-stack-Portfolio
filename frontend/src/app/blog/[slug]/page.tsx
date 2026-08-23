@@ -6,8 +6,7 @@ import { CLUSTERS } from '@/constants/blog';
 import { BlogPostView } from './BlogPostView';
 import { generatePageMetadata, generateJsonLdScript } from '@/lib/seo/helpers';
 import { mergeSeoOptions } from '@/lib/seo/service';
-import { buildArticleSchema } from '@/lib/seo/schemas/article.schema';
-import { blogPostBreadcrumb } from '@/lib/seo/schemas/breadcrumb.schema';
+import { StructuredData } from '@/components/seo/StructuredData';
 import { CANONICAL_DOMAIN } from '@/lib/seo/config';
 
 export const revalidate = 60;
@@ -60,27 +59,18 @@ export default async function BlogPostPage({ params }: PageProps) {
   const cluster = CLUSTERS.find(c => c.id === post.clusterId) || null;
   const clusterPosts = allPosts.filter(p => p.clusterId === post.clusterId);
 
-  // JSON-LD schemas
-  const articleSchema = buildArticleSchema({
-    title: post.title,
-    description: post.excerpt || '',
-    slug: post.slug,
-    coverImage: post.coverImage,
-    authorName: post.author?.name,
-    authorUrl: `${CANONICAL_DOMAIN}/about`,
-    datePublished: post.date,
-    dateModified: post.updatedAt,
-    keywords: post.tags,
-    readTimeMinutes: post.readTime ? parseInt(post.readTime, 10) : undefined,
-    category: post.category,
-    isTechnical: true,
-  });
-
-  const breadcrumbSchema = blogPostBreadcrumb(post.title, post.slug);
-
   return (
     <>
-      <script {...generateJsonLdScript([articleSchema, breadcrumbSchema])} />
+      <StructuredData type="BlogPosting" id={post.id} />
+      <StructuredData type="BreadcrumbList" data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: CANONICAL_DOMAIN },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: `${CANONICAL_DOMAIN}/blog` },
+          { '@type': 'ListItem', position: 3, name: post.title, item: `${CANONICAL_DOMAIN}/blog/${post.slug}` }
+        ]
+      }} />
       <BlogPostView post={post} cluster={cluster} clusterPosts={clusterPosts} />
     </>
   );

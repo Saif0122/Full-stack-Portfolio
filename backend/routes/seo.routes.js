@@ -11,6 +11,7 @@ import {
   validateAllConfigs,
   getVersionHistory,
 } from '../controllers/seo.controller.js';
+import { getAggregatedKeywords } from '../controllers/keyword-manager.controller.js';
 import { protect, restrictTo } from '../middleware/auth.middleware.js';
 
 const router = Router();
@@ -29,6 +30,7 @@ router.put('/global',     updateGlobalDefaults); // PUT  /api/seo/global
 router.post('/validate',  validateAllConfigs);   // POST /api/seo/validate  (run SEO scan)
 router.get('/sitemap',    getSitemapManifest);   // GET  /api/seo/sitemap
 router.get('/scan',       scanBrokenLinks);      // GET  /api/seo/scan
+router.get('/keywords',   getAggregatedKeywords); // GET /api/seo/keywords
 router.get('/:path/versions', getVersionHistory); // GET /api/seo/:path/versions
 router.delete('/:path',   deleteConfig);         // DELETE /api/seo/:path
 

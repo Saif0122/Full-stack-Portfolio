@@ -3,7 +3,7 @@ import { CANONICAL_DOMAIN, SEO_CONFIG } from '@/lib/seo/config';
 
 export const revalidate = 3600; // Cache for 1 hour
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
 
 async function safeFetch<T>(url: string): Promise<T[]> {
   try {

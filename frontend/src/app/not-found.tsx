@@ -10,7 +10,7 @@ export default function NotFound() {
 
   useEffect(() => {
     if (pathname) {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
       fetch(`${apiUrl}/redirects/404`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

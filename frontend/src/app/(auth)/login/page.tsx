@@ -43,7 +43,7 @@ function LoginContent() {
   };
 
   const handleOAuth = (provider: 'google' | 'github') => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/${provider}`;
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api'}/auth/${provider}`;
   };
 
   return (
@@ -69,9 +69,9 @@ function LoginContent() {
           <div>
             <div className="flex justify-between mb-1">
               <label className="block text-sm font-medium text-gray-300">Password</label>
-              <Link href="/forgot-password" className="text-sm text-blue-400 hover:text-blue-300">
+              {/* <Link href="/forgot-password" className="text-sm text-blue-400 hover:text-blue-300">
                 Forgot password?
-              </Link>
+              </Link> */}
             </div>
             <input
               type="password"

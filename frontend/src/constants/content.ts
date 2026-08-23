@@ -18,11 +18,11 @@ export const SERVICES: Service[] = [
 // Blog posts migrated to constants/blog.ts
 
 
-//Skills fata starting
+//Skills data starting
 
 export const SKILLS: Skill[] = [
   { name: 'MERN Stack', category: 'backend', level: 98 },
-  { name: 'Next.js 15', category: 'frontend', level: 95 },
+  { name: 'Next.js 16', category: 'frontend', level: 95 },
   { name: 'SaaS Architecture', category: 'backend', level: 90 },
   { name: 'MongoDB Optimization', category: 'backend', level: 88 },
   { name: 'Cloud & DevOps', category: 'devops', level: 85 },
@@ -109,11 +109,11 @@ export const PRICING_PLANS: PricingPlan[] = [
 //Testimonial data starting here
 
 export const TESTIMONIALS: Testimonial[] = [
-  { name: 'Alex Rivera', role: 'CEO', company: 'FinTech Cloud', quote: 'Saifuls expertise in SaaS application development saved us months. His multi-tenant architecture is world-class.', rating: 5 },
-  { name: 'Sarah Chen', role: 'CTO', company: 'StreamLine', quote: 'The real-time messaging engine he built handles our massive traffic perfectly. A true MongoDB expert.', rating: 5 },
-  { name: 'Michael Vogt', role: 'VP Engineering', company: 'GlobalSync', quote: 'Professional MERN stack developer. Our custom web development project was delivered with zero bottlenecks.', rating: 5 },
-  { name: 'Jessica Miller', role: 'Founder', company: 'HealthNode', quote: 'Exceptional API development services. Security and performance were handled with extreme precision.', rating: 5 },
-  { name: 'David Park', role: 'Director', company: 'EduCore', quote: 'Surgical cloud deployment on AWS. Saiful is a senior full stack engineer who understands business scale.', rating: 5 }
+  { name: 'Alex Rivera', role: 'CEO', company: 'FinTech Cloud [Demo]', quote: 'Saiful\'s expertise in SaaS application development saved us months. His multi-tenant architecture is world-class.', rating: 5 },
+  { name: 'Sarah Chen', role: 'CTO', company: 'StreamLine [Demo]', quote: 'The real-time messaging engine he built handles our massive traffic perfectly. A true MongoDB expert.', rating: 5 },
+  { name: 'Michael Vogt', role: 'VP Engineering', company: 'GlobalSync [Demo]', quote: 'Professional MERN stack developer. Our custom web development project was delivered with zero bottlenecks.', rating: 5 },
+  { name: 'Jessica Miller', role: 'Founder', company: 'HealthNode [Demo]', quote: 'Exceptional API development services. Security and performance were handled with extreme precision.', rating: 5 },
+  { name: 'David Park', role: 'Director', company: 'EduCore [Demo]', quote: 'Surgical cloud deployment on AWS. Saiful is a senior full stack engineer who understands business scale.', rating: 5 }
 ];
 
 export const FAQS: FAQItem[] = [

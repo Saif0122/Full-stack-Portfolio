@@ -3,7 +3,7 @@ import { CANONICAL_DOMAIN, SITEMAP_CONFIG } from '@/lib/seo/config';
 
 export const revalidate = 3600; // Revalidate sitemap every hour
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -53,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
   // ── Dynamic Projects ───────────────────────────────────────────────
-  const projects = await safeFetch<any>(`${API_BASE}/v1/projects?status=published&limit=200`);
+  const projects = await safeFetch<any>(`${API_BASE}/projects?status=published&limit=200`);
   const projectRoutes: SitemapEntry[] = projects
     .filter((p: any) => p.slug)
     .map((project: any) => ({

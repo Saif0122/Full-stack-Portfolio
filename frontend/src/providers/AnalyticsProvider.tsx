@@ -59,7 +59,7 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       });
       
       try {
-        navigator.sendBeacon('http://localhost:5000/api/analytics/session/end', new Blob([data], { type: 'application/json' }));
+        navigator.sendBeacon('https://full-stack-portfolio-1-m5b1.onrender.com/api/analytics/session/end', new Blob([data], { type: 'application/json' }));
       } catch (e) {
         // Fallback or ignore
       }
@@ -73,7 +73,7 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const trackEvent = async (event: string, properties: Record<string, any> = {}) => {
     try {
-      await axios.post('http://localhost:5000/api/analytics/track', {
+      await axios.post('https://full-stack-portfolio-1-m5b1.onrender.com/api/analytics/track', {
         sessionId: sessionId.current,
         visitorId: visitorId.current,
         event,

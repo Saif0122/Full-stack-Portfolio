@@ -12,7 +12,7 @@ const BlogAnalyticsTab = () => {
   const [data, setData] = useState<any>(null);
   
   useEffect(() => {
-    axios.get('http://localhost:5000/api/analytics/blog').then(res => {
+    axios.get('https://full-stack-portfolio-1-m5b1.onrender.com/api/analytics/blog').then(res => {
       if (res.data.success) setData(res.data.data);
     }).catch(console.error);
   }, []);

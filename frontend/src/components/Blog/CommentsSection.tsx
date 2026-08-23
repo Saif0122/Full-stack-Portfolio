@@ -32,7 +32,7 @@ export const CommentsSection: React.FC<{ postId: string }> = ({ postId }) => {
     queryKey: ['comments', postId],
     queryFn: async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/comments/post/${postId}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api'}/comments/post/${postId}`);
         if (!res.ok) throw new Error('Failed to fetch comments');
         const data = await res.json();
         return data.data;
@@ -45,7 +45,7 @@ export const CommentsSection: React.FC<{ postId: string }> = ({ postId }) => {
   const postCommentMutation = useMutation({
     mutationFn: async ({ content, parentComment }: { content: string, parentComment?: string }) => {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/comments/post/${postId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api'}/comments/post/${postId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

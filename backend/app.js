@@ -21,6 +21,11 @@ import ordersRoutes from './routes/orders.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import seoRoutes from './routes/seo.routes.js';
+import aiProductSeoRoutes from './routes/ai-product-seo.routes.js';
+import aiApprovalRoutes from './routes/ai-approval.routes.js';
+import aiSettingsRoutes from './routes/ai-settings.routes.js';
+import marketplaceSeoRoutes from './routes/marketplace-seo.routes.js';
+import productsRoutes from './routes/products.routes.js';
 import widgetRoutes from './routes/dashboard-widget.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import messageRoutes from './routes/message.routes.js';
@@ -29,17 +34,27 @@ import usersRoutes from './routes/users.routes.js';
 import commentRoutes from './routes/comment.routes.js';
 import healthRoutes from './routes/health.routes.js';
 import exportRoutes from './routes/export.routes.js';
+import redirectRoutes from './routes/redirect.routes.js';
+import schemaConfigRoutes from './routes/schema-config.routes.js';
+import schemaRoutes from './routes/schema.routes.js';
+import localSeoRoutes from './routes/local-seo.routes.js';
+import mediaSeoRoutes from './routes/media-seo.routes.js';
+import internalLinkingRoutes from './routes/internal-linking.routes.js';
+import analyticsIntegrationRoutes from './routes/analytics-integration.routes.js';
 import { config } from './config/env.config.js';
+import helmet from 'helmet';
+import { generateCsrfToken, verifyCsrfToken } from './middleware/csrf.middleware.js';
 
 const app = express();
+app.use(helmet());
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN || "https://example@sentry.io/123", // fallback
+  dsn: process.env.SENTRY_DSN,
   integrations: [
     nodeProfilingIntegration(),
   ],
-  tracesSampleRate: 1.0,
-  profilesSampleRate: 1.0,
+  tracesSampleRate: 0.1,
+  profilesSampleRate: 0.1,
 });
 
 Sentry.setupExpressErrorHandler(app);
@@ -63,9 +78,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(generateCsrfToken);
+app.use(verifyCsrfToken);
 app.use(passport.initialize());
 
-import redirectRoutes from './routes/redirect.routes.js';
+
+
 
 // API Routes
 app.use('/api/health', healthRoutes);
@@ -86,6 +104,11 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/seo', seoRoutes);
+app.use('/api/marketplace-seo', marketplaceSeoRoutes);
+app.use('/api/ai-product-seo', aiProductSeoRoutes);
+app.use('/api/ai-approval', aiApprovalRoutes);
+app.use('/api/ai-settings', aiSettingsRoutes);
+app.use('/api/products', productsRoutes);
 app.use('/api/dashboard-widgets', widgetRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/messages', messageRoutes);
@@ -93,6 +116,12 @@ app.use('/api/newsletters', newsletterRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/redirects', redirectRoutes);
+app.use('/api/schema-config', schemaConfigRoutes);
+app.use('/api/schema', schemaRoutes);
+app.use('/api/local-seo', localSeoRoutes);
+app.use('/api/media-seo', mediaSeoRoutes);
+app.use('/api/internal-linking', internalLinkingRoutes);
+app.use('/api/analytics-integration', analyticsIntegrationRoutes);
 
 // 404 Route Not Found Middleware
 app.use((req, res, next) => {

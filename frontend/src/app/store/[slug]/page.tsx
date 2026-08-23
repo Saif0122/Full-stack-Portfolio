@@ -7,8 +7,8 @@ import { fetchProductBySlug, fetchAllProducts } from '@/services/store.service';
 import LiveDataRefresher from '@/components/LiveDataRefresher';
 import { generatePageMetadata, generateJsonLdScript } from '@/lib/seo/helpers';
 import { mergeSeoOptions } from '@/lib/seo/service';
-import { buildProductSchema } from '@/lib/seo/schemas/product.schema';
-import { productBreadcrumb } from '@/lib/seo/schemas/breadcrumb.schema';
+import { StructuredData } from '@/components/seo/StructuredData';
+import { CANONICAL_DOMAIN } from '@/lib/seo/config';
 
 export const revalidate = 60;
 
@@ -52,26 +52,19 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   const isMockData = !!product._isMock;
 
-  // JSON-LD schemas
-  const productSchema = buildProductSchema({
-    title: product.title,
-    description: product.description,
-    slug: product.slug,
-    thumbnail: product.thumbnail,
-    price: product.price,
-    salePrice: product.salePrice,
-    rating: product.rating,
-    reviewCount: product.reviewCount,
-    features: product.features,
-    technologies: product.technologies,
-    isActive: true,
-  });
-
-  const breadcrumbSchema = productBreadcrumb(product.title, product.slug, product.category);
-
   return (
     <>
-      <script {...generateJsonLdScript([productSchema, breadcrumbSchema])} />
+      <StructuredData type="Product" id={product.id} />
+      <StructuredData type="BreadcrumbList" data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: CANONICAL_DOMAIN },
+          { '@type': 'ListItem', position: 2, name: 'Store', item: `${CANONICAL_DOMAIN}/store` },
+          { '@type': 'ListItem', position: 3, name: product.category, item: `${CANONICAL_DOMAIN}/store?category=${product.category}` },
+          { '@type': 'ListItem', position: 4, name: product.title, item: `${CANONICAL_DOMAIN}/store/${product.slug}` }
+        ]
+      }} />
       <LiveDataRefresher isMockData={isMockData} />
       <div className="min-h-screen pt-32 pb-24">
         <div className="container mx-auto px-4">

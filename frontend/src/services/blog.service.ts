@@ -2,7 +2,7 @@ import { BlogPost } from '@/types/blog';
 import { BLOG_POSTS } from '@/constants/blog';
 import { fetchWithTimeout } from '@/utils/fetch';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api';
 
 export async function fetchAllPosts(): Promise<BlogPost[]> {
   try {

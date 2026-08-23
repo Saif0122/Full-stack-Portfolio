@@ -1,4 +1,7 @@
 import * as authService from '../services/auth.service.js';
+import jwt from 'jsonwebtoken';
+import { config } from '../config/env.config.js';
+import Token from '../models/token.model.js';
 
 const setCookies = (res, accessToken, refreshToken) => {
   res.cookie('jwt', accessToken, {
@@ -131,9 +134,6 @@ export const getMe = async (req, res, next) => {
   }
 };
 
-import jwt from 'jsonwebtoken';
-import { config } from '../config/env.config.js';
-import Token from '../models/token.model.js';
 
 /**
  * @desc Handle OAuth login success

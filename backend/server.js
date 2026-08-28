@@ -41,10 +41,19 @@ const connectDB = async () => {
       logger.warn('MongoDB disconnected. Attempting to reconnect...');
     });
     
-    // Run the seeders only in development to prevent production data overwrite
+    // Run the seeders automatically in development
     if (config.env !== 'production') {
       await seedDatabase();
       await seedPortfolio();
+    } else {
+      // In production, ensure the admin user exists
+      const User = (await import('./models/user.model.js')).default;
+      const adminExists = await User.findOne({ email: 'admin@example.com' });
+      if (!adminExists) {
+        logger.info('Admin user missing in production. Running seeder to create default roles and admin...');
+        await seedDatabase();
+        await seedPortfolio();
+      }
     }
   } catch (error) {
     logger.error(`Database Connection Error: ${error.message}`);

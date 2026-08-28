@@ -7,7 +7,7 @@ const setCookies = (res, accessToken, refreshToken) => {
   res.cookie('jwt', accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 15 * 60 * 1000, // 15 mins
   });
 
@@ -15,7 +15,7 @@ const setCookies = (res, accessToken, refreshToken) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
   }
@@ -75,8 +75,18 @@ export const logout = async (req, res, next) => {
     
     await authService.logoutUser(refreshToken);
 
-    res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
-    res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) });
+    res.cookie('jwt', '', { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      expires: new Date(0) 
+    });
+    res.cookie('refreshToken', '', { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      expires: new Date(0) 
+    });
 
     res.status(200).json({ status: 'success', message: 'Logged out successfully' });
   } catch (error) {
@@ -100,14 +110,24 @@ export const refresh = async (req, res, next) => {
     res.cookie('jwt', result.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 15 * 60 * 1000,
     });
 
     res.status(200).json({ status: 'success' });
   } catch (error) {
-    res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
-    res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) });
+    res.cookie('jwt', '', { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      expires: new Date(0) 
+    });
+    res.cookie('refreshToken', '', { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      expires: new Date(0) 
+    });
     res.status(401).json({ message: 'Refresh token failed' });
   }
 };
@@ -158,14 +178,14 @@ export const oauthCallback = async (req, res) => {
   res.cookie('jwt', accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 15 * 60 * 1000,
   });
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 

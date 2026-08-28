@@ -3,7 +3,7 @@
 import { Product } from '@/types/store';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/lib/api';
+import api from '@/services/api.client';
 
 interface ProductPricingProps {
   product: Product;

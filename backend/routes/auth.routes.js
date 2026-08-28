@@ -26,6 +26,7 @@ router.post('/register', authLimiter, validateRegistration, register);
  * @access Public
  */
 router.post('/login', authLimiter, validateLogin, login);
+router.get('/csrf', (req, res) => res.json({ csrfToken: req.csrfToken }));
 router.post('/logout', logout);
 router.post('/refresh', refresh);
 router.get('/me', protect, getMe);

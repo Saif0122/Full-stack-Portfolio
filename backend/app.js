@@ -79,7 +79,8 @@ app.use(cors({
     error.status = 403;
     return callback(error, false);
   },
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['X-CSRF-Token']
 }));
 app.use(express.json({
   verify: (req, res, buf) => {

@@ -5,20 +5,38 @@ const api = axios.create({
   withCredentials: true, // Important for cookies
 });
 
+let currentCsrfToken = '';
+
 // Request interceptor for CSRF token
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config) => {
   if (typeof document !== 'undefined') {
+    const requiresCsrf = ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '');
     const match = document.cookie.match(new RegExp('(^| )csrf-token=([^;]+)'));
-    if (match) {
-      config.headers['X-CSRF-Token'] = match[2];
+    let token = match ? match[2] : currentCsrfToken;
+
+    if (requiresCsrf && !token && config.url !== '/auth/csrf') {
+      try {
+        const res = await axios.get(`${config.baseURL}/auth/csrf`, { withCredentials: true });
+        token = res.data.csrfToken;
+        currentCsrfToken = token;
+      } catch(e) {}
+    }
+
+    if (token) {
+      config.headers['X-CSRF-Token'] = token;
     }
   }
   return config;
 });
 
-// Response interceptor to handle token refresh
+// Response interceptor to handle token refresh and CSRF token extraction
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.headers['x-csrf-token']) {
+      currentCsrfToken = response.headers['x-csrf-token'];
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 

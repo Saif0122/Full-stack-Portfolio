@@ -6,6 +6,8 @@ import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import dynamic from 'next/dynamic';
 
+import { CookieConsent } from '../ui';
+
 const FloatingAssistant = dynamic(
   () => import('../AIChat/FloatingAssistant').then((mod) => mod.FloatingAssistant),
   { ssr: false } // Prevent SSR to avoid hydration issues with AI state
@@ -35,6 +37,8 @@ export const ClientLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ c
       </main>
       <Footer />
       <FloatingAssistant />
+      <CookieConsent />
     </div>
   );
 };
+

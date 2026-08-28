@@ -37,7 +37,8 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         // Refresh token failed (e.g., expired) - user needs to login again
-        if (typeof window !== 'undefined') {
+        // We do NOT dispatch this for '/auth/me' to prevent redirecting unauthenticated users visiting public pages
+        if (typeof window !== 'undefined' && originalRequest.url !== '/auth/me') {
           // You could trigger a custom event here that AuthProvider listens to
           window.dispatchEvent(new Event('auth:unauthorized'));
         }

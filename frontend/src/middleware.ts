@@ -52,11 +52,12 @@ export async function middleware(request: NextRequest) {
   const nonce = crypto.randomUUID();
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${process.env.NODE_ENV === 'development' ? "'unsafe-eval'" : ""};
-    style-src 'self' 'unsafe-inline' fonts.googleapis.com;
-    img-src 'self' data: blob: https://picsum.photos https://images.unsplash.com https://unsplash.com;
-    font-src 'self' fonts.gstatic.com;
-    connect-src 'self' generativelanguage.googleapis.com https://full-stack-portfolio-1-m5b1.onrender.com;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://js.stripe.com https://*.sentry.io;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    img-src 'self' data: blob: https://picsum.photos https://images.unsplash.com https://unsplash.com https://*.googleusercontent.com https://res.cloudinary.com https://*.stripe.com;
+    font-src 'self' data: https://fonts.gstatic.com;
+    connect-src 'self' https://generativelanguage.googleapis.com https://full-stack-portfolio-1-m5b1.onrender.com wss://full-stack-portfolio-1-m5b1.onrender.com https://*.sentry.io https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://api.stripe.com;
+    frame-src 'self' https://js.stripe.com https://hooks.stripe.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';

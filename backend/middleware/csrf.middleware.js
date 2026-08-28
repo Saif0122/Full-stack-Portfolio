@@ -1,16 +1,14 @@
 import crypto from 'crypto';
 
 export const generateCsrfToken = (req, res, next) => {
-  let token = req.cookies['csrf-token'];
-  if (!token) {
-    token = crypto.randomBytes(32).toString('hex');
+  if (!req.cookies['csrf-token']) {
+    const token = crypto.randomBytes(32).toString('hex');
     res.cookie('csrf-token', token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      sameSite: 'strict',
     });
   }
-  req.csrfToken = token;
   next();
 };
 

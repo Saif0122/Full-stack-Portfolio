@@ -1,39 +1,16 @@
 import axios from 'axios';
 
-const baseURL = typeof window !== 'undefined' 
-  ? '/api/v1' 
-  : (process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api');
-
 const api = axios.create({
-  baseURL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api',
   withCredentials: true, // Important for cookies
 });
 
-let csrfToken: string | null = null;
-
-// Helper to fetch the CSRF token
-export const fetchCsrfToken = async () => {
-  try {
-    const res = await axios.get(`${api.defaults.baseURL}/auth/csrf`, {
-      withCredentials: true,
-    });
-    if (res.data?.csrfToken) {
-      csrfToken = res.data.csrfToken;
-    }
-  } catch (error) {
-    console.error('Failed to fetch CSRF token', error);
-  }
-};
-
 // Request interceptor for CSRF token
-api.interceptors.request.use(async (config) => {
-  // Only attach to mutation methods
-  if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
-    if (!csrfToken) {
-      await fetchCsrfToken();
-    }
-    if (csrfToken) {
-      config.headers['X-CSRF-Token'] = csrfToken;
+api.interceptors.request.use((config) => {
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.match(new RegExp('(^| )csrf-token=([^;]+)'));
+    if (match) {
+      config.headers['X-CSRF-Token'] = match[2];
     }
   }
   return config;
@@ -60,8 +37,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         // Refresh token failed (e.g., expired) - user needs to login again
-        // We do NOT dispatch this for '/auth/me' to prevent redirecting unauthenticated users visiting public pages
-        if (typeof window !== 'undefined' && originalRequest.url !== '/auth/me') {
+        if (typeof window !== 'undefined') {
           // You could trigger a custom event here that AuthProvider listens to
           window.dispatchEvent(new Event('auth:unauthorized'));
         }

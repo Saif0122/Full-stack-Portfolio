@@ -71,7 +71,13 @@ app.use(cors({
     if (config.env !== 'production' && origin.startsWith('http://localhost:')) {
       return callback(null, true);
     }
-    return callback(new Error('CORS policy violation: Origin not allowed'), false);
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    const error = new Error('CORS policy violation: Origin not allowed');
+    error.status = 403;
+    return callback(error, false);
   },
   credentials: true
 }));
@@ -145,8 +151,9 @@ import logger from './utils/logger.js';
 
 // Global Error Handler Middleware
 app.use((err, req, res, next) => {
-  logger.error(`[${req.method}] ${req.originalUrl} >> StatusCode: ${res.statusCode}, Message: ${err.message}`, { stack: err.stack });
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  const statusCode = err.status || err.statusCode || (res.statusCode === 200 ? 500 : res.statusCode);
+  logger.error(`[${req.method}] ${req.originalUrl} >> StatusCode: ${statusCode}, Message: ${err.message}`, { stack: err.stack });
+  
   
   // In production, sanitize 500 Internal Server Error messages to prevent leakage
   let message = err.message;

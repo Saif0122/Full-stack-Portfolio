@@ -19,20 +19,22 @@ export class ProductService {
       // Seed Categories matching constants
       const catBoiler = await Category.findOneAndUpdate({ name: 'SaaS Boilerplates' }, { name: 'SaaS Boilerplates', slug: 'boilerplates' }, { upsert: true, new: true });
       const catUI = await Category.findOneAndUpdate({ name: 'UI Kits & Components' }, { name: 'UI Kits & Components', slug: 'ui-kits' }, { upsert: true, new: true });
+      const catTools = await Category.findOneAndUpdate({ name: 'Tools & Resources' }, { name: 'Tools & Resources', slug: 'tools' }, { upsert: true, new: true });
+      const catTemplates = await Category.findOneAndUpdate({ name: 'Next.js Templates' }, { name: 'Next.js Templates', slug: 'templates' }, { upsert: true, new: true });
 
       // Seed Products
       await Product.create([
         {
           slug: 'nexus-saas-boilerplate',
           title: 'Nexus SaaS Boilerplate',
-          description: 'The ultimate Next.js SaaS boilerplate with authentication, payments, dashboard, and clean architecture built-in. Launch your startup in days, not months.',
+          description: 'The ultimate Next.js SaaS boilerplate with authentication, payments, dashboard, and clean architecture built-in. Launch your startup in days, not months. Nexus provides everything you need to build and scale your next big idea, from Stripe subscriptions to Clerk authentication and Prisma ORM integrations.',
           shortDescription: 'Enterprise-grade Next.js SaaS Boilerplate',
           price: 199,
           salePrice: 149,
           category: catBoiler._id,
           features: [
             'Next.js 14 App Router',
-            'Stripe Subscriptions',
+            'Stripe Subscriptions & Webhooks',
             'Clerk Authentication',
             'Prisma ORM & PostgreSQL',
             'Tailwind CSS & Shadcn UI',
@@ -42,8 +44,8 @@ export class ProductService {
           ],
           technologies: ['Next.js', 'React', 'TypeScript', 'Tailwind', 'Prisma', 'Stripe'],
           version: '2.1.0',
-          images: [{ url: '/images/store/nexus-1.jpg' }, { url: '/images/store/nexus-2.jpg' }],
-          thumbnail: '/images/store/nexus-thumb.jpg',
+          images: [{ url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80' }],
+          thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
           rating: 4.9,
           reviewCount: 128,
           isPopular: true,
@@ -52,25 +54,75 @@ export class ProductService {
         {
           slug: 'chroma-ui-kit',
           title: 'Chroma UI Kit',
-          description: 'A premium, beautifully designed UI kit for modern web applications. Features 100+ accessible components built on top of Radix UI and Tailwind CSS.',
+          description: 'A premium, beautifully designed UI kit for modern web applications. Features 100+ accessible components built on top of Radix UI and Tailwind CSS. Stop wasting time building standard components from scratch. Chroma provides beautifully animated, fully accessible elements that will make your application look professionally designed.',
           shortDescription: 'Premium React UI Component Library',
           price: 79,
           category: catUI._id,
           features: [
-            '100+ Components',
-            'Figma Files Included',
-            'Fully Accessible (WCAG)',
+            '100+ Hand-crafted Components',
+            'Figma Source Files Included',
+            'Fully Accessible (WCAG 2.1 AA)',
             'Dark Mode Optimized',
-            'Framer Motion Animations',
+            'Fluid Framer Motion Animations',
             'Copy & Paste Ready'
           ],
-          technologies: ['React', 'Tailwind', 'Framer Motion', 'Radix UI'],
+          technologies: ['React', 'Tailwind CSS', 'Framer Motion', 'Radix UI'],
           version: '1.4.0',
-          images: [{ url: '/images/store/chroma-1.jpg' }],
-          thumbnail: '/images/store/chroma-thumb.jpg',
+          images: [{ url: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=1200&q=80' }],
+          thumbnail: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=800&q=80',
           rating: 4.8,
           reviewCount: 84,
           isNewBadge: true,
+          isActive: true
+        },
+        {
+          slug: 'ai-prompt-engineer-pro',
+          title: 'AI Prompt Engineer Pro',
+          description: 'A comprehensive Notion database and video course teaching you how to master LLMs. Discover the exact frameworks used by AI engineers to consistently generate high-quality outputs from Claude, GPT-4, and Gemini. Includes over 500+ tested prompt templates for marketing, coding, and productivity.',
+          shortDescription: 'Master LLMs with 500+ Tested Prompts & Course',
+          price: 49,
+          salePrice: 29,
+          category: catTools._id,
+          features: [
+            '500+ Copy-paste Prompt Templates',
+            '3 Hours of Video Masterclasses',
+            'Notion Database Integration',
+            'Chain-of-Thought Frameworks',
+            'Few-shot Prompting Guides',
+            'Lifetime Updates & New Prompts'
+          ],
+          technologies: ['Notion', 'OpenAI', 'Anthropic', 'Midjourney'],
+          version: '1.0.0',
+          images: [{ url: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80' }],
+          thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80',
+          rating: 5.0,
+          reviewCount: 312,
+          isPopular: true,
+          isActive: true
+        },
+        {
+          slug: 'velocity-ecommerce-theme',
+          title: 'Velocity E-Commerce Theme',
+          description: 'The fastest, most conversion-optimized Shopify theme on the market. Velocity loads in under 1 second, features a flawless mobile checkout experience, and integrates beautifully with Shopify 2.0 sections. Perfect for modern D2C brands looking to scale their revenue.',
+          shortDescription: 'High-Converting Headless Shopify Theme',
+          price: 249,
+          salePrice: 199,
+          category: catTemplates._id,
+          features: [
+            'Sub-second Page Loads',
+            'Conversion Optimized Checkout',
+            'Shopify 2.0 Section Everywhere',
+            'Built-in Mega Menus',
+            'Color Swatches & Variant Pickers',
+            'Predictive Search',
+            '6 Months Premium Support'
+          ],
+          technologies: ['Shopify Liquid', 'Alpine.js', 'Tailwind CSS', 'GraphQL'],
+          version: '3.0.2',
+          images: [{ url: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&w=1200&q=80' }],
+          thumbnail: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?auto=format&fit=crop&w=800&q=80',
+          rating: 4.7,
+          reviewCount: 45,
           isActive: true
         }
       ]);

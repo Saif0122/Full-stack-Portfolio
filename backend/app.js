@@ -75,7 +75,14 @@ app.use(cors({
   },
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    // Required for Stripe webhook signature validation
+    if (req.originalUrl.startsWith('/api/checkout/webhook') || req.originalUrl.startsWith('/api/payments/webhook')) {
+      req.rawBody = buf;
+    }
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(generateCsrfToken);
@@ -134,8 +141,11 @@ app.use((req, res, next) => {
 // Sentry Error Handler
 // Optional: app.use(Sentry.expressErrorHandler()); if setupExpressErrorHandler is not used, but setupExpressErrorHandler handles it.
 
+import logger from './utils/logger.js';
+
 // Global Error Handler Middleware
 app.use((err, req, res, next) => {
+  logger.error(`[${req.method}] ${req.originalUrl} >> StatusCode: ${res.statusCode}, Message: ${err.message}`, { stack: err.stack });
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   
   // In production, sanitize 500 Internal Server Error messages to prevent leakage

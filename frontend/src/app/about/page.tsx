@@ -35,25 +35,15 @@ const About: React.FC = () => {
     { title: 'Observability', desc: 'Integrating detailed logging and performance tracking for pro-active monitoring.' }
   ];
 
-   const experience = [
+  const experience = [
     {
-      year: '2023 – Present',
-      role: 'Technical Team Lead',
-      company: 'SMIT (Saylani Mass IT Training)',
+      year: '2022 – Present',
+      role: 'Full Stack MERN Developer',
+      company: 'Freelance / Contract',
       points: [
-        'Orchestrating the technical journey for 7000+ students globally.',
-        'Leading cross-functional developer teams for large-scale LMS builds.',
-        'Advocating for modern React patterns and scalable system architectures.',
-      ]
-    },
-    {
-      year: '2022 – 2023',
-      role: 'Frontend developer',
-      company: 'Fiver',
-      points: [
-        'Delivered 30+ custom solutions for international startups.',
-        'Maintained 100% job success score with repeat client business.',
-        'Specialized in performant e-commerce and SaaS dashboards.'
+        'Delivered custom web applications and solutions for 10+ clients.',
+        'Built full-stack applications using MongoDB, Express, React, and Node.js.',
+        'Architected robust APIs and integrated third-party services like Stripe and AI models.',
       ]
     },
     {
@@ -61,13 +51,13 @@ const About: React.FC = () => {
       role: 'Frontend developer',
       company: 'Developer HUB Corporation',
       points: [
-        'Delivered 30+ custom solutions for international startups.',
-        'Maintained 100% job success score with repeat client business.',
-        'Specialized in performant e-commerce and SaaS dashboards.'
+        'Maintained excellent client satisfaction with modern, responsive UI builds.',
+        'Specialized in React, Next.js, and Tailwind CSS for high-performance frontend interfaces.',
+        'Collaborated directly with clients to translate business needs into technical solutions.'
       ]
     }
   ];
-  
+
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     whileInView: { opacity: 1, y: 0 },
@@ -78,32 +68,32 @@ const About: React.FC = () => {
   return (
     <div className="pt-32 pb-24 min-h-screen bg-transparent text-white overflow-x-hidden relative">
       <AmbientBackground />
-      
+
       {/* 1. HERO POSITIONING SECTION */}
       <section className="max-w-7xl mx-auto px-6 mb-32 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             className="lg:col-span-7"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 mb-8 hover:bg-primary/20 transition-colors cursor-default">
-              <motion.span 
+              <motion.span
                 animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 2, repeat: Infinity }}
                 className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#00F5FF]"
               ></motion.span>
               <span className="text-primary font-mono text-[10px] uppercase tracking-widest font-bold">
-                Senior System Architect
+                Full Stack MERN Architect
               </span>
             </div>
-            
+
             <h1 className="text-5xl md:text-7xl font-black mb-8 leading-[0.9] tracking-tighter uppercase">
               Engineering With <br />
               <span className="text-primary relative inline-block">
                 Purpose
-                <motion.div 
+                <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: "100%" }}
                   transition={{ duration: 1, delay: 0.5 }}
@@ -111,7 +101,7 @@ const About: React.FC = () => {
                 />
               </span>
             </h1>
-            
+
             <p className="text-primary text-xl font-bold mb-6 tracking-tight">
               Designing resilient systems for massive scale.
             </p>
@@ -130,20 +120,20 @@ const About: React.FC = () => {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
             className="lg:col-span-5 relative"
           >
-            <motion.div 
+            <motion.div
               animate={{ y: [0, -15, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               className="relative z-10 aspect-square rounded-[3rem] overflow-hidden border-2 border-primary/20 shadow-[0_0_50px_rgba(0,245,255,0.15)] group"
             >
-              <Image 
-                src="/img/saif.jpg" 
-                alt="Saiful Islam - Senior System Architect" 
+              <Image
+                src="/img/saif.jpg"
+                alt="Saiful Islam - Full Stack MERN Architect"
                 width={800}
                 height={800}
                 priority={true}
@@ -239,7 +229,7 @@ const About: React.FC = () => {
           </div>
           <div className="lg:w-2/3 space-y-20 relative">
             {/* Animated Progress Line */}
-            <motion.div 
+            <motion.div
               initial={{ height: 0 }}
               whileInView={{ height: '100%' }}
               viewport={{ once: true }}
@@ -247,7 +237,7 @@ const About: React.FC = () => {
               className="absolute left-0 top-2 w-[2px] bg-gradient-to-b from-primary via-primary/20 to-transparent"
             />
             {experience.map((exp, i) => (
-              <TimelineItem 
+              <TimelineItem
                 key={i}
                 year={exp.year}
                 role={exp.role}
@@ -256,16 +246,16 @@ const About: React.FC = () => {
                 index={i}
               />
             ))}
-            
+
             <motion.div {...fadeInUp} className="pl-12 pt-8 relative">
               <div className="absolute left-[-5px] top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white/20"></div>
-              <a 
-                href="https://github.com/saifulislam" 
-                target="_blank" 
+              <a
+                href="https://github.com/saifulislam"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-4 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase tracking-widest text-xs hover:bg-primary/10 hover:border-primary/50 transition-all group hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,245,255,0.15)]"
               >
-                <svg className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <svg className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
                 Active Github Repository
               </a>
             </motion.div>
@@ -279,8 +269,8 @@ const About: React.FC = () => {
           <span className="w-8 h-1 bg-primary rounded-full"></span> Academic Foundation
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <motion.div 
-            {...fadeInUp} 
+          <motion.div
+            {...fadeInUp}
             transition={{ delay: 0.1 }}
             className="p-10 bg-white/5 border border-white/10 rounded-[2rem] group hover:border-primary/40 transition-all duration-500 relative overflow-hidden hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(0,245,255,0.1)]"
           >
@@ -296,9 +286,9 @@ const About: React.FC = () => {
               </p>
             </div>
           </motion.div>
-          
-          <motion.div 
-            {...fadeInUp} 
+
+          <motion.div
+            {...fadeInUp}
             transition={{ delay: 0.2 }}
             className="p-10 bg-white/5 border border-white/10 rounded-[2rem] group hover:border-primary/40 transition-all duration-500 relative overflow-hidden hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(0,245,255,0.1)]"
           >
@@ -314,9 +304,9 @@ const About: React.FC = () => {
               </p>
             </div>
           </motion.div>
-          
-          <motion.div 
-            {...fadeInUp} 
+
+          <motion.div
+            {...fadeInUp}
             transition={{ delay: 0.3 }}
             className="p-10 bg-white/5 border border-white/10 rounded-[2rem] group hover:border-primary/40 transition-all duration-500 relative overflow-hidden hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(0,245,255,0.1)]"
           >
@@ -338,15 +328,15 @@ const About: React.FC = () => {
       {/* 8. STRONG CTA SECTION */}
       <section className="max-w-7xl mx-auto px-6 relative overflow-hidden z-10">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/10 blur-[150px] rounded-full pointer-events-none -z-10"></div>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           className="text-center bg-[#0a0f1c] border border-white/10 p-20 rounded-[4rem] shadow-2xl relative z-10 overflow-hidden group hover:border-primary/30 transition-colors duration-500"
         >
           {/* Subtle moving glow inside CTA */}
-          <motion.div 
-            animate={{ 
+          <motion.div
+            animate={{
               x: ['-100%', '100%'],
               opacity: [0, 0.5, 0]
             }}
@@ -362,14 +352,14 @@ const About: React.FC = () => {
             </span>
           </h2>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-12 relative z-10">
-            <Link 
-              href="/projects" 
+            <Link
+              href="/projects"
               className="px-12 py-5 bg-primary text-black font-black uppercase tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,245,255,0.3)] hover:scale-105 active:scale-95 hover:shadow-[0_0_40px_rgba(0,245,255,0.5)] transition-all"
             >
               View Systems Archive
             </Link>
-            <Link 
-              href="/contact" 
+            <Link
+              href="/contact"
               className="px-12 py-5 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-white/10 hover:border-white/30 active:scale-95 transition-all"
             >
               Hire Me

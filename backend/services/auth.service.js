@@ -25,7 +25,7 @@ export const registerUser = async (name, email, password) => {
     role: defaultRole._id,
   });
 
-  const { accessToken, refreshToken } = generateTokens(newUser._id);
+  const { accessToken, refreshToken } = generateTokens(newUser._id, defaultRole.name);
 
   // Store refresh token in DB
   await Token.create({
@@ -59,7 +59,7 @@ export const loginUser = async (email, password) => {
   user.lastLogin = new Date();
   await user.save();
 
-  const { accessToken, refreshToken } = generateTokens(user._id);
+  const { accessToken, refreshToken } = generateTokens(user._id, user.role?.name || 'Customer');
 
   // Store refresh token
   await Token.create({
@@ -95,7 +95,7 @@ export const refreshToken = async (tokenString) => {
     }
 
     // Generate new access token
-    const accessToken = jwt.sign({ id: user._id }, config.jwt.secret, {
+    const accessToken = jwt.sign({ id: user._id, role: user.role?.name || 'Customer' }, config.jwt.secret, {
       expiresIn: '15m'
     });
 
@@ -114,12 +114,12 @@ export const logoutUser = async (tokenString) => {
   }
 };
 
-const generateTokens = (id) => {
-  const accessToken = jwt.sign({ id }, config.jwt.secret, {
+const generateTokens = (id, role) => {
+  const accessToken = jwt.sign({ id, role }, config.jwt.secret, {
     expiresIn: '15m' // Short-lived access token
   });
   
-  const refreshToken = jwt.sign({ id }, config.jwt.refreshSecret, {
+  const refreshToken = jwt.sign({ id, role }, config.jwt.refreshSecret, {
     expiresIn: '7d' // Long-lived refresh token
   });
 

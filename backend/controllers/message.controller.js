@@ -1,4 +1,5 @@
 import Message from '../models/message.model.js';
+import xss from 'xss';
 
 export const getMessages = async (req, res, next) => {
   try {
@@ -17,14 +18,22 @@ export const getMessage = async (req, res, next) => {
 
 export const createMessage = async (req, res, next) => {
   try {
-    const message = await Message.create(req.body);
+    const sanitizedBody = {};
+    for (const key in req.body) {
+      sanitizedBody[key] = typeof req.body[key] === 'string' ? xss(req.body[key]) : req.body[key];
+    }
+    const message = await Message.create(sanitizedBody);
     res.status(201).json({ success: true, data: message });
   } catch (error) { next(error); }
 };
 
 export const updateMessage = async (req, res, next) => {
   try {
-    const message = await Message.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const sanitizedBody = {};
+    for (const key in req.body) {
+      sanitizedBody[key] = typeof req.body[key] === 'string' ? xss(req.body[key]) : req.body[key];
+    }
+    const message = await Message.findByIdAndUpdate(req.params.id, sanitizedBody, { new: true, runValidators: true });
     if (!message) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, data: message });
   } catch (error) { next(error); }

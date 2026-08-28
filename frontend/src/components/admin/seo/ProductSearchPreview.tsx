@@ -16,7 +16,7 @@ export const ProductSearchPreview = ({ productData }: ProductSearchPreviewProps)
   const price = productData?.salePrice || productData?.price || 0;
   const rating = productData?.rating || 5.0;
   const reviewCount = productData?.reviewCount || 0;
-  const imageUrl = productData?.seo?.openGraphImage || productData?.thumbnail || 'https://via.placeholder.com/1200x630?text=No+Image';
+  const imageUrl = productData?.seo?.openGraphImage || productData?.thumbnail || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
 
   return (
     <Card className="bg-gray-900 border-gray-800 p-0 overflow-hidden">

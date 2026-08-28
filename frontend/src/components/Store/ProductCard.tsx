@@ -82,7 +82,7 @@ const ProductCard = memo(function ProductCard({ product, index }: ProductCardPro
             transition={{ duration: 0.5 }}
           >
             <Image 
-              src={product.thumbnail || 'https://via.placeholder.com/800x600'} 
+              src={product.thumbnail || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'} 
               alt={product.title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

@@ -15,6 +15,13 @@ const envVarsSchema = Joi.object({
   
   // Allowed CORS Origins (Comma-separated)
   ALLOWED_ORIGINS: Joi.string().default('http://localhost:3000').description('Comma-separated list of allowed CORS origins'),
+  
+  // Sentry
+  SENTRY_DSN: Joi.string().uri().allow('').optional().description('Sentry DSN for error tracking'),
+  
+  // Stripe
+  STRIPE_SECRET_KEY: Joi.string().optional().description('Stripe Secret Key'),
+  STRIPE_WEBHOOK_SECRET: Joi.string().optional().description('Stripe Webhook Secret'),
 }).unknown(); // Allow other unvalidated env variables
 
 const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
@@ -35,4 +42,9 @@ export const config = {
     refreshSecret: envVars.JWT_REFRESH_SECRET,
   },
   allowedOrigins: envVars.ALLOWED_ORIGINS,
+  sentryDsn: envVars.SENTRY_DSN,
+  stripe: {
+    secretKey: envVars.STRIPE_SECRET_KEY,
+    webhookSecret: envVars.STRIPE_WEBHOOK_SECRET,
+  }
 };

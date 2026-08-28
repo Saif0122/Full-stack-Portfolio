@@ -106,9 +106,9 @@ CEOs and Engineering Managers love data. An integrated, secure Admin Dashboard p
 ## 💡 The Philosophy
 *"Great engineering is invisible. The user should only feel magic."*
 
-I built this platform to demonstrate that a Full-Stack Developer shouldn't just glue APIs together. A true Senior Engineer understands the delicate balance between **Business Value**, **System Architecture**, and **Human Psychology (UX)**. 
+I built this platform to demonstrate that a Full-Stack Developer shouldn't just glue APIs together. A dedicated Full-Stack Developer understands the delicate balance between **Business Value**, **System Architecture**, and **Human Psychology (UX)**. 
 
-If you are a CTO, HR professional, or CEO looking for a developer who doesn't just write code, but builds *products*, you're in the right place.
+If you are a hiring manager or technical recruiter looking for a developer who doesn't just write code, but builds *products*, you're in the right place.
 
 <div align="center">
   <h3>Let's build something incredible.</h3>

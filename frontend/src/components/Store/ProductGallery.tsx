@@ -27,7 +27,7 @@ export default function ProductGallery({ images, thumbnail }: ProductGalleryProp
             className="w-full h-full relative"
           >
             <Image
-              src={allImages[activeIndex] || 'https://via.placeholder.com/1200x800'}
+              src={allImages[activeIndex] || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80'}
               fill
               sizes="(max-width: 768px) 100vw, 800px"
               className="object-cover"
@@ -49,7 +49,7 @@ export default function ProductGallery({ images, thumbnail }: ProductGalleryProp
               ${activeIndex === idx ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}
             `}
           >
-            <Image src={img || 'https://via.placeholder.com/200x120'} fill sizes="96px" className="object-cover" alt="" />
+            <Image src={img || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=200&q=80'} fill sizes="96px" className="object-cover" alt="" />
           </button>
         ))}
       </div>

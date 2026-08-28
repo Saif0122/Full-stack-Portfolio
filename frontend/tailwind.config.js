@@ -31,12 +31,17 @@ const config = {
         blink: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0' },
+        },
+        dashPulse: {
+          '0%': { strokeDashoffset: '1000' },
+          '100%': { strokeDashoffset: '0' },
         }
       },
       animation: {
         'text-gradient': 'textGradient 4s linear infinite',
         'soft-pulse': 'softPulse 4s ease-in-out infinite',
         'blink': 'blink 1s step-end infinite',
+        'dash-pulse': 'dashPulse 2.5s linear infinite',
       }
     },
   },

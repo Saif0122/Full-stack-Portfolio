@@ -4,20 +4,9 @@ export const Footer: React.FC = () => {
   return (
     <footer className="py-12 border-t border-gray-800/50 bg-[#070B14]">
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="flex flex-col items-center md:items-start gap-2">
-          <p className="text-gray-500 text-sm font-light">
-            &copy; {new Date().getFullYear()} SAIFUL ISLAM. BUILT WITH PRECISION & PASSION.
-          </p>
-          <div className="flex gap-4">
-            <a href="/privacy-policy" className="text-xs text-gray-500 hover:text-primary transition-colors">
-              Privacy Policy
-            </a>
-            <span className="text-gray-700">&bull;</span>
-            <a href="/terms-of-service" className="text-xs text-gray-500 hover:text-primary transition-colors">
-              Terms of Service
-            </a>
-          </div>
-        </div>
+        <p className="text-gray-500 text-sm font-light">
+          &copy; {new Date().getFullYear()} SAIFUL ISLAM. BUILT WITH PRECISION & PASSION.
+        </p>
         <div className="flex gap-8">
           {[
             { label: 'Github', url: 'https://github.com/saifulislam' },

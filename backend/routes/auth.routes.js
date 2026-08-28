@@ -14,6 +14,15 @@ const authLimiter = rateLimit({
 });
 
 /**
+ * @route GET /api/auth/csrf
+ * @desc Get CSRF token
+ * @access Public
+ */
+router.get('/csrf', (req, res) => {
+  res.status(200).json({ success: true, csrfToken: req.csrfToken });
+});
+
+/**
  * @route POST /api/auth/register
  * @desc Register a new user
  * @access Public

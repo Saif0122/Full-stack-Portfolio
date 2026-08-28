@@ -65,13 +65,28 @@ const allowedOrigins = config.allowedOrigins.split(',').map(url => url.trim());
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
+    
+    const cleanOrigin = origin.trim().replace(/\/$/, '');
+
+    if (allowedOrigins.includes(cleanOrigin)) {
       return callback(null, true);
     }
-    if (config.env !== 'production' && origin.startsWith('http://localhost:')) {
+    
+    // Allow any localhost (e.g. localhost:3000, localhost:3001)
+    if (cleanOrigin.startsWith('http://localhost:')) {
       return callback(null, true);
     }
-    return callback(new Error('CORS policy violation: Origin not allowed'), false);
+
+    // Allow Vercel preview deployments dynamically
+    if (cleanOrigin.endsWith('.vercel.app') || cleanOrigin === 'https://saifulislam.vercel.app') {
+      return callback(null, true);
+    }
+
+    // Log the blocked origin for debugging
+    console.warn(`[CORS] Blocked request from unauthorized origin: ${origin}`);
+    
+    // Return false instead of an Error to prevent 500 status on preflight
+    return callback(null, false);
   },
   credentials: true
 }));

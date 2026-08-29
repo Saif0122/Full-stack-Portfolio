@@ -45,17 +45,21 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await axios.post(
+        const refreshRes = await axios.post(
           `${api.defaults.baseURL}/auth/refresh`,
           {},
           { withCredentials: true }
         );
 
+        if (typeof document !== 'undefined' && refreshRes.data?.accessToken) {
+          document.cookie = `jwt=${refreshRes.data.accessToken}; path=/; max-age=900; SameSite=Lax`;
+        }
+
         // Retry the original request
         return api(originalRequest);
       } catch (refreshError) {
         // Refresh token failed (e.g., expired) - user needs to login again
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !originalRequest.url?.includes('/auth/me')) {
           // You could trigger a custom event here that AuthProvider listens to
           window.dispatchEvent(new Event('auth:unauthorized'));
         }

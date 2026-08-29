@@ -31,7 +31,11 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       const response = await api.post('/auth/register', data);
-      login(response.data.data.user);
+      const { user, accessToken } = response.data.data;
+      if (accessToken) {
+        document.cookie = `jwt=${accessToken}; path=/; max-age=900; SameSite=Lax`;
+      }
+      login(user);
       toast.success('Account created successfully');
       router.push('/admin');
     } catch (error: any) {

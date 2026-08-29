@@ -35,7 +35,7 @@ export const register = async (req, res, next) => {
 
     res.status(201).json({
       status: 'success',
-      data: { user: result.user }
+      data: { user: result.user, accessToken: result.accessToken }
     });
   } catch (error) {
     res.status(400);
@@ -57,7 +57,7 @@ export const login = async (req, res, next) => {
 
     res.status(200).json({
       status: 'success',
-      data: { user: result.user }
+      data: { user: result.user, accessToken: result.accessToken }
     });
   } catch (error) {
     res.status(401);
@@ -114,7 +114,7 @@ export const refresh = async (req, res, next) => {
       maxAge: 15 * 60 * 1000,
     });
 
-    res.status(200).json({ status: 'success' });
+    res.status(200).json({ status: 'success', accessToken: result.accessToken });
   } catch (error) {
     res.cookie('jwt', '', { 
       httpOnly: true, 
@@ -146,7 +146,8 @@ export const getMe = async (req, res, next) => {
           name: req.user.name,
           email: req.user.email,
           role: req.user.role?.name || 'Customer'
-        }
+        },
+        accessToken: req.cookies.jwt
       }
     });
   } catch (error) {

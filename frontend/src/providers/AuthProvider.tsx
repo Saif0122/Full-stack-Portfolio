@@ -31,7 +31,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const checkAuth = async () => {
     try {
       const response = await api.get('/auth/me');
-      setUser(response.data.data.user);
+      const { user, accessToken } = response.data.data;
+      if (accessToken && typeof document !== 'undefined') {
+        document.cookie = `jwt=${accessToken}; path=/; max-age=900; SameSite=Lax`;
+      }
+      setUser(user);
     } catch (error) {
       setUser(null);
     } finally {
@@ -45,6 +49,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const handleUnauthorized = () => {
       setUser(null);
+      if (typeof document !== 'undefined') {
+        document.cookie = 'jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      }
       router.push('/login?session_expired=true');
     };
 
@@ -62,6 +69,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await api.post('/auth/logout');
       setUser(null);
+      if (typeof document !== 'undefined') {
+        document.cookie = 'jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      }
       router.push('/login');
     } catch (error) {
       console.error('Logout failed:', error);

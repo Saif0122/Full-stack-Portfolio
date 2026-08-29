@@ -32,7 +32,11 @@ function LoginContent() {
     setIsLoading(true);
     try {
       const response = await api.post('/auth/login', data);
-      login(response.data.data.user);
+      const { user, accessToken } = response.data.data;
+      if (accessToken) {
+        document.cookie = `jwt=${accessToken}; path=/; max-age=900; SameSite=Lax`;
+      }
+      login(user);
       toast.success('Logged in successfully');
       router.push(callbackUrl);
     } catch (error: any) {

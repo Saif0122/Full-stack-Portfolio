@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_URL = typeof window !== 'undefined' ? '/api/v1' : (process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api');
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api',
+  baseURL: API_URL,
   withCredentials: true, // Important for cookies
 });
 

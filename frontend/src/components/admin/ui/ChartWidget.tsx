@@ -108,8 +108,8 @@ export const ChartWidget: React.FC<ChartWidgetProps> = ({
 
       {/* Gauge / Progress Donut */}
       {(type === 'gauge' || type === 'donut') && (
-        <div className="flex items-center justify-around py-4">
-          <div className="relative w-28 h-28 flex items-center justify-center">
+        <div className="flex flex-col sm:flex-row items-center justify-around py-4 gap-4 sm:gap-0">
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
               <path
                 className="text-white/10"

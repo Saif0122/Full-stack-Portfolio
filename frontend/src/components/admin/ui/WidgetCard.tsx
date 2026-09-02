@@ -55,8 +55,8 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
           {icon && <span className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-sm">{icon}</span>}
         </div>
 
-        <div className="flex items-baseline gap-3">
-          <p className="text-3xl lg:text-4xl font-black text-white tracking-tight font-sans">
+        <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
+          <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight font-sans">
             {value}
           </p>
           {trend && (

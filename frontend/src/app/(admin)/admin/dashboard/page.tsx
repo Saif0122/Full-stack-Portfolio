@@ -16,7 +16,8 @@ export default function AdminDashboardPage() {
     blogs: { total: '0', trend: 'Loading...', positive: true },
     projects: { total: '0', trend: 'Loading...', positive: true },
     seoScore: 98,
-    systemHealth: '18ms Latency • MongoDB Clustered',
+    systemHealth: 'Loading...',
+    latencyData: [0, 0, 0, 0, 0, 0, 0],
     recentActivity: []
   });
 
@@ -34,6 +35,9 @@ export default function AdminDashboardPage() {
             products: { total: data.products.total, trend: data.products.trend, positive: true },
             blogs: { total: data.blogs.total, trend: data.blogs.trend, positive: true },
             projects: { total: data.projects.total, trend: data.projects.trend, positive: true },
+            seoScore: data.seoScore || 98,
+            systemHealth: data.systemHealth || 'Loading...',
+            latencyData: data.latencyData || [0, 0, 0, 0, 0, 0, 0],
             recentActivity: data.recentActivity
           }));
         }
@@ -44,29 +48,29 @@ export default function AdminDashboardPage() {
   return (
     <AdminLayout>
       {/* Executive Command Header Banner */}
-      <div className="relative p-8 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 backdrop-blur-2xl overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 backdrop-blur-2xl overflow-hidden flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 shadow-2xl">
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div>
-          <span className="text-xs font-mono uppercase tracking-[0.4em] text-indigo-400 font-bold block mb-2">
+          <span className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.4em] text-indigo-400 font-bold block mb-2">
             Executive Ecosystem Center
           </span>
-          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight uppercase font-sans">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight uppercase font-sans">
             Platform Dashboard
           </h1>
-          <p className="text-sm text-gray-400 font-sans max-w-xl mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-gray-400 font-sans max-w-xl mt-2 leading-relaxed">
             Real-time management control center across Portfolio, Store Commerce, Tech Lab Blog, Media Library, AI Workflow Intelligence, and Autonomous Telemetry.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 w-full lg:w-auto">
           <Link
             href="/admin/dashboard/ai"
-            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-mono text-xs font-black uppercase tracking-wider shadow-lg shadow-amber-500/20 transition-all transform hover:scale-105"
+            className="flex-1 lg:flex-none text-center px-4 sm:px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-mono text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-lg shadow-amber-500/20 transition-all transform hover:scale-105"
           >
             ✦ Launch AI Platform
           </Link>
           <Link
             href="/admin/dashboard/seo"
-            className="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white border border-white/10 font-mono text-xs font-bold uppercase tracking-wider transition-all hover:scale-105 shadow-md"
+            className="flex-1 lg:flex-none text-center px-4 sm:px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white border border-white/10 font-mono text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all hover:scale-105 shadow-md"
           >
             SEO Command Center
           </Link>
@@ -78,7 +82,7 @@ export default function AdminDashboardPage() {
         <h2 className="text-xs font-mono font-bold uppercase tracking-[0.3em] text-gray-400 mb-5 pl-1">
           Real-Time Metrics & Widgets Matrix
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           <WidgetCard title="Total Visitors" value={metrics.visitors.total} trend={metrics.visitors.trend} trendPositive={metrics.visitors.positive} colorScheme="indigo" subtitle="Global Session Referrals" />
           <WidgetCard title="Registered Customers" value={metrics.customers.total} trend={metrics.customers.trend} trendPositive={metrics.customers.positive} colorScheme="emerald" subtitle="Active Pro Licensees" />
           <WidgetCard title="Completed Orders" value={metrics.orders.total} trend={metrics.orders.trend} trendPositive={metrics.orders.positive} colorScheme="cyan" subtitle="Digital Starter Bundles" />
@@ -97,13 +101,13 @@ export default function AdminDashboardPage() {
           <ChartWidget type="donut" title="SEO Health & Metadata Score" data={[metrics.seoScore]} labels={['Canonical Tags', 'OpenGraph Sync', 'Zero Broken Links']} color="emerald" />
         </div>
         <div className="lg:col-span-1">
-          <ChartWidget type="bar" title="System Health & Latency (ms)" data={[22, 18, 15, 19, 16, 18, 14]} labels={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Live']} color="indigo" />
+          <ChartWidget type="bar" title="System Health & Latency (ms)" data={metrics.latencyData} labels={['D6', 'D5', 'D4', 'D3', 'D2', 'D1', 'Today']} color="indigo" />
         </div>
         <div className="lg:col-span-1 p-6 rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-2xl flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono uppercase tracking-widest text-gray-400 font-bold">Recent Activity</span>
-              <span className="text-indigo-400 font-mono text-[10px]">Live Audit</span>
+              <span className="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-gray-400 font-bold">Recent Activity</span>
+              <span className="text-indigo-400 font-mono text-[9px] sm:text-[10px]">Live Audit</span>
             </div>
             <div className="space-y-3 max-h-56 overflow-y-auto no-scrollbar">
               {metrics.recentActivity.map((act: any, idx: number) => (

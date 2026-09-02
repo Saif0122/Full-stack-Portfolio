@@ -34,7 +34,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUploadSuccess, o
       const match = typeof document !== 'undefined' ? document.cookie.match(new RegExp('(^| )csrf-token=([^;]+)')) : null;
       const csrfToken = match ? match[2] : '';
 
-      const res = await fetch(`${API_URL}/media/upload`, {
+      const res = await fetch(`${API_URL}/media`, {
         method: 'POST',
         body: formData,
         credentials: 'include',

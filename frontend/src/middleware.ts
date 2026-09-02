@@ -102,7 +102,7 @@ export async function middleware(request: NextRequest) {
       return applyHeaders(NextResponse.redirect(url));
     }
     const decoded = decodeJwt(token);
-    if (!decoded || decoded.role !== 'admin') {
+    if (!decoded || !decoded.role || decoded.role.toLowerCase() !== 'admin') {
       return applyHeaders(NextResponse.redirect(new URL('/login', request.url)));
     }
   }

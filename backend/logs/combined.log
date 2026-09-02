@@ -1,0 +1,5 @@
+{"level":"info","message":"Attempting to spin up in-memory MongoDB for local development...","service":"portfolio-backend","timestamp":"2026-08-29 07:21:44"}
+{"level":"info","message":"Attempting to spin up in-memory MongoDB for local development...","service":"portfolio-backend","timestamp":"2026-08-29 07:22:07"}
+{"level":"info","message":"Attempting to spin up in-memory MongoDB for local development...","service":"portfolio-backend","timestamp":"2026-08-29 07:22:23"}
+{"level":"info","message":"MongoDB Connected: 127.0.0.1","service":"portfolio-backend","timestamp":"2026-08-29 07:22:30"}
+{"level":"info","message":"Server running in development mode on port 5000","service":"portfolio-backend","timestamp":"2026-08-29 07:22:31"}

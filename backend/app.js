@@ -99,6 +99,14 @@ app.use(passport.initialize());
 
 
 
+// Root Route (for Wake up and Status Check)
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Backend is running and awake.'
+  });
+});
+
 // API Routes
 app.use('/api/health', healthRoutes);
 app.use('/api/export', exportRoutes);

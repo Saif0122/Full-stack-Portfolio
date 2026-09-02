@@ -5,6 +5,14 @@ const defaultOptions = {
   credentials: 'include' as RequestCredentials
 };
 
+const getCsrfToken = () => {
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.match(new RegExp('(^| )csrf-token=([^;]+)'));
+    return match ? match[2] : '';
+  }
+  return '';
+};
+
 export const adminService = {
   async fetch(endpoint: string) {
     const res = await fetch(`${API_URL}${endpoint}`, { ...defaultOptions });
@@ -17,7 +25,10 @@ export const adminService = {
     const res = await fetch(`${API_URL}${endpoint}`, {
       ...defaultOptions,
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': getCsrfToken()
+      },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error('Failed to create');
@@ -29,7 +40,10 @@ export const adminService = {
     const res = await fetch(`${API_URL}${endpoint}/${id}`, {
       ...defaultOptions,
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': getCsrfToken()
+      },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error('Failed to update');
@@ -38,7 +52,13 @@ export const adminService = {
   },
 
   async delete(endpoint: string, id: string) {
-    const res = await fetch(`${API_URL}${endpoint}/${id}`, { ...defaultOptions, method: 'DELETE' });
+    const res = await fetch(`${API_URL}${endpoint}/${id}`, { 
+      ...defaultOptions, 
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-Token': getCsrfToken()
+      }
+    });
     if (!res.ok) throw new Error('Failed to delete');
     return true;
   }

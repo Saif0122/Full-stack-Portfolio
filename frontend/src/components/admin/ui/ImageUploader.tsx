@@ -31,9 +31,16 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUploadSuccess, o
       // NOTE: Using a custom fetch because adminService.create uses JSON
       const API_URL = typeof window !== 'undefined' ? '/api/v1' : (process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api');
       
+      const match = typeof document !== 'undefined' ? document.cookie.match(new RegExp('(^| )csrf-token=([^;]+)')) : null;
+      const csrfToken = match ? match[2] : '';
+
       const res = await fetch(`${API_URL}/media/upload`, {
         method: 'POST',
         body: formData,
+        credentials: 'include',
+        headers: {
+          'X-CSRF-Token': csrfToken
+        }
       });
       
       if (!res.ok) throw new Error('Upload failed');

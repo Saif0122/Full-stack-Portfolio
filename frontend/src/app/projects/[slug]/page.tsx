@@ -16,7 +16,7 @@ type PageProps = { params: Promise<{ slug: string }> };
 
 async function getProject(slug: string) {
   try {
-    const res = await fetch(`${API_URL}/v1/projects`, { next: { revalidate: 60 } });
+    const res = await fetch(`${API_URL}/v1/projects`, { cache: 'no-store' });
     if (!res.ok) return null;
     const data = await res.json();
     if (data.success && data.data) {

@@ -66,9 +66,8 @@ const navGroups: NavGroup[] = [
   }
 ];
 
-export const AdminSidebar: React.FC = () => {
+export const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean) => void }> = ({ isCollapsed, setIsCollapsed }) => {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
     <aside

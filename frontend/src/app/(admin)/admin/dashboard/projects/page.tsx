@@ -25,6 +25,7 @@ interface ProjectRecord {
   technicalSpecs?: any;
   stack?: any[];
   mediaGallery?: any[];
+  status?: string;
 }
 
 export default function ProjectsManagementPage() {
@@ -125,13 +126,14 @@ export default function ProjectsManagementPage() {
             { name: 'slug', label: 'URL Slug / Route', type: 'text', defaultValue: selectedProject?.slug || '', required: true },
             { name: 'description', label: 'Short Description', type: 'text', defaultValue: selectedProject?.description || '', required: true },
             { name: 'category', label: 'Domain Category', type: 'select', defaultValue: selectedProject?.category || 'SaaS Architecture', options: PROJECT_CATEGORIES.map(c => ({ label: c, value: c })) },
+            { name: 'status', label: 'Status', type: 'select', defaultValue: selectedProject?.status || 'draft', options: [{label: 'Draft', value: 'draft'}, {label: 'Published', value: 'published'}] },
             { name: 'summary', label: 'Summary', type: 'textarea', defaultValue: selectedProject?.summary || '' },
             { name: 'image', label: 'Main Image', type: 'image', defaultValue: selectedProject?.image || '' },
             { name: 'technologies', label: 'Tags', type: 'tags', defaultValue: selectedProject?.technologies || [] },
             { name: 'metrics', label: 'Metrics (JSON)', type: 'textarea', defaultValue: selectedProject?.metrics ? JSON.stringify(selectedProject.metrics, null, 2) : '[\n  { "label": "", "value": "", "description": "" }\n]' },
             { name: 'stack', label: 'Stack (JSON)', type: 'textarea', defaultValue: selectedProject?.stack ? JSON.stringify(selectedProject.stack, null, 2) : '[\n  { "name": "", "category": "", "benefit": "", "version": "" }\n]' },
             { name: 'challenges', label: 'Challenges (JSON)', type: 'textarea', defaultValue: selectedProject?.challenges ? JSON.stringify(selectedProject.challenges, null, 2) : '{\n  "problem": "",\n  "solution": "",\n  "architecture": ""\n}' },
-            { name: 'technicalSpecs', label: 'Tech Specs (JSON)', type: 'textarea', defaultValue: selectedProject?.technicalSpecs ? JSON.stringify(selectedProject.technicalSpecs, null, 2) : '{\n  "backendStructure": "",\n  "databaseSchema": ""\n}' },
+            { name: 'technicalSpecs', label: 'Tech Specs (JSON)', type: 'textarea', defaultValue: selectedProject?.technicalSpecs ? JSON.stringify(selectedProject.technicalSpecs, null, 2) : '{\n  "backendStructure": "",\n  "databaseSchema": "",\n  "scalingStrategy": "",\n  "securityMeasures": ""\n}' },
             { name: 'mediaGallery', label: 'Media Gallery (JSON)', type: 'textarea', defaultValue: selectedProject?.mediaGallery ? JSON.stringify(selectedProject.mediaGallery, null, 2) : '[\n  { "type": "image", "url": "", "caption": "" }\n]' },
             { name: 'markdownContent', label: 'Markdown Content', type: 'markdown', defaultValue: selectedProject?.markdownContent || '' },
             { name: 'githubUrl', label: 'GitHub Repository URL', type: 'text', defaultValue: selectedProject?.githubUrl || '' },

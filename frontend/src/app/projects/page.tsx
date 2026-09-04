@@ -5,7 +5,7 @@ import { ProjectsClientView } from './ProjectsClientView';
 import { generatePageMetadata } from '@/lib/seo/helpers';
 import { resolveProjectsSeo } from '@/lib/seo/service';
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   const seoOpts = await resolveProjectsSeo();

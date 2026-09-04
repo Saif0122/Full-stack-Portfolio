@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { RoleGuard } from '@/guards/RoleGuard';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminTopbar } from './AdminTopbar';
@@ -10,6 +10,8 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
     <RoleGuard roles={['Admin', 'Super Admin']}>
       <div className="min-h-screen bg-[#06060A] text-foreground font-sans selection:bg-indigo-500/30 selection:text-indigo-200 relative overflow-x-hidden flex">
@@ -18,10 +20,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <div className="fixed bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-pink-600/10 via-cyan-600/10 to-transparent blur-[160px] pointer-events-none z-0" />
 
         {/* Navigation Sidebar */}
-        <AdminSidebar />
+        <AdminSidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
         {/* Main Content Viewport */}
-        <div className="flex-1 ml-20 lg:ml-72 flex flex-col min-h-screen transition-all duration-300 z-10">
+        <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 z-10 ${isCollapsed ? 'ml-20' : 'ml-20 lg:ml-72'}`}>
           <AdminTopbar />
 
           <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full space-y-10">

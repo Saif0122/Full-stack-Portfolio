@@ -33,7 +33,7 @@ export default function RegisterPage() {
       const response = await api.post('/auth/register', data);
       const { user, accessToken } = response.data.data;
       if (accessToken) {
-        document.cookie = `jwt=${accessToken}; path=/; max-age=900; SameSite=Lax`;
+        document.cookie = `jwt=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
       }
       login(user);
       toast.success('Account created successfully');

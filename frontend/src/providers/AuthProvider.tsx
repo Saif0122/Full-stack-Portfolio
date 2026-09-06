@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await api.get('/auth/me');
       const { user, accessToken } = response.data.data;
       if (accessToken && typeof document !== 'undefined') {
-        document.cookie = `jwt=${accessToken}; path=/; max-age=900; SameSite=Lax`;
+        document.cookie = `jwt=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
       }
       setUser(user);
     } catch (error) {

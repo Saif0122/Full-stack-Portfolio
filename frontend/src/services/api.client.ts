@@ -21,7 +21,7 @@ api.interceptors.request.use(async (config) => {
         const res = await axios.get(`${config.baseURL}/auth/csrf`, { withCredentials: true });
         token = res.data.csrfToken;
         currentCsrfToken = token;
-      } catch(e) {}
+      } catch (e) { }
     }
 
     if (token) {
@@ -54,7 +54,7 @@ api.interceptors.response.use(
         );
 
         if (typeof document !== 'undefined' && refreshRes.data?.accessToken) {
-          document.cookie = `jwt=${refreshRes.data.accessToken}; path=/; max-age=900; SameSite=Lax`;
+          document.cookie = `jwt=${refreshRes.data.accessToken}; path=/; max-age=86400; SameSite=Lax`;
         }
 
         // Retry the original request

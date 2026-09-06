@@ -4,7 +4,14 @@ const projectService = new ProjectService();
 
 export const getAllProjects = async (req, res, next) => {
   try {
-    const data = await projectService.getAllProjects();
+    const query = {};
+    if (req.query.status && req.query.status !== 'all') {
+      query.status = req.query.status;
+    } else if (req.query.status !== 'all') {
+      query.status = 'published';
+    }
+    
+    const data = await projectService.getAllProjects(query);
     res.status(200).json({ success: true, data });
   } catch (error) {
     next(error);

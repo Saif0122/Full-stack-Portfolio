@@ -38,7 +38,7 @@ export default function ProjectsManagementPage() {
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
-    queryFn: () => adminService.fetch('/projects')
+    queryFn: () => adminService.fetch('/projects?status=all')
   });
 
   const createMutation = useMutation({
@@ -90,6 +90,12 @@ export default function ProjectsManagementPage() {
       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono uppercase ${p.isFeatured ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-gray-500/10 text-gray-400'}`}>
         <span className={`w-1.5 h-1.5 rounded-full ${p.isFeatured ? 'bg-emerald-400' : 'bg-gray-600'}`} />
         {p.isFeatured ? 'Featured Live' : 'Standard'}
+      </span>
+    )},
+    { header: 'Status', accessorKey: 'status', cell: (p) => (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono uppercase ${p.status === 'published' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${p.status === 'published' ? 'bg-indigo-400' : 'bg-amber-400'}`} />
+        {p.status === 'published' ? 'Published' : 'Draft'}
       </span>
     )}
   ];

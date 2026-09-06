@@ -8,7 +8,7 @@ const setCookies = (res, accessToken, refreshToken) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 15 * 60 * 1000, // 15 mins
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
 
   if (refreshToken) {
@@ -111,7 +111,7 @@ export const refresh = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 15 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({ status: 'success', accessToken: result.accessToken });
@@ -165,7 +165,7 @@ export const oauthCallback = async (req, res) => {
   }
   
   // Create tokens
-  const accessToken = jwt.sign({ id: req.user._id }, config.jwt.secret, { expiresIn: '15m' });
+  const accessToken = jwt.sign({ id: req.user._id }, config.jwt.secret, { expiresIn: '1d' });
   const refreshToken = jwt.sign({ id: req.user._id }, config.jwt.refreshSecret, { expiresIn: '7d' });
 
   // Store refresh token
@@ -180,7 +180,7 @@ export const oauthCallback = async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 15 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000,
   });
 
   res.cookie('refreshToken', refreshToken, {

@@ -3,8 +3,8 @@ import { ProjectRepository } from '../repositories/project.repository.js';
 const projectRepo = new ProjectRepository();
 
 export class ProjectService {
-  async getAllProjects() {
-    return await projectRepo.findAll();
+  async getAllProjects(query = {}) {
+    return await projectRepo.findAll(query);
   }
 
   async getProjectById(id) {

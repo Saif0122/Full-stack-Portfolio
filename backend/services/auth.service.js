@@ -96,7 +96,7 @@ export const refreshToken = async (tokenString) => {
 
     // Generate new access token
     const accessToken = jwt.sign({ id: user._id, role: user.role?.name || 'Customer' }, config.jwt.secret, {
-      expiresIn: '15m'
+      expiresIn: '1d'
     });
 
     return { accessToken };
@@ -116,7 +116,7 @@ export const logoutUser = async (tokenString) => {
 
 const generateTokens = (id, role) => {
   const accessToken = jwt.sign({ id, role }, config.jwt.secret, {
-    expiresIn: '15m' // Short-lived access token
+    expiresIn: '1d' // Access token
   });
   
   const refreshToken = jwt.sign({ id, role }, config.jwt.refreshSecret, {

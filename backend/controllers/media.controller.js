@@ -24,7 +24,21 @@ export const getMedia = async (req, res, next) => {
 
 export const uploadMedia = async (req, res, next) => {
   try {
-    const data = await mediaService.uploadMedia(req.body);
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    
+    // Construct the absolute URL. 
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const url = `${protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    
+    const mediaData = {
+      type: 'image',
+      url: url,
+      ...req.body
+    };
+    
+    const data = await mediaService.uploadMedia(mediaData);
     res.status(201).json({ success: true, data });
   } catch (error) {
     next(error);

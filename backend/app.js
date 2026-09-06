@@ -99,7 +99,15 @@ app.use(passport.initialize());
 
 
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Root Route (for Wake up and Status Check)
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
 app.get('/', (req, res) => {
   res.status(200).json({
     status: 'success',

@@ -1,4 +1,5 @@
 import { LocalStorageProvider } from './local-storage.provider.js';
+import { CloudinaryProvider } from './cloudinary.provider.js';
 
 export class StorageProviderFactory {
   static getProvider() {
@@ -8,7 +9,7 @@ export class StorageProviderFactory {
       case 'local':
         return new LocalStorageProvider();
       case 'cloudinary':
-        throw new Error('CloudinaryProvider is not yet implemented.');
+        return new CloudinaryProvider();
       case 's3':
         throw new Error('AWS S3 Provider is not yet implemented.');
       case 'r2':

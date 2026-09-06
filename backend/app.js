@@ -83,6 +83,7 @@ app.use(cors({
   exposedHeaders: ['X-CSRF-Token']
 }));
 app.use(express.json({
+  limit: '25mb',
   verify: (req, res, buf) => {
     // Required for Stripe webhook signature validation
     if (req.originalUrl.startsWith('/api/checkout/webhook') || req.originalUrl.startsWith('/api/payments/webhook')) {
@@ -90,7 +91,7 @@ app.use(express.json({
     }
   }
 }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use(cookieParser());
 app.use(generateCsrfToken);
 app.use(verifyCsrfToken);

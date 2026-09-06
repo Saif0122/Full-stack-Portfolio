@@ -34,7 +34,10 @@ function LoginContent() {
       const response = await api.post('/auth/login', data);
       const { user, accessToken } = response.data.data;
       if (accessToken) {
-        document.cookie = `jwt=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', accessToken);
+        }
+        document.cookie = `jwt=${accessToken}; path=/; max-age=604800; SameSite=Lax; Secure`;
       }
       login(user);
       toast.success('Logged in successfully');

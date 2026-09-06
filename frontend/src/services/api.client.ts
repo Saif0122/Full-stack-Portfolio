@@ -9,8 +9,15 @@ const api = axios.create({
 
 let currentCsrfToken = '';
 
-// Request interceptor for CSRF token
+// Request interceptor for CSRF token & Authorization Bearer
 api.interceptors.request.use(async (config) => {
+  if (typeof window !== 'undefined') {
+    const bearerToken = localStorage.getItem('accessToken');
+    if (bearerToken) {
+      config.headers.Authorization = `Bearer ${bearerToken}`;
+    }
+  }
+
   if (typeof document !== 'undefined') {
     const requiresCsrf = ['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '');
     const match = document.cookie.match(new RegExp('(^| )csrf-token=([^;]+)'));
@@ -53,8 +60,9 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
 
-        if (typeof document !== 'undefined' && refreshRes.data?.accessToken) {
-          document.cookie = `jwt=${refreshRes.data.accessToken}; path=/; max-age=86400; SameSite=Lax`;
+        if (typeof window !== 'undefined' && refreshRes.data?.accessToken) {
+          localStorage.setItem('accessToken', refreshRes.data.accessToken);
+          document.cookie = `jwt=${refreshRes.data.accessToken}; path=/; max-age=604800; SameSite=Lax; Secure`;
         }
 
         // Retry the original request

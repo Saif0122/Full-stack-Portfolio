@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { adminService } from '@/services/admin.service';
+import api from '@/services/api.client';
 
 interface ImageUploaderProps {
   onUploadSuccess: (url: string) => void;
@@ -21,38 +21,37 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUploadSuccess, o
     // Create local preview immediately
     const objectUrl = URL.createObjectURL(file);
     setLocalPreview(objectUrl);
-    
     setIsUploading(true);
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-      // NOTE: Using a custom fetch because adminService.create uses JSON
-      const API_URL = typeof window !== 'undefined' ? '/api/v1' : (process.env.NEXT_PUBLIC_API_URL || 'https://full-stack-portfolio-1-m5b1.onrender.com/api');
-      
-      const match = typeof document !== 'undefined' ? document.cookie.match(new RegExp('(^| )csrf-token=([^;]+)')) : null;
-      const csrfToken = match ? match[2] : '';
 
-      const res = await fetch(`${API_URL}/media`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-        headers: {
-          'X-CSRF-Token': csrfToken
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async () => {
+      try {
+        const res = await api.post('/media', {
+          file: reader.result,
+          originalName: file.name,
+          folder: 'portfolio_media'
+        });
+
+        const uploadedUrl = res.data?.data?.url;
+        if (uploadedUrl) {
+          onUploadSuccess(uploadedUrl);
+        } else {
+          throw new Error('Upload succeeded but no URL returned');
         }
-      });
-      
-      if (!res.ok) throw new Error('Upload failed');
-      const json = await res.json();
-      
-      onUploadSuccess(json.data.url);
-    } catch (err: any) {
-      if (onUploadError) onUploadError(err);
-      setLocalPreview(previewUrl || null); // Revert
-    } finally {
+      } catch (err: any) {
+        if (onUploadError) onUploadError(err);
+        setLocalPreview(previewUrl || null);
+      } finally {
+        setIsUploading(false);
+      }
+    };
+
+    reader.onerror = () => {
       setIsUploading(false);
-    }
+      setLocalPreview(previewUrl || null);
+      if (onUploadError) onUploadError(new Error('Failed to read file for upload'));
+    };
   }, [onUploadSuccess, onUploadError, previewUrl]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
